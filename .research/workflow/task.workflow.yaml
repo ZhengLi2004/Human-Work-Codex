@@ -1,0 +1,152 @@
+schema_version: 3
+pipeline: ".research/workflow/pipeline.yaml"
+
+task:
+  id: "TODO-[Work 预填：编号]"
+  title: "[Work 预填：与 TODO 标题一致]"
+  todo_file: "tasks/TODO-[编号]/TODO.md"
+  human_research_report:
+    path: "[Work 预填：人类完整研究报告路径]"
+    version: "[Work 预填：版本、日期或提交标识]"
+    source_sections:
+      - "[Work 预填：与本 TODO 直接对应的章节]"
+  status: "awaiting_human_todo_approval"
+
+ownership:
+  macro_research_and_reports: "human"
+  abstraction_and_todo_narrative: "work"
+  continuous_execution_and_evidence: "codex"
+  direct_stage_decisions: "human_with_codex"
+  post_codex_table_curation: "work"
+
+work_dispatch:
+  status: "drafted"
+  proposed_route:
+    stages:
+      - exploration
+      - development
+      - pilot
+      - confirmation
+    optional:
+      - ablation_diagnosis
+    rationale: "[Work 预填：阶段路线如何承接人类研究报告与项目事实]"
+  initial_scope: "[Work 预填：Codex 首个阶段允许完成的精确范围]"
+  human_todo_approval:
+    status: "awaiting"
+    source: null
+    approved_at: null
+  dispatched_at: null
+
+codex_call:
+  status: "not_started"
+  invocation_id: null
+  started_at: null
+  returned_at: null
+  current_stage: "exploration"
+  current_attempt: 1
+  stage_status: "not_started"
+  approved_scope: "[人类批准后由 Codex 记录：当前阶段或补充轮次的精确范围]"
+  loadout:
+    global_instructions:
+      - "AGENTS.md"
+    executor:
+      - ".research/skills/codex/todo-executor/SKILL.md"
+    phase_skill:
+      - ".research/skills/codex/exploration/SKILL.md"
+    capabilities:
+      - ".research/skills/capabilities/human-review-gate/SKILL.md"
+      - ".research/skills/capabilities/agile-testing/SKILL.md"
+    conditional_capabilities:
+      - skill: ".research/skills/capabilities/evidence-aggregation/SKILL.md"
+        when: "current stage produces research metrics"
+      - skill: ".research/skills/capabilities/batch-execution/SKILL.md"
+        when: "multiple combinations, repeats, samples, recovery, or runtime require it"
+
+  execution:
+    implementation_artifacts: []
+    test_artifacts: []
+    experiment_specs: []
+    raw_data_roots: []
+    runs_tables: []
+    aggregate_full_tables: []
+    aggregation_manifests: []
+    todo_evidence_ids: []
+
+  stage_review_gate:
+    status: "not_started"
+    review_packet: null
+    todo_evidence_ids: []
+    codex_recommendation:
+      action: null
+      rationale: null
+      proposed_next_stage: null
+      proposed_next_scope: null
+      unresolved_risks: []
+    human_decision:
+      status: "awaiting"
+      action: null
+      target_stage: null
+      approved_scope: null
+      comments_source: null
+      decided_at: null
+    resumed_at: null
+
+  long_run_gate:
+    status: "not_applicable"
+    reason: null
+    preflight_evidence: null
+    one_line_command: null
+    estimated_runtime: null
+    estimated_resources: null
+    checkpoint_path: null
+    log_path: null
+    result_path: null
+    human_launch_source: null
+    results_available_at: null
+
+  stage_history: []
+  blocker: null
+
+codex_return:
+  status: "not_started"
+  completion_authorization_source: null
+  execution_bundle: null
+  final_evidence_ids: []
+  final_aggregate_full_tables: []
+  unresolved_technical_limits: []
+
+work_after_codex:
+  status: "not_started"
+  validation:
+    status: "not_started"
+    issues: []
+  publication_tables:
+    status: "not_started"
+    items:
+      - input_aggregate_full: "[Work 收尾填写：输入完整聚合表]"
+        input_rows: null
+        output_publication_table: "[Work 收尾填写：输出论文候选表]"
+        output_rows: null
+        transformation_manifest: "[Work 收尾填写：列变换清单]"
+  result_package:
+    status: "not_started"
+    file: null
+
+human_experiment_report:
+  status: "not_received"
+  file: null
+  received_at: null
+
+work_post_report_assessment:
+  status: "not_started"
+  recommendation: null
+  rationale: null
+  candidate_new_phenomenon: null
+  proposed_next_todos: []
+
+human_next_todo_decision:
+  status: "awaiting"
+  source: null
+  decided_at: null
+
+history: []

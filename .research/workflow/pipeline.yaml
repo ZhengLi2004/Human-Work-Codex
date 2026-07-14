@@ -1,0 +1,270 @@
+schema_version: 3
+name: human-work-codex-blocking-research-pipeline
+purpose: >-
+  定义人类宏观研究、Work 抽象衔接、Codex 持续执行之间的控制边界。
+  Codex 在阶段和长时运行处直接阻塞等待人类，整个 TODO 完成后才返回 Work。
+
+roles:
+  human:
+    owns:
+      - complete_research_report
+      - research_question_hypothesis_and_macro_design
+      - todo_start_approval
+      - direct_codex_stage_review
+      - long_running_job_launch
+      - experiment_pattern_analysis_and_mechanism_report
+      - next_todo_decision
+  work:
+    owns:
+      - project_specific_abstraction
+      - todo_and_initial_workflow_authoring
+      - codex_dispatch_after_human_approval
+      - post_codex_publication_table_curation
+      - result_package_delivery
+      - post_human_report_information_gain_assessment
+  codex:
+    owns:
+      - continuous_todo_execution
+      - direct_human_review_gates
+      - implementation_and_agile_testing
+      - experiment_scripts_and_execution
+      - raw_data_runs_and_complete_aggregation
+      - append_only_todo_evidence_entries
+      - codex_execution_bundle
+
+control_model:
+  work_to_codex_call:
+    starts_when: "human approves the TODO and initial Codex scope"
+    remains_active_across:
+      - exploration
+      - development
+      - pilot
+      - confirmation
+      - ablation_diagnosis
+      - direct_human_stage_reviews
+      - direct_human_long_run_interventions
+    returns_when:
+      - "human approves Codex execution completion"
+      - "human stops the TODO"
+      - "an unresolved blocker makes continuation impossible"
+    forbidden_reentry:
+      - "Work does not register evidence between stages"
+      - "Work does not translate human stage comments"
+      - "Work does not rebuild the Codex loadout during the active call"
+
+invariants:
+  - "Human stage review is direct between Codex and the human."
+  - "Codex supplies an initial recommendation, but only human approval authorizes continuation."
+  - "Codex appends evidence paths to TODO before every experimental stage review."
+  - "Every reported experimental metric is computed per independent repeat and then aggregated over repeats under identical control conditions, unless a pre-approved estimator specifies otherwise."
+  - "Every planned task-variable combination appears in aggregate_full, including failed, missing, or incomplete combinations."
+  - "A run expected to exceed 30 minutes is launched by the human after Codex preflight."
+  - "Work begins result-table curation only after Codex returns the whole TODO."
+  - "Publication-table curation preserves the row count of every input aggregate_full table."
+  - "No next TODO starts before the human experiment report and a new human decision."
+
+status_values:
+  task:
+    - work_drafting
+    - awaiting_human_todo_approval
+    - ready_for_codex
+    - codex_active
+    - codex_waiting_human
+    - codex_completed
+    - work_curating_results
+    - awaiting_human_report
+    - work_assessing_next_task
+    - awaiting_human_next_todo_decision
+    - completed
+    - stopped
+    - blocked
+  codex_call:
+    - not_started
+    - active
+    - waiting_human_review
+    - waiting_human_run
+    - waiting_human_results
+    - returned
+    - stopped
+    - blocked
+  stage:
+    - not_started
+    - active
+    - awaiting_human_review
+    - awaiting_human_run
+    - awaiting_human_results
+    - approved_to_continue
+    - completed
+    - blocked
+  human_stage_decision:
+    - continue_same_stage
+    - advance_to_stage
+    - return_to_stage
+    - request_specific_evidence
+    - approve_codex_completion
+    - stop_todo
+  work_post_report_recommendation:
+    - continue_same_research_line
+    - targeted_followup
+    - redesign_before_more_experiments
+    - stop_evidence_sufficient
+    - stop_low_expected_information_gain
+    - propose_new_phenomenon_experiment
+
+loadout_policy:
+  global_instructions:
+    - "AGENTS.md"
+  executor:
+    - ".research/skills/codex/todo-executor/SKILL.md"
+  always_for_codex:
+    - ".research/skills/capabilities/human-review-gate/SKILL.md"
+    - ".research/skills/capabilities/agile-testing/SKILL.md"
+  conditional:
+    evidence_aggregation: ".research/skills/capabilities/evidence-aggregation/SKILL.md"
+    batch_execution: ".research/skills/capabilities/batch-execution/SKILL.md"
+  rule: >-
+    Codex loads exactly one phase skill at a time. After a direct human decision,
+    Codex records the decision and rebuilds its own loadout without returning to Work.
+    Evidence aggregation is loaded whenever a stage produces research metrics. Batch execution
+    is loaded whenever combinations, repeats, samples, recovery, or runtime require it.
+
+codex_stage_cycle:
+  - codex_loads_current_phase_skill
+  - codex_executes_the_human_approved_scope_in_small_vertical_slices
+  - codex_runs_risk_based_minimum_sufficient_tests
+  - "if experimental data exist: codex creates immutable raw data, runs, aggregate_full, and aggregation_manifest"
+  - codex_appends_fact_only_technical_and_evidence_entries_to_todo
+  - codex_writes_codex_stage_review
+  - codex_records_its_initial_recommendation_and_exact_proposed_scope
+  - codex_sets_call_waiting_human_review
+  - codex_blocks_without_returning_to_work
+  - human_reviews_and_decides_directly_with_codex
+  - codex_records_the_human_decision
+  - codex_rebuilds_loadout_and_resumes_or_finishes
+
+long_run_cycle:
+  trigger: "estimated continuous runtime exceeds 30 minutes"
+  steps:
+    - codex_finishes_agile_tests_and_one_combination_one_repeat_preflight
+    - codex_validates_checkpoint_logging_progress_and_aggregation_chain
+    - codex_presents_one_line_command_time_resources_paths_and_completion_criteria
+    - codex_sets_call_waiting_human_run
+    - human_launches_the_job
+    - codex_resumes_when_results_are_available
+    - codex_validates_completeness_and_aggregates_results
+  work_involvement: "none"
+
+stages:
+  exploration:
+    phase_skill: ".research/skills/codex/exploration/SKILL.md"
+    default_capabilities:
+      - ".research/skills/capabilities/human-review-gate/SKILL.md"
+      - ".research/skills/capabilities/agile-testing/SKILL.md"
+    optional_capabilities:
+      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
+      - ".research/skills/capabilities/batch-execution/SKILL.md"
+    purpose: "核对项目事实、数据语义、现有能力和研究方案的可落地前提。"
+    human_allowed_transitions:
+      - action: continue_same_stage
+      - action: advance_to_stage
+        target: development
+      - action: request_specific_evidence
+      - action: approve_codex_completion
+      - action: stop_todo
+  development:
+    phase_skill: ".research/skills/codex/development/SKILL.md"
+    default_capabilities:
+      - ".research/skills/capabilities/human-review-gate/SKILL.md"
+      - ".research/skills/capabilities/agile-testing/SKILL.md"
+    optional_capabilities:
+      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
+      - ".research/skills/capabilities/batch-execution/SKILL.md"
+    purpose: "实现最小可信研究能力，并通过风险驱动的敏捷测试建立正确性。"
+    human_allowed_transitions:
+      - action: continue_same_stage
+      - action: advance_to_stage
+        target: pilot
+      - action: return_to_stage
+        target: exploration
+      - action: request_specific_evidence
+      - action: approve_codex_completion
+      - action: stop_todo
+  pilot:
+    phase_skill: ".research/skills/codex/pilot/SKILL.md"
+    default_capabilities:
+      - ".research/skills/capabilities/human-review-gate/SKILL.md"
+      - ".research/skills/capabilities/agile-testing/SKILL.md"
+      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
+      - ".research/skills/capabilities/batch-execution/SKILL.md"
+    optional_capabilities: []
+    purpose: "用小规模完整组合和重复实验检查参数、趋势、稳定性和资源边界。"
+    human_allowed_transitions:
+      - action: continue_same_stage
+      - action: advance_to_stage
+        target: confirmation
+      - action: advance_to_stage
+        target: ablation_diagnosis
+      - action: return_to_stage
+        target: development
+      - action: request_specific_evidence
+      - action: approve_codex_completion
+      - action: stop_todo
+  confirmation:
+    phase_skill: ".research/skills/codex/confirmation/SKILL.md"
+    default_capabilities:
+      - ".research/skills/capabilities/human-review-gate/SKILL.md"
+      - ".research/skills/capabilities/agile-testing/SKILL.md"
+      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
+      - ".research/skills/capabilities/batch-execution/SKILL.md"
+    optional_capabilities: []
+    purpose: "在冻结设置下完成正式实验入口、长时人类运行和完整重复聚合。"
+    human_allowed_transitions:
+      - action: continue_same_stage
+      - action: advance_to_stage
+        target: ablation_diagnosis
+      - action: return_to_stage
+        target: pilot
+      - action: return_to_stage
+        target: development
+      - action: request_specific_evidence
+      - action: approve_codex_completion
+      - action: stop_todo
+  ablation_diagnosis:
+    phase_skill: ".research/skills/codex/ablation-diagnosis/SKILL.md"
+    default_capabilities:
+      - ".research/skills/capabilities/human-review-gate/SKILL.md"
+      - ".research/skills/capabilities/agile-testing/SKILL.md"
+      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
+      - ".research/skills/capabilities/batch-execution/SKILL.md"
+    optional_capabilities: []
+    purpose: "针对人类批准的有限问题执行最小消融或诊断。"
+    human_allowed_transitions:
+      - action: continue_same_stage
+      - action: return_to_stage
+        target: confirmation
+      - action: return_to_stage
+        target: pilot
+      - action: return_to_stage
+        target: development
+      - action: request_specific_evidence
+      - action: approve_codex_completion
+      - action: stop_todo
+
+codex_return_protocol:
+  trigger: "human_stage_decision == approve_codex_completion"
+  steps:
+    - codex_checks_all_todo_evidence_references
+    - codex_checks_all_experimental_tables_and_manifests
+    - codex_writes_codex_execution_bundle
+    - codex_sets_task_codex_completed
+    - codex_returns_control_to_work
+
+post_codex_protocol:
+  - work_validates_the_codex_execution_bundle
+  - work_curates_each_aggregate_full_into_a_same_row_count_publication_table
+  - work_writes_a_column_transformation_manifest
+  - work_updates_todo_final_handoff_references
+  - work_submits_result_package_to_human
+  - human_writes_the_experiment_report
+  - work_assesses_future_information_gain_using_the_human_report
+  - human_approves_rejects_or_revises_any_next_todo
