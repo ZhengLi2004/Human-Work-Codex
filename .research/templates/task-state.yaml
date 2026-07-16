@@ -1,0 +1,42 @@
+schema_version: 1
+todo_id: TODO-000
+todo_path: TODO/TODO-000.md
+state_machine: .research/workflow/state-machine.yaml
+state_machine_rule_set_version: 1
+revision: 0
+
+current:
+  state: todo_ready
+  status: ready
+  entered_at: null
+  approved_by: system_initialization
+  approval_ref: null
+
+execution:
+  state: todo_ready
+  execution_id: null
+  status: not_started
+  decision_boundary_reached: false
+  started_at: null
+  finished_at: null
+  artifact_refs: []
+  predicate_results: {}
+
+transition_review:
+  status: not_evaluated
+  based_on_revision: 0
+  based_on_rule_set_version: null
+  evaluated_at: null
+  from_state: todo_ready
+  evaluated_rules: []
+  eligible_transitions: []
+  eligible_targets: []
+  blockers: []
+  recommendation:
+    target: null
+    rule_id: null
+    confidence: null
+    rationale: null
+    evidence_refs: []
+
+history: []

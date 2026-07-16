@@ -1,275 +1,126 @@
-# AGENTS.md
+# Research Task System Governance
 
-本文件规定项目中 Work 和 Codex 的行为约束，宏观研究设计、阶段审批、长时运行启动、实验规律分析、机制总结和研究决策由人类执行。
+This file contains rules that apply to every task. Reusable procedures belong in Skills, lifecycle rules belong in `.research/workflow/state-machine.yaml`, adjustable numeric limits belong in `.research/policy.yaml`, and task-specific scientific meaning belongs only in the TODO.
 
-## 1. 宏观逻辑
+## 1. Roles and authority
 
-```text
-人类：完整研究报告与宏观研究设计
-  ↓
-Work：抽象与实现衔接，编制 TODO 和初始 workflow
-  ↓
-Codex：在一次持续调用中完成实现、测试、实验、聚合和阶段内人类审查
-  ↓
-Work：Codex 返回后整理论文候选表并提交结果包
-  ↓
-人类：撰写实验报告并形成科学解释
-```
+- **The human researcher** owns the scientific question, hypotheses, study design, transition confirmation, long-running job launch, scientific interpretation, and the decision to complete, stop, redesign, or create a TODO.
+- **Work** authors the complete TODO, curates completed result tables, and produces figures after Codex outputs are ready.
+- **Codex** initializes and maintains machine lifecycle state, implements, tests, runs, aggregates, preserves technical evidence, evaluates transition rules, recommends one eligible rule path, and applies a transition only after explicit human confirmation.
 
-## 2. 指令优先级
+Resolve conflicts in this order:
 
-执行时按以下顺序服从信息：
+1. The human researcher's explicit instruction in the current interaction.
+2. The current TODO for scientific meaning.
+3. The task-state YAML for current lifecycle state and confirmed transition history.
+4. This file.
+5. `.research/workflow/state-machine.yaml` for allowed transition logic.
+6. `.research/policy.yaml`.
+7. The selected Skills.
+8. Existing engineering conventions in the repository.
 
-1. 人类在当前交互中的明确指令；
-2. 人类研究报告及其明确修订；
-3. 人类对当前 TODO、阶段、补充轮次或长时运行的批准；
-4. 当前 TODO；
-5. 本 `AGENTS.md`；
-6. 当前 `workflow.yaml`；
-7. 当前装填的 Skills；
-8. 项目既有工程惯例。
+A human may approve a scientific or workflow change, but Codex must record the change through the appropriate TODO or rule update before applying a transition that was previously ineligible. Stop the affected work when a conflict would change scientific meaning.
 
-出现实质矛盾时，停止受影响部分，准确说明冲突及可能后果，不得自行改写研究问题、研究假设或宏观方案。
+## 2. TODO and task-state boundaries
 
-## 3. 执行控制权
-
-### 3.1 Work 到 Codex
-
-Work 完成 TODO 和工作流并由人类批准启动后，把整个 TODO 交给 Codex。此后除非 TODO 的 Codex 执行完成、被人类终止或出现无法继续的阻塞，控制权都属于 Codex。
-
-### 3.2 Codex 内部阶段结束后
-
-每个阶段或补充轮次结束后，Codex 必须：
-
-1. 完成当前批准范围，并运行当前阶段的最小充分测试；
-3. 若产生实验数据，立即生成完整重复聚合，并把证据路径和事实性摘要追加到 TODO 的 Codex 证据区；
-5. 生成 `CODEX_STAGE_REVIEW.md`；
-6. 给出自己的初始判断、建议动作和下一步精确范围；
-7. 将 workflow 置为 `awaiting_human_review` 并停止；
-8. 直接等待人类批准、修订、补证或停止；
-9. 在同一 Codex 执行上下文中记录人类决定并继续。
-
-### 3.3 Codex 到 Work
-
-只有在人类批准“当前 TODO 的 Codex 执行已完成”后，Codex 才：
-
-- 核验所有阶段证据和 TODO 引用；
-- 生成 `CODEX_EXECUTION_BUNDLE.md`；
-- 将 workflow 置为 `codex_completed`；
-- 把控制权和结果包返回 Work。
-
-## 4. 文件所有权
-
-- 人类研究报告、阶段意见、实验报告：人类所有。
-- TODO 第 1-2 节的研究定位、抽象与实现衔接：Work 编写，Codex 默认只读。
-- TODO 第 3-4 节的实际实现事实和证据索引：Codex 在执行中按模板追加；不得改写 Work 定义的研究语义。
-- TODO 第 5 节的论文候选表、结果包和报告后评估：Work 在 Codex 返回后填写。
-- 代码、测试、脚本、运行清单、原始数据、聚合表、阶段审查包和 Codex 执行包：Codex 所有。
-- 论文候选表及其列变换清单：Work 所有。
-- `workflow.yaml`：Work 初始化；Codex 在整个执行调用中维护阶段、审批、阻塞和产物字段；Codex 返回后由 Work 维护收尾字段。
-- `AGENTS.md`、Skills 和静态 pipeline：人类所有。
-
-## 5. 研究边界与变更控制
-
-下列变化执行前必须直接取得人类批准：
-
-- 改变研究问题、研究假设、目标函数、数据语义或评价对象；
-- 改变会影响结论含义的任务变量、控制变量、指标、重复策略、比较边界或数据范围；
-- 采用与 TODO 中技术手段实质不同的方法；
-- 将控制变量改为变化变量，或混合不同控制条件下的结果；
-- 在 Confirmation 查看结果后继续调参、改指标或追加选择性实验；
-- 删除、忽略或替换会影响判断的失败运行、异常样本、负结果或对照。
-
-局部工程选择可由 Codex 自主完成，但必须保持研究语义、对照公平性和输出含义不变。无法正确实现批准方案时，不得静默使用近似方案。
-
-## 6. 敏捷测试总则
-
-测试以尽快阻止错误科学判断为目标，严禁追求形式上的测试数量。
-
-### 6.1 风险驱动
-
-每个实现增量开始前，Codex 应识别：
-
-- **科学影响**：错误是否可能改变研究结论；
-- **变更表面**：影响一个纯函数、一个模块边界，还是完整数据链；
-- **可发现性**：错误是否容易从最终指标中被发现。
-
-高科学影响、跨模块且难以从结果发现的变化，必须投入更强测试；低风险探索代码只需最低成本但有判别力的检查。
-
-### 6.2 测试金字塔
-
-默认采用：
-
-- 较多快速单元、性质和契约测试；
-- 较少真实集成测试；
-- 最少但关键的端到端冒烟测试与正式预检。
-
-不得用大量缓慢端到端实验替代局部测试，也不得为一次性探索建立沉重测试框架。
-
-### 6.3 可用测试技术
-
-根据风险选择，不必全覆盖：
-
-- 人工可计算的微型参考样例；
-- 单元测试；
-- 参数化与边界测试；
-- 性质测试或不变量测试；
-- 变形测试，用输入变换后的预期关系作为 oracle；
-- 差分测试，与参考实现、旧版本或独立实现比较；
-- 契约测试，验证数据格式、单位、维度和接口语义；
-- 集成测试，覆盖数据-方法-指标-保存-聚合链路；
-- 端到端冒烟测试，仅使用一个组合、一次重复和最小数据；
-- 回归测试，覆盖已发现缺陷和关键历史行为；
-- 恢复、幂等、并发和故障注入测试；
-- 经过重复的性能与资源测试。
-
-### 6.4 敏捷执行方式
-
-- 以可工作的纵向切片推进，不要写完完整实现再统一测试；
-- 每完成一个会影响研究含义的切片，立即运行最小相关快速测试；
-- 测试 oracle 明确时优先先写测试或同步写测试；
-- 修改缺乏测试的既有代码前，先建立最小特征测试；
-- 探索脚本在保护了关键不变量、复现了缺陷或会被反复使用时，提升为自动化测试；
-- 阶段审查前运行当前阶段的最小充分套件，不要进行无关测试；
-- 长时实验前必须完成一个组合、一次重复的完整链路预检。
-
-### 6.5 科研数值测试约束
-
-- 正确性测试使用固定输入和可解释容差；容差应来自数值精度或算法性质，不得任意放宽；
-- 随机算法的逻辑正确性测试使用固定种子，统计性能结论使用独立重复；
-- 性能、耗时、显存和随机指标不得用单次测量作为稳定结论；
-- 过度 mock 会掩盖数据和数值问题时，应使用小型真实数据或合成真值数据；
-- 测试除返回码外，必须检查结果内容和研究不变量。
-
-### 6.6 阶段完成的测试定义
-
-一个阶段可提交人类审查，需要同时满足：
-
-- 与当前变更风险相关的快速测试通过；
-- 关键数据链或实验入口完成冒烟测试；
-- 已知高风险失败均被修复、隔离或明确报告；
-- 缺陷修复具有回归保护；
-- 测试证据路径已进入阶段审查包和 TODO 证据索引。
-
-## 7. 参数纪律
-
-参数按以下优先级确定：
-
-1. 人类研究报告中的设定；
-2. 项目已有可靠结果；
-3. 相关研究经验与数据尺度；
-4. 人类批准的 Pilot 参数探查。
-
-Pilot 可以用有限网格观察合理性、边际收益、稳定区间和资源代价。进入 Confirmation 前，关键参数、变量范围、指标、重复数和比较规则必须由人类冻结。Confirmation 结果出现后不得隐式继续调参。
-
-## 8. 资源、长时运行与批处理
-
-在不改变结果定义和比较公平性的前提下，可以使用向量化、批处理、缓存、多线程、GPU 和算法优化。
-
-除非人类明确批准，CPU 核、系统内存、GPU 数量、显存、并发进程等任一单项计划峰值不得超过可用总量的 50%。
-
-预计连续运行超过 30 分钟时：
-
-- Codex 不得直接启动完整运行；
-- 必须先完成脚本、配置、快速测试、一个组合一次重复的高价值预检和结果链路校验；
-- 直接向人类提供一行命令、预计时间、资源、checkpoint、日志、结果位置和完成判据；
-- workflow 置为 `awaiting_human_run` 或 `awaiting_human_results`；
-- 人类运行后，Codex 在同一执行上下文继续核验和聚合；
-
-包含多个样本、变量组合或重复的脚本必须支持：
-
-- 同一命令直接续跑的 checkpoint；
-- 幂等恢复，不重复计算或重复计数；
-- 已完成数、总数、失败数、当前任务和 ETA；
-- 交互终端中的黄色实时进度，非交互环境自动降级；
-- 终端与日志文件双写；
-- 对正常、中断和失败结束的明确区分；
-- 运行前落盘的完整任务清单。
-
-## 9. 实验变量、重复和完整聚合
-
-本节是不可让步的学术诚信约束。
-
-### 9.1 实验前规格
-
-任何产生实验指标的运行开始前，必须明确：
-
-- 任务变量及全部计划取值；
-- 控制变量及固定方式；
-- 完整计划组合集合；
-- 独立重复单位与每组合重复数；
-- 指标定义、方向和来源；
-- 预先定义的失败、缺失和排除规则；
-- 原始数据与派生数据位置。
-
-若控制变量实际变化，必须提升为分组键或标记不可比，绝不能混合平均。
-
-### 9.2 多次重复
-
-任何从实验原始数据计算并被写入 TODO、阶段审查、完整聚合表或结果包的指标，都必须：
-
-- 在任务变量组合和控制条件相同的情况下基于多次独立重复；
-- 人类指定重复数时严格遵从；
-- 未指定且实验含随机性时，每组合默认至少 3 次独立重复；
-- 重复不足时标记 `incomplete`，不得用单次结果冒充平均结果；
-- 指标原则上先在每个独立重复内计算，再在重复之间报告均值和离散性；
-- 不得把多个重复的底层样本直接拼接后当作更大的独立样本量，除非人类报告或预先批准的实验规格明确规定池化估计量；
-- 配对设计必须保留配对关系，并优先在每个配对重复内计算差值或效应，再跨重复汇总。
-
-`runs` 中可保留单次运行指标用于追踪，但不得把单次值作为研究结论或代表性汇报值。
-
-### 9.3 完整组合表
-
-实验完成后，Codex 必须立即生成：
-
-1. `runs`：每个独立运行一行；
-2. `aggregate_full`：每个计划任务变量组合恰好一行；
-3. `aggregation_manifest`：记录规格、输入、分组键、指标算法、重复、缺失、异常和追踪信息。
-
-`aggregate_full` 必须：
-
-- 列出全部计划组合，包括失败、缺失、未运行和重复不足组合；
-- 对同一组合、同一控制条件的有效重复计算均值；
-- 至少给出 `n_planned`、`n_valid`、`coverage_status` 和一种离散性量度；
-- 逐行可追溯到 `runs` 和原始文件。
-
-原始数据只追加、不覆盖。重新计算指标必须生成新派生版本。
-
-## 10. TODO 引用与及时报告
-
-每个产生实验数据的阶段结束后，Codex 必须在等待人类审查之前：
-
-- 检查完整组合、重复和控制条件；
-- 生成 `runs`、`aggregate_full` 和 manifest；
-- 在 TODO 的 Codex 证据区追加 E-xx 条目；
-- 通过磁盘路径引用原始数据、运行表、完整聚合表、manifest、测试和阶段审查包；
-- 报告全部组合的覆盖状态、均值、离散性、失败和异常；
-- 将 Codex 建议与事实明确分开；
-- 直接提交给人类并等待审批。
-
-任何后续阶段不得在上一阶段实验文件尚未被 TODO 引用时开始。
-
-## 11. Codex 返回后的 Work 约束
-
-Work 只能在 `codex_completed` 后进入结果整理。Work 对 `aggregate_full`：
-
-- 不删除、复制、筛选、合并或重新聚合行；
-- 每个输入表生成行数完全相同的论文候选表；
-- 只删除纯操作性列、调整列顺序、重命名变量与枚举、选择论文指标列和进行有记录的显示舍入；
-- 必须保留能够识别全部任务变量组合的列；
-- 必须生成列变换清单和行数一致性校验；
-
-## 12. 禁止行为
-
-不得：
-
-- 伪造、猜测、补齐或平滑未产生的数据；
-- 只报告最佳随机种子、参数点或支持假设的子集；
-- 省略计划组合或选择性删行；
-- 在不同控制条件间平均；
-- 用单次运行冒充重复平均；
-- 为让测试通过而任意放宽容差或删除失败用例；
-- 用大规模实验替代本可由廉价测试发现的错误；
-- 在阶段审查处返回 Work 或要求 Work 转译人类意见；
-- 未经人类批准自行推进阶段、启动下一 TODO 或改变研究边界；
-- 代替人类撰写机制解释和正式实验报告。
+Each research task has one authoritative scientific handoff document: its TODO.
+
+- The TODO contains the complete research definition, mathematical specification, variables, controls, metrics, evidence requirements, completion criteria, and output path references.
+- The task-state YAML is a machine control artifact, normally `results/{todo_id}/task-state.yaml`. It stores only current lifecycle state, execution status, predicate evidence references, evaluated and eligible rule paths, recommendations, rule-set version, revisions, and immutable human-confirmed evaluation history.
+- Do not copy formulas, research background, result prose, tables, scientific interpretation, or TODO sections into the task-state YAML.
+- Do not create task-specific workflow Markdown, evidence ledgers, stage-review Markdown, execution bundles, result packages, or parallel narrative handoffs.
+- Logs, checkpoints, manifests, raw outputs, tables, notebooks, figures, and the task-state YAML are technical artifacts. They do not replace the TODO.
+- During execution, Codex and Work may edit only path values in the TODO's `Output References` section.
+
+## 3. Scientific semantics and change control
+
+Do not change any of the following without explicit human approval:
+
+- the research question, hypothesis, objective function, or evaluation target;
+- data meaning, unit of analysis, inclusion or exclusion rules, or data scope;
+- task variables, control variables, pairing, blocking, or comparison boundaries;
+- primary metrics, statistical unit, repeat strategy, null hypothesis, or significance definition;
+- fixed methods, parameters, formulas, or completion criteria in the TODO;
+- a frozen Confirmation specification.
+
+Engineering choices may vary only when they preserve scientific semantics, control fairness, statistical independence, and output meaning. If faithful implementation is not possible, record a blocker and evaluate the applicable transition rules rather than silently degrading the method.
+
+## 4. Rule-driven lifecycle state
+
+- Broad task-system requests start with `$research-task-router`.
+- Resolve the active state from the task-state YAML, not from remembered conversation text or directory contents.
+- If the task-state file is absent, initialize it at `todo_ready`; do not infer the first executable state.
+- Execute only `current.state` unless the human explicitly confirms and applies another eligible rule path.
+- After any executable state reaches a decision boundary, mark transition evaluation as required. Codex then invokes `$research-state-transition` in Evaluate mode.
+- Evaluate every outgoing rule and include the self-transition. Unknown evidence never satisfies a non-self rule; every `none` predicate must be explicitly false.
+- Rule evaluation may update `transition_review`, but it must not change `current.state`.
+- Codex recommends exactly one eligible rule path. The human may confirm any eligible rule path, including the self-transition. Prefer an exact `rule_id`; accept a target alone only when it maps to one eligible rule.
+- Apply a transition only after an explicit human rule-path selection, state-revision check, rule-set-version check, and atomic state-file update.
+- Increment the shared `rule_set_version` whenever predicate semantics, eligibility logic, or transition rules change; stale pending reviews must be evaluated again.
+- Preserve the evaluated predicates, eligible rule paths, blockers, and Codex recommendation as an immutable snapshot in transition history.
+- Do not execute the newly approved target unless the same or a later human instruction explicitly authorizes execution.
+- Jobs at or above the long-running threshold in `.research/policy.yaml` are launched by the human after Codex completes preflight and supplies a reproducible command.
+
+## 5. Python and MATLAB implementation policy
+
+Use `$research-computing-implementation` whenever scientific code is written or materially optimized.
+
+- Prefer **MATLAB** when the task is dominated by dense matrix algebra, vectorized numerical operations, established MATLAB signal-processing code, or MATLAB-specific toolboxes.
+- Prefer **Python** when the task is dominated by large multi-file data processing, heterogeneous data pipelines, machine learning, deep neural networks, or integration with the Python scientific ecosystem.
+- A hybrid design is acceptable only when the boundary is explicit and the interchange cost is justified. Prefer Parquet for tabular interchange and MAT v7.3/HDF5-compatible files for large multidimensional arrays.
+- Preserve the TODO's numerical meaning when vectorizing, parallelizing, moving work to a GPU, or changing storage formats.
+
+## 6. I/O and performance integrity
+
+Scientific data output must be designed for throughput and traceability.
+
+- Do not update CSV or other tabular result files one row at a time inside a computation loop.
+- Do not repeatedly concatenate growing pandas DataFrames in a loop.
+- Do not call MATLAB `writetable` once per result row or task unit.
+- Buffer records and write them in batches, write one independent file per worker/task partition, or use a bulk columnar/array format such as Parquet, HDF5, Zarr, NPZ, or MAT v7.3.
+- Keep append-oriented text logging separate from bulk numerical result storage.
+- Publish completed chunks atomically and validate them before marking a task complete.
+- Write task-state YAML atomically as a complete document; do not patch individual YAML lines in place.
+- Measure I/O behavior during preflight when file count, serialization, or storage latency may dominate runtime.
+- Optimization must not alter the planned sample set, random process, comparison conditions, or metric definitions.
+
+## 7. Evidence integrity
+
+Always:
+
+- distinguish executed commands, tested implementation facts, observed experimental results, tentative interpretations, transition predicate judgments, and recommendations;
+- preserve failed, missing, invalid, negative, and incomplete outcomes;
+- keep raw outputs immutable and version derived outputs;
+- include every planned combination in complete aggregation outputs;
+- use independent repeats as the uncertainty unit unless the TODO defines another estimator;
+- report only commands, tests, and experiments that were actually run;
+- maintain stable identifiers linking aggregate rows to source runs and files;
+- attach evidence references to non-trivial transition predicate values.
+
+Do not treat successful execution as scientific support. Do not present Exploration, smoke-test, Pilot, or single-run evidence as Confirmation.
+
+## 8. Work table and figure responsibilities
+
+Work may operate only when the task-state YAML records `current.state: work_postprocessing` and that state is ready or validly resumed.
+
+- Work may curate presentation tables only through documented column-level transformations that preserve rows and stable combination keys.
+- Work produces figures in a Jupyter notebook using complete data from at least one of the following for each figure: raw computation results, Codex-generated condition-merged tables, or both.
+- Work must not select only favorable seeds, conditions, subjects, sessions, or records.
+- Work writes no additional Markdown handoff. It updates only curated-table path values and the final figure-directory path in the TODO.
+- Work records machine-readable artifact facts and outgoing-rule predicates in the task-state YAML, marks the Work decision boundary, and requires later Codex rule evaluation. It must not change `current.state`, evaluate transition rules, recommend a path, or approve a transition.
+- Figure notebooks, exported figures, and any machine-readable figure manifest remain inside the referenced figure directory.
+
+## 9. Prohibited behavior
+
+Do not:
+
+- fabricate, infer, fill, smooth, or selectively retain data;
+- report only the best seed, parameter, sample, subject, session, or condition;
+- pool non-independent observations to inflate sample size;
+- loosen tolerances, remove failing tests, or bypass invariants merely to obtain a passing result;
+- tune after inspecting Confirmation results without invalidating and versioning the analysis;
+- apply or execute an ineligible or unconfirmed transition;
+- omit the self-transition rule from any state evaluation;
+- launch a restricted long job or expand scientific scope without human approval;
+- create a second scientific handoff document;
+- add narrative execution records to the TODO beyond file or directory paths in `Output References`.

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Report to TODOs"
+  short_description: "Author complete research TODOs"
+  default_prompt: "Use $research-report-to-todos to convert the research material into complete TODO specifications only."
+policy:
+  allow_implicit_invocation: false

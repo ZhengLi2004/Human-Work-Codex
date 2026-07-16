@@ -1,0 +1,20 @@
+{
+  "name": "research-task-system-local",
+  "interface": {
+    "displayName": "Research Task System (Local)"
+  },
+  "plugins": [
+    {
+      "name": "research-task-system",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

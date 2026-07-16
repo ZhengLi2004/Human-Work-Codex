@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Task System"
+  short_description: "Route rule-driven research across Work and Codex"
+  default_prompt: "Use $research-task-router to resolve the TODO and task-state YAML, classify the request, and invoke the minimum required Skill set."

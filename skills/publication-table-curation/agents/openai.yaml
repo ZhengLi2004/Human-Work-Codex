@@ -1,0 +1,6 @@
+interface:
+  display_name: "Publication Table Curation"
+  short_description: "Curate complete Work result tables"
+  default_prompt: "Use $publication-table-curation during work_postprocessing to create row- and key-preserving Work tables."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Batch Execution"
+  short_description: "Build resumable high-throughput experiments"
+  default_prompt: "Use $research-batch-execution to build or review the resumable batch runner and bulk result storage."
+policy:
+  allow_implicit_invocation: false

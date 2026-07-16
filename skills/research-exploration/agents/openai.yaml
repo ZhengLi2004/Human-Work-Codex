@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Exploration"
+  short_description: "Resolve mappings and bounded uncertainty"
+  default_prompt: "Use $research-exploration when task-state current.state is exploration."
+policy:
+  allow_implicit_invocation: false

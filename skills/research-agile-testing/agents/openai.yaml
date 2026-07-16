@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Agile Testing"
+  short_description: "Design risk-driven scientific tests"
+  default_prompt: "Use $research-agile-testing to design and run the minimum sufficient tests for the current scientific-code risk."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,92 @@
+schema_version: 6
+name: research-task-system-policy
+
+routing:
+  implicit_entry_skill: research-task-router
+  internal_skills_require_explicit_selection: true
+  task_source_of_truth: todo
+  active_state_source: task_state_yaml
+  task_state_path_pattern: results/{todo_id}/task-state.yaml
+  state_machine: .research/workflow/state-machine.yaml
+  initialize_missing_state_as: todo_ready
+  separate_scientific_handoff_documents_forbidden: true
+
+transitions:
+  evaluate_after_every_executable_state: true
+  work_marks_evaluation_required_for_codex: true
+  self_transition_required_for_every_state: true
+  explicit_human_confirmation_required: true
+  recommendation_does_not_apply_transition: true
+  selected_rule_path_must_be_eligible: true
+  target_only_confirmation_requires_unique_rule: true
+  atomic_state_write_required: true
+  revision_match_required: true
+  rule_set_version_match_required: true
+  preserve_evaluation_snapshot_in_history: true
+  approve_and_execute_requires_explicit_wording: true
+
+resources:
+  default_limits:
+    cpu_cores_fraction: 0.50
+    system_memory_fraction: 0.50
+    gpu_memory_per_device_fraction: 0.50
+  derive_parallelism_from_measured_single_task_peak: true
+  optimization_must_preserve_scientific_semantics: true
+
+long_running_jobs:
+  threshold_minutes: 30
+  human_launch_required: true
+  require_one_combination_one_repeat_preflight: true
+  require_checkpoint: true
+  require_file_logging: true
+  require_progress_reporting: true
+
+experiments:
+  default_repeats_when_random_and_unspecified: 3
+  preserve_failed_runs: true
+  preserve_missing_combinations: true
+  preserve_incomplete_combinations: true
+  immutable_raw_data: true
+  aggregate_over_independent_repeats: true
+  condition_merged_table_required: true
+
+io:
+  preferred_tabular_format: parquet
+  csv_allowed_for_small_interchange_outputs: true
+  row_wise_csv_updates_forbidden: true
+  dataframe_concat_inside_result_loop_forbidden: true
+  matlab_writetable_inside_result_loop_forbidden: true
+  buffered_or_chunked_result_writes_required: true
+  per_worker_output_isolation_preferred: true
+  atomic_publish_required: true
+  preflight_io_measurement_when_material: true
+
+work_figures:
+  notebook_format: ipynb
+  preferred_processing_packages:
+    - numpy
+    - scipy
+    - pandas
+  preferred_plotting_packages:
+    - matplotlib
+    - SciencePlots
+    - seaborn
+  preferred_export_formats:
+    - pdf
+    - svg
+    - png
+  todo_update_field: Work figure directory
+  additional_markdown_handoff_forbidden: true
+
+artifacts:
+  todo_template: .research/templates/TODO.md
+  task_state_template: .research/templates/task-state.yaml
+  pipeline: .research/workflow/pipeline.yaml
+  state_machine: .research/workflow/state-machine.yaml
+  default_result_root_pattern: results/{todo_id}
+  task_state_filename: task-state.yaml
+  raw_subdirectory: raw
+  tables_subdirectory: tables
+  checkpoints_subdirectory: checkpoints
+  logs_subdirectory: logs
+  figures_subdirectory: figures

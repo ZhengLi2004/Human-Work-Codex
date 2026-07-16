@@ -1,0 +1,750 @@
+schema_version: 1
+rule_set_version: 1
+name: research-task-lifecycle
+purpose: >-
+  Evaluate rule-based lifecycle transitions after each task state, preserve the
+  current state until a human confirms one eligible rule path, and keep a durable
+  machine-readable transition history without duplicating the TODO.
+
+state_file:
+  template: .research/templates/task-state.yaml
+  default_path_pattern: results/{todo_id}/task-state.yaml
+  role: machine_control_state
+  atomic_write_required: true
+  revision_check_required: true
+  prohibited_content:
+    - research_definition
+    - mathematical_specification
+    - result_narrative
+    - scientific_interpretation
+    - duplicated_todo_content
+
+truth_model:
+  values:
+    - true
+    - false
+    - unknown
+  non_self_rule:
+    all: every listed predicate must be true
+    any: at least one listed predicate must be true when the list is present
+    none: every listed predicate must be false
+    unknown_result: >-
+      Unknown in an all or none clause makes the rule ineligible. An any clause
+      is eligible only when at least one member is explicitly true.
+  self_rule:
+    required_for_every_state: true
+    eligibility: always
+
+recommendation_model:
+  consider_recommend_when: true
+  order_of_judgment:
+    - scientific_validity
+    - correctness_and_evidence_completeness
+    - todo_completion_criteria
+    - smallest_sufficient_scope
+    - resource_cost
+  tie_breaker: prefer_self_when_non_self_evidence_is_unknown_or_materially_conflicting
+
+human_control:
+  evaluation_may_change_current_state: false
+  explicit_human_confirmation_required: true
+  selected_rule_path_must_be_eligible: true
+  target_only_confirmation_requires_unique_rule: true
+  recommendation_is_not_approval: true
+  approve_and_execute_requires_explicit_wording: true
+
+evaluation_protocol:
+  evaluator: codex
+  trigger: execution_decision_boundary_reached
+  required_after_every_executable_state: true
+  work_handoff: >-
+    Work records artifact predicates and marks evaluation_required; Codex must
+    evaluate the outgoing rules before any further lifecycle action.
+
+rule_set_change_control:
+  version_field: rule_set_version
+  increment_required_when_predicates_or_rules_change: true
+  pending_reviews_invalidated_by_version_mismatch: true
+  apply_requires_matching_evaluated_version: true
+
+states:
+  todo_ready:
+    owner: human
+    executor: none
+    purpose: A complete TODO exists and the first executable state has not been approved.
+  exploration:
+    owner: codex
+    skill: skills/research-exploration/SKILL.md
+    purpose: Resolve project mappings, data semantics, feasibility, and bounded uncertainties.
+  development:
+    owner: codex
+    skill: skills/research-development/SKILL.md
+    purpose: Build and verify the minimum scientifically faithful implementation.
+  pilot:
+    owner: codex
+    skill: skills/research-pilot/SKILL.md
+    purpose: Run controlled preliminary evidence over a complete approved Pilot scope.
+  confirmation:
+    owner: codex
+    skill: skills/research-confirmation/SKILL.md
+    purpose: Execute the frozen formal specification and preserve complete evidence.
+  ablation_diagnosis:
+    owner: codex
+    skill: skills/research-ablation-diagnosis/SKILL.md
+    purpose: Distinguish a bounded set of approved component contributions or failure causes.
+  work_postprocessing:
+    owner: work
+    capabilities:
+      - skills/publication-table-curation/SKILL.md
+      - skills/research-figure-production/SKILL.md
+    purpose: Curate complete tables and produce reproducible figures from TODO-referenced Codex outputs.
+  completed:
+    owner: human
+    terminal: true
+    purpose: Work outputs were delivered and the human accepted closure of the TODO.
+  stopped:
+    owner: human
+    terminal: true
+    purpose: The human stopped the TODO without declaring successful completion.
+
+predicate_catalog:
+  todo_definition_complete:
+    meaning: The TODO contains the definitions required to execute the proposed target state without inventing scientific semantics.
+    evidence: TODO sections and unresolved-ambiguity check.
+  current_scope_executed:
+    meaning: The approved scope for the current state completed or ended with an auditable bounded outcome.
+    evidence: Commands, manifests, tests, logs, and result artifacts.
+  required_artifacts_complete:
+    meaning: The current state's required technical artifacts exist or each missing artifact has an auditable terminal status.
+    evidence: Artifact paths, manifests, and coverage reconciliation.
+  no_critical_correctness_risk:
+    meaning: No unresolved implementation, data-semantic, leakage, metric, aggregation, or storage defect invalidates the evidence.
+    evidence: Risk-matched tests and artifact checks.
+  no_scope_change_required:
+    meaning: The proposed target remains inside the current TODO's fixed scientific scope.
+    evidence: TODO-to-proposed-work comparison.
+  continuation_warranted:
+    meaning: Additional work inside this TODO can still materially answer its defined question.
+    evidence: Current evidence and completion criteria.
+  same_state_work_remaining:
+    meaning: Additional work in the current state is justified and remains inside the approved state purpose.
+    evidence: Incomplete state objective, unresolved same-state risk, or approved additional coverage.
+  mapping_or_semantics_unresolved:
+    meaning: Repository mapping, data meaning, units, labels, shapes, or comparison semantics remain materially unresolved.
+    evidence: Exploration or implementation inspection.
+  mapping_and_semantics_resolved:
+    meaning: The mappings and semantics needed for implementation are verified or explicitly bounded.
+    evidence: Verified repository and data mapping.
+  implementation_work_needed:
+    meaning: Code, configuration, tests, or storage behavior must be created or materially changed.
+    evidence: Gap between TODO and current implementation.
+  existing_implementation_pilot_ready:
+    meaning: An existing implementation already satisfies Development-level correctness and smoke-test requirements for the Pilot scope.
+    evidence: Code review, tests, and one-combination one-repeat run.
+  implementation_matches_todo:
+    meaning: The implementation reproduces the TODO's formulas, variables, controls, units, and output meanings.
+    evidence: Scientific-code tests and review.
+  risk_matched_tests_sufficient:
+    meaning: Tests cover the material scientific and engineering risks of the implementation used for the next state.
+    evidence: Test commands and results.
+  smoke_test_passed:
+    meaning: One representative combination and one independent repeat completed end to end with valid outputs.
+    evidence: Smoke-test artifacts and reconciliation.
+  pilot_scope_defined:
+    meaning: The Pilot combination set, repeat rule, adjustable parameters, metrics, and stopping boundary are explicit.
+    evidence: TODO and human-approved scope.
+  pilot_grid_complete:
+    meaning: Every approved Pilot combination has a reconciled complete, incomplete, failed, missing, invalid, or incomparable state.
+    evidence: Pilot manifest and complete tables.
+  pilot_evidence_supports_confirmation:
+    meaning: Pilot behavior, stability, cost, and failure evidence justify freezing and running Confirmation.
+    evidence: Complete Pilot summaries, not a selected best result.
+  confirmation_spec_frozen:
+    meaning: Code/config version, conditions, repeats, controls, metrics, exclusion rules, and output paths are fixed for Confirmation.
+    evidence: Frozen configuration or manifest and TODO consistency check.
+  confirmation_prerequisites_ready:
+    meaning: Existing implementation and evidence already satisfy all Confirmation entry gates.
+    evidence: Regression tests, formal preflight, and frozen manifest.
+  implementation_rework_needed:
+    meaning: A correct next run requires changing implementation or data handling rather than merely continuing the current state.
+    evidence: Reproducible defect or violated invariant.
+  bounded_diagnosis_needed:
+    meaning: A finite approved set of candidate explanations or component contributions must be distinguished before proceeding or closing.
+    evidence: Contradictory, anomalous, or mechanism-relevant facts tied to the TODO.
+  diagnostic_scope_ready:
+    meaning: Candidate explanations, interventions, controls, metrics, and stopping boundary are already defined.
+    evidence: TODO and explicit human approval.
+  diagnosis_supports_development:
+    meaning: Diagnosis identifies an implementation change that must be developed and tested.
+    evidence: Diagnostic intervention and failure localization.
+  diagnosis_supports_pilot:
+    meaning: Diagnosis resolves the issue and the repaired or revised method should return to controlled Pilot evidence.
+    evidence: Diagnostic results and bounded revised Pilot scope.
+  diagnosis_supports_confirmation:
+    meaning: Diagnosis resolves the issue without changing the frozen scientific meaning and formal Confirmation should be rerun or resumed.
+    evidence: Diagnostic results and frozen-spec consistency.
+  formal_evidence_complete:
+    meaning: The frozen Confirmation task set and required formal outputs are fully reconciled.
+    evidence: Formal manifest, raw outputs, complete tables, and failure records.
+  formal_run_invalidated:
+    meaning: A documented implementation, corruption, or frozen-spec violation invalidates the formal run independently of result direction.
+    evidence: Exact defect, affected artifacts, and invalidation record.
+  todo_completion_evidence_satisfied:
+    meaning: Current Codex evidence answers the TODO's required questions or audibly establishes why the design cannot answer them.
+    evidence: TODO completion criteria mapped to complete artifacts.
+  codex_outputs_ready_for_work:
+    meaning: TODO output references resolve to complete raw results and condition-merged tables suitable for Work.
+    evidence: Paths, schemas, stable keys, and coverage checks.
+  codex_outputs_already_ready_for_work:
+    meaning: Before lifecycle execution, existing Codex outputs already satisfy the Work input contract.
+    evidence: Existing TODO paths and complete source checks.
+  work_tables_complete:
+    meaning: Work curated all required logical tables without changing row count or stable combination keys.
+    evidence: Curated-table paths and transformation checks.
+  work_figures_complete:
+    meaning: The executed notebook and required exported figures exist in the TODO-referenced figure directory.
+    evidence: Notebook, figures, and figure manifest.
+  work_outputs_traceable:
+    meaning: Every figure and curated value can be traced to complete applicable Codex sources under TODO-defined rules.
+    evidence: Stable keys, source paths, row counts, and figure manifest.
+  codex_output_defect_found:
+    meaning: Work discovered a reproducible defect in Codex computation, aggregation, or source completeness.
+    evidence: Source-to-output mismatch or failed invariant.
+  formal_output_gap_found:
+    meaning: Work discovered that the frozen formal task set is incomplete but not invalidated by an implementation change.
+    evidence: Missing formal combinations or outputs under the frozen specification.
+  work_revision_needed:
+    meaning: Work table or figure production must continue without changing Codex scientific results.
+    evidence: Missing, failed, or incorrect presentation artifacts.
+  stop_warranted:
+    meaning: Continuing this TODO has insufficient value, is infeasible within scope, or the human explicitly requests termination.
+    evidence: Bounded infeasibility, completion analysis, or explicit human instruction.
+
+rules:
+  - id: todo_ready.self
+    from: todo_ready
+    to: todo_ready
+    kind: self
+    eligibility:
+      always: true
+    guidance: Keep the TODO ready while the human reviews or selects the first executable state.
+  - id: todo_ready.to_exploration
+    from: todo_ready
+    to: exploration
+    kind: forward
+    eligibility:
+      all:
+        - todo_definition_complete
+        - mapping_or_semantics_unresolved
+        - continuation_warranted
+      none:
+        - stop_warranted
+    guidance: Resolve material mapping or semantic uncertainty before implementation.
+  - id: todo_ready.to_development
+    from: todo_ready
+    to: development
+    kind: forward
+    eligibility:
+      all:
+        - todo_definition_complete
+        - implementation_work_needed
+        - no_scope_change_required
+        - continuation_warranted
+      none:
+        - mapping_or_semantics_unresolved
+        - stop_warranted
+    guidance: Begin implementation when the scientific contract is clear and code work is required.
+  - id: todo_ready.to_pilot
+    from: todo_ready
+    to: pilot
+    kind: forward
+    eligibility:
+      all:
+        - todo_definition_complete
+        - existing_implementation_pilot_ready
+        - pilot_scope_defined
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Skip new Development only when existing evidence already satisfies its entry bar.
+  - id: todo_ready.to_confirmation
+    from: todo_ready
+    to: confirmation
+    kind: forward
+    eligibility:
+      all:
+        - todo_definition_complete
+        - confirmation_prerequisites_ready
+        - confirmation_spec_frozen
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Enter Confirmation directly only with a fully validated and frozen existing pipeline.
+  - id: todo_ready.to_ablation_diagnosis
+    from: todo_ready
+    to: ablation_diagnosis
+    kind: forward
+    eligibility:
+      all:
+        - todo_definition_complete
+        - diagnostic_scope_ready
+        - no_scope_change_required
+        - continuation_warranted
+      none:
+        - stop_warranted
+    guidance: Start a diagnostic TODO only when its candidates and stopping boundary are already defined.
+  - id: todo_ready.to_work_postprocessing
+    from: todo_ready
+    to: work_postprocessing
+    kind: forward
+    eligibility:
+      all:
+        - todo_definition_complete
+        - codex_outputs_already_ready_for_work
+        - no_critical_correctness_risk
+      none:
+        - stop_warranted
+    guidance: Route directly to Work only when complete Codex outputs already exist.
+  - id: todo_ready.to_stopped
+    from: todo_ready
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop an unstarted TODO only through explicit human confirmation.
+
+  - id: exploration.self
+    from: exploration
+    to: exploration
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - same_state_work_remaining
+        - mapping_or_semantics_unresolved
+    guidance: Continue Exploration when decisive mappings or semantics remain unresolved.
+  - id: exploration.to_development
+    from: exploration
+    to: development
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - mapping_and_semantics_resolved
+        - implementation_work_needed
+        - no_scope_change_required
+        - continuation_warranted
+      none:
+        - stop_warranted
+    guidance: Move to Development after the implementation path is sufficiently defined.
+  - id: exploration.to_pilot
+    from: exploration
+    to: pilot
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - mapping_and_semantics_resolved
+        - existing_implementation_pilot_ready
+        - pilot_scope_defined
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Move directly to Pilot only when no new Development work is needed.
+  - id: exploration.to_work_postprocessing
+    from: exploration
+    to: work_postprocessing
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - todo_completion_evidence_satisfied
+        - codex_outputs_ready_for_work
+        - no_critical_correctness_risk
+      none:
+        - stop_warranted
+    guidance: Hand off a bounded completed or audibly infeasible exploration result when Work inputs are complete.
+  - id: exploration.to_stopped
+    from: exploration
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop when further in-scope exploration is not warranted.
+
+  - id: development.self
+    from: development
+    to: development
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - same_state_work_remaining
+        - implementation_work_needed
+        - implementation_rework_needed
+    guidance: Continue Development while implementation or correctness work remains.
+  - id: development.to_exploration
+    from: development
+    to: exploration
+    kind: backward
+    eligibility:
+      all:
+        - mapping_or_semantics_unresolved
+        - continuation_warranted
+      none:
+        - stop_warranted
+    guidance: Return to Exploration when implementation exposed a scientific or data-semantic ambiguity.
+  - id: development.to_pilot
+    from: development
+    to: pilot
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - implementation_matches_todo
+        - risk_matched_tests_sufficient
+        - smoke_test_passed
+        - pilot_scope_defined
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Enter Pilot only after a scientifically faithful vertical slice is verified end to end.
+  - id: development.to_work_postprocessing
+    from: development
+    to: work_postprocessing
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - todo_completion_evidence_satisfied
+        - codex_outputs_ready_for_work
+        - no_critical_correctness_risk
+      none:
+        - stop_warranted
+    guidance: Hand off when Development itself produced the complete evidence required by the TODO.
+  - id: development.to_stopped
+    from: development
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop when faithful implementation is infeasible or no longer worth pursuing.
+
+  - id: pilot.self
+    from: pilot
+    to: pilot
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - same_state_work_remaining
+    guidance: Continue Pilot for additional approved same-state coverage or parameter evidence.
+  - id: pilot.to_development
+    from: pilot
+    to: development
+    kind: backward
+    eligibility:
+      all:
+        - implementation_rework_needed
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Return to Development when Pilot exposes a reproducible implementation or data-pipeline defect.
+  - id: pilot.to_ablation_diagnosis
+    from: pilot
+    to: ablation_diagnosis
+    kind: lateral
+    eligibility:
+      all:
+        - current_scope_executed
+        - bounded_diagnosis_needed
+        - diagnostic_scope_ready
+        - no_scope_change_required
+        - continuation_warranted
+      none:
+        - implementation_rework_needed
+        - stop_warranted
+    guidance: Diagnose a bounded uncertainty rather than expanding Pilot indefinitely.
+  - id: pilot.to_confirmation
+    from: pilot
+    to: confirmation
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - pilot_grid_complete
+        - pilot_evidence_supports_confirmation
+        - confirmation_spec_frozen
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - implementation_rework_needed
+        - stop_warranted
+    guidance: Enter Confirmation only after complete Pilot evidence justifies a frozen formal specification.
+  - id: pilot.to_work_postprocessing
+    from: pilot
+    to: work_postprocessing
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - todo_completion_evidence_satisfied
+        - codex_outputs_ready_for_work
+        - no_critical_correctness_risk
+      none:
+        - implementation_rework_needed
+        - stop_warranted
+    guidance: Hand off when the TODO is intentionally completed at Pilot rather than requiring Confirmation.
+  - id: pilot.to_stopped
+    from: pilot
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop when complete Pilot evidence shows that further in-scope work is not warranted.
+
+  - id: confirmation.self
+    from: confirmation
+    to: confirmation
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - same_state_work_remaining
+        - formal_output_gap_found
+    guidance: Continue or resume the frozen Confirmation state without tuning its scientific specification.
+  - id: confirmation.to_development
+    from: confirmation
+    to: development
+    kind: backward
+    eligibility:
+      all:
+        - formal_run_invalidated
+        - implementation_rework_needed
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Return to Development only for a documented defect independent of result direction.
+  - id: confirmation.to_ablation_diagnosis
+    from: confirmation
+    to: ablation_diagnosis
+    kind: lateral
+    eligibility:
+      all:
+        - current_scope_executed
+        - bounded_diagnosis_needed
+        - diagnostic_scope_ready
+        - no_scope_change_required
+        - continuation_warranted
+      none:
+        - formal_run_invalidated
+        - stop_warranted
+    guidance: Enter bounded Diagnosis when formal evidence is valid but requires an approved explanation test.
+  - id: confirmation.to_work_postprocessing
+    from: confirmation
+    to: work_postprocessing
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - formal_evidence_complete
+        - todo_completion_evidence_satisfied
+        - codex_outputs_ready_for_work
+        - no_critical_correctness_risk
+      none:
+        - formal_run_invalidated
+        - stop_warranted
+    guidance: Hand complete formal evidence to Work for tables and figures.
+  - id: confirmation.to_stopped
+    from: confirmation
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop only through explicit human confirmation while preserving all formal evidence.
+
+  - id: ablation_diagnosis.self
+    from: ablation_diagnosis
+    to: ablation_diagnosis
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - same_state_work_remaining
+        - bounded_diagnosis_needed
+    guidance: Continue only within the approved finite diagnostic boundary.
+  - id: ablation_diagnosis.to_development
+    from: ablation_diagnosis
+    to: development
+    kind: backward
+    eligibility:
+      all:
+        - diagnosis_supports_development
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Develop the bounded fix identified by Diagnosis.
+  - id: ablation_diagnosis.to_pilot
+    from: ablation_diagnosis
+    to: pilot
+    kind: backward
+    eligibility:
+      all:
+        - diagnosis_supports_pilot
+        - pilot_scope_defined
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Return to controlled Pilot evidence after the diagnostic issue is resolved.
+  - id: ablation_diagnosis.to_confirmation
+    from: ablation_diagnosis
+    to: confirmation
+    kind: forward
+    eligibility:
+      all:
+        - diagnosis_supports_confirmation
+        - confirmation_spec_frozen
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Resume or rerun formal Confirmation only when scientific meaning remains frozen.
+  - id: ablation_diagnosis.to_work_postprocessing
+    from: ablation_diagnosis
+    to: work_postprocessing
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - todo_completion_evidence_satisfied
+        - codex_outputs_ready_for_work
+        - no_critical_correctness_risk
+      none:
+        - stop_warranted
+    guidance: Hand off when bounded Diagnosis completes the TODO's evidence requirements.
+  - id: ablation_diagnosis.to_stopped
+    from: ablation_diagnosis
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop when the bounded diagnostic question cannot justify further work.
+
+  - id: work_postprocessing.self
+    from: work_postprocessing
+    to: work_postprocessing
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - work_revision_needed
+    guidance: Continue Work table or figure production without changing Codex scientific results.
+  - id: work_postprocessing.to_development
+    from: work_postprocessing
+    to: development
+    kind: backward
+    eligibility:
+      all:
+        - codex_output_defect_found
+        - implementation_rework_needed
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Return to Development when Work reveals a reproducible computation or aggregation defect.
+  - id: work_postprocessing.to_confirmation
+    from: work_postprocessing
+    to: confirmation
+    kind: backward
+    eligibility:
+      all:
+        - formal_output_gap_found
+        - confirmation_spec_frozen
+        - no_critical_correctness_risk
+        - continuation_warranted
+      none:
+        - implementation_rework_needed
+        - stop_warranted
+    guidance: Resume the frozen Confirmation task set when Work reveals only missing formal outputs.
+  - id: work_postprocessing.to_ablation_diagnosis
+    from: work_postprocessing
+    to: ablation_diagnosis
+    kind: backward
+    eligibility:
+      all:
+        - bounded_diagnosis_needed
+        - diagnostic_scope_ready
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - codex_output_defect_found
+        - stop_warranted
+    guidance: Enter bounded Diagnosis only for a TODO-defined explanation need revealed during complete visualization.
+  - id: work_postprocessing.to_completed
+    from: work_postprocessing
+    to: completed
+    kind: terminal
+    eligibility:
+      all:
+        - work_tables_complete
+        - work_figures_complete
+        - work_outputs_traceable
+        - todo_completion_evidence_satisfied
+        - codex_outputs_ready_for_work
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - work_revision_needed
+        - codex_output_defect_found
+        - formal_output_gap_found
+        - stop_warranted
+    guidance: Complete the TODO after Work outputs are complete and the human accepts closure.
+  - id: work_postprocessing.to_stopped
+    from: work_postprocessing
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop without completion only through explicit human confirmation.
+
+  - id: completed.self
+    from: completed
+    to: completed
+    kind: self
+    eligibility:
+      always: true
+    guidance: Keep a completed TODO terminal; new scientific work requires a new TODO.
+  - id: stopped.self
+    from: stopped
+    to: stopped
+    kind: self
+    eligibility:
+      always: true
+    guidance: Keep a stopped TODO terminal; reopening scientific work requires a new TODO or explicit redesign.

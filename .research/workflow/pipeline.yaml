@@ -1,270 +1,239 @@
-schema_version: 3
-name: human-work-codex-blocking-research-pipeline
+schema_version: 6
+name: research-task-system
 purpose: >-
-  定义人类宏观研究、Work 抽象衔接、Codex 持续执行之间的控制边界。
-  Codex 在阶段和长时运行处直接阻塞等待人类，整个 TODO 完成后才返回 Work。
+  Route a TODO-defined research task through reusable Work and Codex Skills,
+  maintain a rule-driven machine lifecycle state, and preserve the TODO as the
+  only scientific handoff document.
+
+artifacts:
+  todo:
+    template: .research/templates/TODO.md
+    owns:
+      - complete_research_definition
+      - mathematical_and_algorithmic_specification
+      - variables_controls_metrics_and_statistics
+      - required_outputs_and_completion_criteria
+      - output_path_references
+    execution_edits_limited_to:
+      - output_path_values
+  task_state:
+    template: .research/templates/task-state.yaml
+    state_machine: .research/workflow/state-machine.yaml
+    default_path_pattern: results/{todo_id}/task-state.yaml
+    owns:
+      - current_lifecycle_state
+      - current_execution_status
+      - state_machine_rule_set_version
+      - evaluated_transition_rules
+      - eligible_transition_rule_paths
+      - codex_transition_recommendation
+      - explicit_human_transition_history
+      - immutable_transition_evaluation_snapshots
+    prohibited_from_storing:
+      - duplicated_todo_content
+      - mathematical_definitions
+      - scientific_result_narrative
+      - formal_interpretation
+    is_scientific_handoff: false
+  technical_outputs:
+    default_root: results/{todo_id}
+    may_include:
+      - task_state
+      - raw_outputs
+      - task_manifests
+      - checkpoints
+      - logs
+      - run_level_tables
+      - aggregate_tables
+      - condition_merged_tables
+      - notebooks
+      - figures
+    do_not_replace_todo_as_handoff: true
 
 roles:
   human:
     owns:
-      - complete_research_report
-      - research_question_hypothesis_and_macro_design
-      - todo_start_approval
-      - direct_codex_stage_review
+      - scientific_question_hypothesis_and_design
+      - todo_approval
+      - transition_rule_path_confirmation
+      - semantic_change_approval
       - long_running_job_launch
-      - experiment_pattern_analysis_and_mechanism_report
+      - scientific_interpretation_and_report
+      - todo_completion_or_stop_decision
       - next_todo_decision
   work:
     owns:
-      - project_specific_abstraction
-      - todo_and_initial_workflow_authoring
-      - codex_dispatch_after_human_approval
-      - post_codex_publication_table_curation
-      - result_package_delivery
-      - post_human_report_information_gain_assessment
+      - complete_todo_authoring
+      - post_codex_table_curation
+      - post_codex_figure_production
+      - work_output_path_updates_in_todo
+      - post_report_information_gain_assessment
   codex:
     owns:
-      - continuous_todo_execution
-      - direct_human_review_gates
-      - implementation_and_agile_testing
-      - experiment_scripts_and_execution
-      - raw_data_runs_and_complete_aggregation
-      - append_only_todo_evidence_entries
-      - codex_execution_bundle
+      - task_state_initialization
+      - implementation_within_todo_scope
+      - risk_driven_testing
+      - experiment_preflight_and_execution_code
+      - immutable_raw_results
+      - complete_aggregation_and_condition_merge
+      - codex_result_path_updates_in_todo
+      - transition_rule_evaluation
+      - transition_recommendation
+      - confirmed_transition_application
 
-control_model:
-  work_to_codex_call:
-    starts_when: "human approves the TODO and initial Codex scope"
-    remains_active_across:
-      - exploration
-      - development
-      - pilot
-      - confirmation
-      - ablation_diagnosis
-      - direct_human_stage_reviews
-      - direct_human_long_run_interventions
-    returns_when:
-      - "human approves Codex execution completion"
-      - "human stops the TODO"
-      - "an unresolved blocker makes continuation impossible"
-    forbidden_reentry:
-      - "Work does not register evidence between stages"
-      - "Work does not translate human stage comments"
-      - "Work does not rebuild the Codex loadout during the active call"
+routing:
+  implicit_entry_skill: skills/research-task-router/SKILL.md
+  internal_skills_require_explicit_selection: true
+  task_creation: skills/research-report-to-todos/SKILL.md
+  task_execution: skills/research-todo-executor/SKILL.md
+  state_transition: skills/research-state-transition/SKILL.md
+  post_codex_table_curation: skills/publication-table-curation/SKILL.md
+  post_codex_figure_production: skills/research-figure-production/SKILL.md
+  post_report_assessment: skills/post-report-assessment/SKILL.md
+  current_state_rule: >-
+    Resolve the active lifecycle state from the task-state YAML. If the file is
+    absent, initialize it at todo_ready. Do not infer the active state from
+    result-directory contents or from a stage name in old conversation text.
+  transition_rule: >-
+    After a state reaches a decision boundary, evaluate every outgoing rule,
+    include the self-transition, write eligible rule paths and one Codex
+    recommendation, and wait for explicit human confirmation before changing
+    current.state.
+  selection_rule: >-
+    Select one primary workflow Skill, the Skill for the current state when it
+    is executable, the state-transition Skill at decision boundaries, and only
+    the capability Skills required by the TODO and requested action.
+
+skill_catalog:
+  workflows:
+    task_router: skills/research-task-router/SKILL.md
+    todo_executor: skills/research-todo-executor/SKILL.md
+    state_transition: skills/research-state-transition/SKILL.md
+  codex_states:
+    exploration: skills/research-exploration/SKILL.md
+    development: skills/research-development/SKILL.md
+    pilot: skills/research-pilot/SKILL.md
+    confirmation: skills/research-confirmation/SKILL.md
+    ablation_diagnosis: skills/research-ablation-diagnosis/SKILL.md
+  work_state:
+    work_postprocessing:
+      - skills/publication-table-curation/SKILL.md
+      - skills/research-figure-production/SKILL.md
+  capabilities:
+    computing_implementation: skills/research-computing-implementation/SKILL.md
+    agile_testing: skills/research-agile-testing/SKILL.md
+    batch_execution: skills/research-batch-execution/SKILL.md
+    evidence_aggregation: skills/research-evidence-aggregation/SKILL.md
+    human_review_gate: skills/human-research-review-gate/SKILL.md
+
+state_definitions:
+  todo_ready:
+    purpose: Hold a complete TODO until the human confirms an eligible initial state.
+  exploration:
+    purpose: Verify project mappings, data semantics, existing capabilities, and assumptions with the smallest decisive probes.
+    default_capabilities:
+      - skills/research-agile-testing/SKILL.md
+      - skills/human-research-review-gate/SKILL.md
+  development:
+    purpose: Build the minimum scientifically faithful implementation that is credible for Pilot or another TODO-defined endpoint.
+    default_capabilities:
+      - skills/research-computing-implementation/SKILL.md
+      - skills/research-agile-testing/SKILL.md
+      - skills/human-research-review-gate/SKILL.md
+  pilot:
+    purpose: Run a controlled, complete Pilot grid with independent repeats, performance evidence, and full result preservation.
+    default_capabilities:
+      - skills/research-computing-implementation/SKILL.md
+      - skills/research-agile-testing/SKILL.md
+      - skills/research-evidence-aggregation/SKILL.md
+      - skills/human-research-review-gate/SKILL.md
+    conditional_capabilities:
+      - skill: skills/research-batch-execution/SKILL.md
+        when: multiple recoverable units, heavy I/O, or runtime require it
+  confirmation:
+    purpose: Execute the frozen confirmatory specification and preserve complete formal evidence.
+    default_capabilities:
+      - skills/research-computing-implementation/SKILL.md
+      - skills/research-agile-testing/SKILL.md
+      - skills/research-batch-execution/SKILL.md
+      - skills/research-evidence-aggregation/SKILL.md
+      - skills/human-research-review-gate/SKILL.md
+  ablation_diagnosis:
+    purpose: Distinguish a bounded set of approved component contributions, candidate explanations, or failure causes.
+    default_capabilities:
+      - skills/research-computing-implementation/SKILL.md
+      - skills/research-agile-testing/SKILL.md
+      - skills/human-research-review-gate/SKILL.md
+    conditional_capabilities:
+      - skill: skills/research-batch-execution/SKILL.md
+        when: multiple recoverable units, heavy I/O, or runtime require it
+      - skill: skills/research-evidence-aggregation/SKILL.md
+        when: repeated research metrics are produced
+  work_postprocessing:
+    purpose: Curate complete tables and produce reproducible figures from TODO-referenced Codex outputs.
+    ordered_capabilities:
+      - skills/publication-table-curation/SKILL.md
+      - skills/research-figure-production/SKILL.md
+  completed:
+    purpose: Preserve a human-confirmed terminal completion state.
+  stopped:
+    purpose: Preserve a human-confirmed terminal stop state.
+
+state_protocol:
+  initialize:
+    - Derive todo_id and result root from the TODO and policy.
+    - Create task-state YAML at todo_ready when it does not exist.
+    - Evaluate initial outgoing rules before applying a human-selected state.
+  before_execution:
+    - Read the TODO, task-state YAML, policy, pipeline, and state machine.
+    - Refuse execution when a transition review is awaiting a human decision.
+    - Execute only current.state unless the human explicitly approves and applies another eligible rule path.
+  after_codex_state:
+    - Record execution status, artifact references, and predicate evidence in task-state YAML.
+    - Set execution.decision_boundary_reached to true, current.status to awaiting_transition_evaluation, and transition_review.status to evaluation_required.
+    - Invoke research-state-transition in Evaluate mode.
+    - Keep current.state unchanged.
+    - Present all eligible rule paths, including self, and one Codex recommendation.
+    - Stop for human confirmation.
+  after_work_state:
+    - Update only Work output path values in the TODO.
+    - Record Work artifact facts and outgoing-rule predicate evidence in task-state YAML.
+    - Set execution.decision_boundary_reached to true, current.status to awaiting_transition_evaluation, and transition_review.status to evaluation_required.
+    - Return tables and figures to the human without a transition recommendation.
+    - Require Codex to evaluate closure, self, rework, or stop rules before any later lifecycle action.
+  apply_transition:
+    - Require an eligible rule path explicitly selected by the human.
+    - Resolve a target-only selection only when exactly one eligible rule reaches that target.
+    - Require the rule ID and target to match the recorded evaluation and current revision.
+    - Verify state revision and evaluated rule-set version.
+    - Append immutable transition history with the complete evaluation snapshot and atomically update current.state.
+    - Do not execute the target state unless execution is also explicitly authorized.
 
 invariants:
-  - "Human stage review is direct between Codex and the human."
-  - "Codex supplies an initial recommendation, but only human approval authorizes continuation."
-  - "Codex appends evidence paths to TODO before every experimental stage review."
-  - "Every reported experimental metric is computed per independent repeat and then aggregated over repeats under identical control conditions, unless a pre-approved estimator specifies otherwise."
-  - "Every planned task-variable combination appears in aggregate_full, including failed, missing, or incomplete combinations."
-  - "A run expected to exceed 30 minutes is launched by the human after Codex preflight."
-  - "Work begins result-table curation only after Codex returns the whole TODO."
-  - "Publication-table curation preserves the row count of every input aggregate_full table."
-  - "No next TODO starts before the human experiment report and a new human decision."
-
-status_values:
-  task:
-    - work_drafting
-    - awaiting_human_todo_approval
-    - ready_for_codex
-    - codex_active
-    - codex_waiting_human
-    - codex_completed
-    - work_curating_results
-    - awaiting_human_report
-    - work_assessing_next_task
-    - awaiting_human_next_todo_decision
-    - completed
-    - stopped
-    - blocked
-  codex_call:
-    - not_started
-    - active
-    - waiting_human_review
-    - waiting_human_run
-    - waiting_human_results
-    - returned
-    - stopped
-    - blocked
-  stage:
-    - not_started
-    - active
-    - awaiting_human_review
-    - awaiting_human_run
-    - awaiting_human_results
-    - approved_to_continue
-    - completed
-    - blocked
-  human_stage_decision:
-    - continue_same_stage
-    - advance_to_stage
-    - return_to_stage
-    - request_specific_evidence
-    - approve_codex_completion
-    - stop_todo
-  work_post_report_recommendation:
-    - continue_same_research_line
-    - targeted_followup
-    - redesign_before_more_experiments
-    - stop_evidence_sufficient
-    - stop_low_expected_information_gain
-    - propose_new_phenomenon_experiment
-
-loadout_policy:
-  global_instructions:
-    - "AGENTS.md"
-  executor:
-    - ".research/skills/codex/todo-executor/SKILL.md"
-  always_for_codex:
-    - ".research/skills/capabilities/human-review-gate/SKILL.md"
-    - ".research/skills/capabilities/agile-testing/SKILL.md"
-  conditional:
-    evidence_aggregation: ".research/skills/capabilities/evidence-aggregation/SKILL.md"
-    batch_execution: ".research/skills/capabilities/batch-execution/SKILL.md"
-  rule: >-
-    Codex loads exactly one phase skill at a time. After a direct human decision,
-    Codex records the decision and rebuilds its own loadout without returning to Work.
-    Evidence aggregation is loaded whenever a stage produces research metrics. Batch execution
-    is loaded whenever combinations, repeats, samples, recovery, or runtime require it.
-
-codex_stage_cycle:
-  - codex_loads_current_phase_skill
-  - codex_executes_the_human_approved_scope_in_small_vertical_slices
-  - codex_runs_risk_based_minimum_sufficient_tests
-  - "if experimental data exist: codex creates immutable raw data, runs, aggregate_full, and aggregation_manifest"
-  - codex_appends_fact_only_technical_and_evidence_entries_to_todo
-  - codex_writes_codex_stage_review
-  - codex_records_its_initial_recommendation_and_exact_proposed_scope
-  - codex_sets_call_waiting_human_review
-  - codex_blocks_without_returning_to_work
-  - human_reviews_and_decides_directly_with_codex
-  - codex_records_the_human_decision
-  - codex_rebuilds_loadout_and_resumes_or_finishes
-
-long_run_cycle:
-  trigger: "estimated continuous runtime exceeds 30 minutes"
-  steps:
-    - codex_finishes_agile_tests_and_one_combination_one_repeat_preflight
-    - codex_validates_checkpoint_logging_progress_and_aggregation_chain
-    - codex_presents_one_line_command_time_resources_paths_and_completion_criteria
-    - codex_sets_call_waiting_human_run
-    - human_launches_the_job
-    - codex_resumes_when_results_are_available
-    - codex_validates_completeness_and_aggregates_results
-  work_involvement: "none"
-
-stages:
-  exploration:
-    phase_skill: ".research/skills/codex/exploration/SKILL.md"
-    default_capabilities:
-      - ".research/skills/capabilities/human-review-gate/SKILL.md"
-      - ".research/skills/capabilities/agile-testing/SKILL.md"
-    optional_capabilities:
-      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
-      - ".research/skills/capabilities/batch-execution/SKILL.md"
-    purpose: "核对项目事实、数据语义、现有能力和研究方案的可落地前提。"
-    human_allowed_transitions:
-      - action: continue_same_stage
-      - action: advance_to_stage
-        target: development
-      - action: request_specific_evidence
-      - action: approve_codex_completion
-      - action: stop_todo
-  development:
-    phase_skill: ".research/skills/codex/development/SKILL.md"
-    default_capabilities:
-      - ".research/skills/capabilities/human-review-gate/SKILL.md"
-      - ".research/skills/capabilities/agile-testing/SKILL.md"
-    optional_capabilities:
-      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
-      - ".research/skills/capabilities/batch-execution/SKILL.md"
-    purpose: "实现最小可信研究能力，并通过风险驱动的敏捷测试建立正确性。"
-    human_allowed_transitions:
-      - action: continue_same_stage
-      - action: advance_to_stage
-        target: pilot
-      - action: return_to_stage
-        target: exploration
-      - action: request_specific_evidence
-      - action: approve_codex_completion
-      - action: stop_todo
-  pilot:
-    phase_skill: ".research/skills/codex/pilot/SKILL.md"
-    default_capabilities:
-      - ".research/skills/capabilities/human-review-gate/SKILL.md"
-      - ".research/skills/capabilities/agile-testing/SKILL.md"
-      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
-      - ".research/skills/capabilities/batch-execution/SKILL.md"
-    optional_capabilities: []
-    purpose: "用小规模完整组合和重复实验检查参数、趋势、稳定性和资源边界。"
-    human_allowed_transitions:
-      - action: continue_same_stage
-      - action: advance_to_stage
-        target: confirmation
-      - action: advance_to_stage
-        target: ablation_diagnosis
-      - action: return_to_stage
-        target: development
-      - action: request_specific_evidence
-      - action: approve_codex_completion
-      - action: stop_todo
-  confirmation:
-    phase_skill: ".research/skills/codex/confirmation/SKILL.md"
-    default_capabilities:
-      - ".research/skills/capabilities/human-review-gate/SKILL.md"
-      - ".research/skills/capabilities/agile-testing/SKILL.md"
-      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
-      - ".research/skills/capabilities/batch-execution/SKILL.md"
-    optional_capabilities: []
-    purpose: "在冻结设置下完成正式实验入口、长时人类运行和完整重复聚合。"
-    human_allowed_transitions:
-      - action: continue_same_stage
-      - action: advance_to_stage
-        target: ablation_diagnosis
-      - action: return_to_stage
-        target: pilot
-      - action: return_to_stage
-        target: development
-      - action: request_specific_evidence
-      - action: approve_codex_completion
-      - action: stop_todo
-  ablation_diagnosis:
-    phase_skill: ".research/skills/codex/ablation-diagnosis/SKILL.md"
-    default_capabilities:
-      - ".research/skills/capabilities/human-review-gate/SKILL.md"
-      - ".research/skills/capabilities/agile-testing/SKILL.md"
-      - ".research/skills/capabilities/evidence-aggregation/SKILL.md"
-      - ".research/skills/capabilities/batch-execution/SKILL.md"
-    optional_capabilities: []
-    purpose: "针对人类批准的有限问题执行最小消融或诊断。"
-    human_allowed_transitions:
-      - action: continue_same_stage
-      - action: return_to_stage
-        target: confirmation
-      - action: return_to_stage
-        target: pilot
-      - action: return_to_stage
-        target: development
-      - action: request_specific_evidence
-      - action: approve_codex_completion
-      - action: stop_todo
-
-codex_return_protocol:
-  trigger: "human_stage_decision == approve_codex_completion"
-  steps:
-    - codex_checks_all_todo_evidence_references
-    - codex_checks_all_experimental_tables_and_manifests
-    - codex_writes_codex_execution_bundle
-    - codex_sets_task_codex_completed
-    - codex_returns_control_to_work
+  - The TODO is the only scientific task handoff document.
+  - The task-state YAML is machine lifecycle control and never duplicates the TODO.
+  - Codex and Work edit only Output References path values in the TODO during execution.
+  - Every state evaluation includes an eligible transition to itself.
+  - Rule evaluation does not change current.state.
+  - A pending review is invalid when its state revision or rule-set version no longer matches.
+  - Only an explicit human confirmation applies a transition.
+  - A human may select any eligible rule path, including the self-transition, not only the Codex recommendation.
+  - A rule path outside the eligible set requires new evidence, a rule-set change, or a TODO/scientific-scope decision before transition.
+  - Every reported metric is computed at the TODO-defined independent-repeat level before aggregation unless another estimator is explicitly defined.
+  - Every planned combination remains represented, including failed, missing, invalid, or incomplete combinations.
+  - Bulk numerical results are never written one CSV row at a time.
+  - A job at or above the runtime threshold is launched by the human after preflight.
+  - Work starts table curation and figure production only in work_postprocessing and after Codex result paths are present in the TODO.
+  - Work creates no additional Markdown handoff and records only curated-table paths and the figure-directory path in the TODO.
+  - No new scientific question is hidden inside an existing TODO.
 
 post_codex_protocol:
-  - work_validates_the_codex_execution_bundle
-  - work_curates_each_aggregate_full_into_a_same_row_count_publication_table
-  - work_writes_a_column_transformation_manifest
-  - work_updates_todo_final_handoff_references
-  - work_submits_result_package_to_human
-  - human_writes_the_experiment_report
-  - work_assesses_future_information_gain_using_the_human_report
-  - human_approves_rejects_or_revises_any_next_todo
+  - Resolve Codex result paths from the TODO.
+  - Confirm current.state is work_postprocessing.
+  - Curate complete tables without changing row count or stable combination keys.
+  - Produce figures in an ipynb using complete raw results, complete condition-merged tables, or both.
+  - Save the notebook, exported figures, and a machine-readable figure manifest inside the figure directory.
+  - Update only the Work curated table paths and Work figure directory path in the TODO.
+  - Record Work predicates, mark execution.decision_boundary_reached true, and mark transition_review.status evaluation_required.
+  - Return scientific observations and artifacts to the human rather than writing a second handoff document.
+  - Require later Codex transition evaluation before completion or rework.

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Computing Implementation"
+  short_description: "Implement scientific Python or MATLAB"
+  default_prompt: "Use $research-computing-implementation to design or optimize the Python or MATLAB implementation without changing scientific semantics."
+policy:
+  allow_implicit_invocation: false

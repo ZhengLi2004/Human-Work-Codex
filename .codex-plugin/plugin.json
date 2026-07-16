@@ -1,0 +1,37 @@
+{
+  "name": "research-task-system",
+  "version": "6.0.0",
+  "description": "TODO-centered, rule-driven human-governed research workflows with persistent YAML state, explicit self-transitions, exact rule-path approval, Python/MATLAB execution, complete evidence, Work table curation, and reproducible figures.",
+  "keywords": [
+    "research",
+    "todo",
+    "codex",
+    "work",
+    "python",
+    "matlab",
+    "experiments",
+    "figures",
+    "evidence",
+    "state-machine",
+    "yaml",
+    "human-in-the-loop"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Research Task System",
+    "shortDescription": "Route rule-driven research across Work and Codex",
+    "longDescription": "Author one complete research TODO, maintain a rule-driven YAML lifecycle with versioned transition rules, explicit self-transitions, Codex recommendations, and human-confirmed rule paths; execute Python or MATLAB research code, preserve complete evidence, curate tables, and produce reproducible Work figures without parallel scientific handoffs.",
+    "developerName": "Research Task System",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Research Task System to author complete TODO specifications from this research material.",
+      "Use Research Task System to initialize or inspect task state, evaluate all outgoing rules including self, and wait for human confirmation of one rule path.",
+      "Use Research Task System to execute the recorded current state of this TODO.",
+      "Use Research Task System to curate completed tables and create reproducible figures after work_postprocessing is confirmed, then mark Codex transition evaluation as required."
+    ]
+  }
+}

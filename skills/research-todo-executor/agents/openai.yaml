@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research TODO Executor"
+  short_description: "Execute the recorded Codex state"
+  default_prompt: "Use $research-todo-executor to execute the current Codex-owned state recorded for this complete TODO."
+policy:
+  allow_implicit_invocation: false

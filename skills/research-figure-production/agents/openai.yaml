@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Figure Production"
+  short_description: "Create reproducible Work figures"
+  default_prompt: "Use $research-figure-production during work_postprocessing to create an executed ipynb and figures from complete Codex sources, then mark Codex transition evaluation as required."
+policy:
+  allow_implicit_invocation: false

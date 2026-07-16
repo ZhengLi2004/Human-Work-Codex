@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Confirmation"
+  short_description: "Run the frozen formal state"
+  default_prompt: "Use $research-confirmation when task-state current.state is confirmation."
+policy:
+  allow_implicit_invocation: false

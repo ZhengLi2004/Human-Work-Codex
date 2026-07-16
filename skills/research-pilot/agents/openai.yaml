@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Pilot"
+  short_description: "Run controlled complete Pilot evidence"
+  default_prompt: "Use $research-pilot when task-state current.state is pilot."
+policy:
+  allow_implicit_invocation: false

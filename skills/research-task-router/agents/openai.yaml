@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Task Router"
+  short_description: "Route TODO and lifecycle state workflows"
+  default_prompt: "Use $research-task-router to resolve the TODO, task-state YAML, current state, and minimum required Skill set."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research State Transition"
+  short_description: "Evaluate and apply eligible rule paths"
+  default_prompt: "Use $research-state-transition to evaluate all outgoing lifecycle rules including self, or apply one explicitly human-confirmed eligible rule_id and target."
+policy:
+  allow_implicit_invocation: false

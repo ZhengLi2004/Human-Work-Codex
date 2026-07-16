@@ -1,135 +1,127 @@
-# TODO-[Work 预填：编号]：[Work 预填：直接描述本任务要回答的项目内研究问题]
+# TODO-[Work: identifier]: [Work: research task title]
 
-> **任务目标**：[Work 预填：忠实承接人类研究报告，说明本 TODO 要在什么项目对象与条件下实现或验证什么，以及结果将支撑哪项研究判断。]
+> **Objective:** [Work: state exactly what will be implemented or tested, under which conditions, and which research judgment the result will inform.]
 
-## 1. 来源与任务定位
+## 1. Research Definition
 
-- 人类研究报告：[Work 预填：报告路径、版本以及对应章节；不要求人类改写为额外模板]
-- 上位研究问题：[Work 预填：引用或保持语义不变地概括人类报告中的研究问题]
-- 相关研究假设：[Work 预填：引用或保持语义不变地概括与本 TODO 直接相关的假设；无方向性假设时明确说明]
-- 本 TODO 的作用：[Work 预填：说明它在整体研究方案中解除哪一项实现或证据不确定性]
-- 项目范围：[Work 预填：涉及的项目、数据对象、方法对象或实验对象]
-- 依赖 TODO：[Work 预填：必须先完成或复用证据的任务；没有则写“无”]
-- Workflow：[Work 预填：本任务 `workflow.yaml` 路径]
-- 当前状态：[Work 初始化，Codex/Work 按职责更新：Awaiting Approval / Codex Active / Codex Completed / Awaiting Human Report / Completed / Stopped / Blocked]
+- Source research material: [path, version, and relevant section]
+- Parent research question: [preserve the researcher's intended meaning]
+- Hypothesis or unresolved uncertainty: [state the pre-analysis expectation or uncertainty]
+- Role of this TODO: [state which implementation or evidence gap this task closes]
+- Project scope: [project, dataset, method, and experimental object]
+- Dependencies: [other TODO identifiers, or `None`]
 
-## 2. 抽象与实现衔接
+## 2. Method and Mathematical Specification
 
-> 本节由 Work 在 Codex 启动前完成。它描述“研究方案在当前项目中对应什么”，不描述 Codex 的阶段流程、命令、checkpoint 或日志规则。
+> This section defines what must be computed. Generic Exploration, Development, Pilot, Confirmation, testing, checkpointing, logging, and review procedures belong in Skills rather than in this TODO.
 
-### 2.1 项目对象映射
+### 2.1 Project-object mapping
 
-[Work 预填：把人类报告中的研究对象、方法组成、输入、输出、对照和评价对象映射到项目中的实际对象。明确已经确认的映射和仍需 Codex 在 Exploration 中核对的前提。]
+[Map the research objects, method components, inputs, outputs, controls, and evaluation targets to concrete repository modules and data. Distinguish verified mappings from assumptions that require Exploration.]
 
-### 2.2 技术手段
+### 2.2 Inputs, outputs, and analysis units
 
-[Work 预填：说明为回答核心问题需要采用的主要方法、实现能力、比较方式和观测方式。保持与人类初步方案一致；若项目事实可能导致语义偏差，明确列为待人类决定的问题。]
+- Inputs: [objects, fields, units, shapes, time range, and sample scope]
+- Outputs: [model outputs, derived quantities, or result tables]
+- Basic analysis unit: [trial / session / subject / seed / sample / other]
+- Independent statistical unit: [unit used for uncertainty and inference]
+- Pairing, blocking, or stratification: [definition, or `None`]
 
-### 2.3 任务变量
+### 2.3 Mathematical and algorithmic definitions
 
-| 变量 | 研究含义 | 全部计划取值或范围 | 作用 |
+[Specify every formula, variable, objective, transformation, estimator, baseline, and control that changes scientific meaning. Define every symbol.]
+
+Example:
+
+\[
+\hat{\theta}=\arg\min_{\theta\in\Theta}\mathcal{L}(X,Y;\theta)
+\]
+
+where:
+
+- \(X\): [definition]
+- \(Y\): [definition]
+- \(\theta\): [definition]
+- \(\mathcal{L}\): [definition and evaluation domain]
+
+### 2.4 Task variables
+
+| Variable | Research meaning | Complete values or sampling rule | Role |
 |---|---|---|---|
-| [Work 预填：有意改变的因素] | [说明它代表的研究条件] | [列出完整计划值；连续范围需说明采样规则] | [主比较 / Pilot 参数探查 / 条件分层等] |
+| [intentionally varied factor] | [meaning] | [complete range] | [primary comparison / Pilot parameter study / stratification / other] |
 
-### 2.4 控制变量
+### 2.5 Controls and comparability
 
-| 控制项 | 固定方式 | 固定理由 | 不一致时的处理 |
+| Control | Fixed rule | Reason | Action if violated |
 |---|---|---|---|
-| [Work 预填：保证可比性的条件] | [固定值或固定规则] | [说明为何必须一致] | [提升为分组键 / 标记不可比 / 等待人类批准] |
+| [comparability condition] | [value or rule] | [reason] | [promote to grouping key / mark incomparable / request approval] |
 
-### 2.5 指标、重复与组合
+### 2.6 Metrics, repeats, and statistical question
 
-| 指标 | 研究含义 | 定义或方向 | 每组合重复要求 |
+| Metric | Research meaning | Mathematical definition, direction, or source | Repeats per combination |
 |---|---|---|---|
-| [Work 预填：用于判断的指标] | [它回答什么问题] | [越高越好、越低越好或公式/来源] | [人类指定次数；未指定且含随机性时默认至少 3 次] |
+| [metric] | [question answered] | [formula / direction / implementation source] | [number or rule] |
 
-- 独立重复单位：[Work 预填：随机种子、独立初始化、独立采样或其他重复方式]
-- 完整组合集合：[Work 预填：说明必须覆盖的任务变量笛卡尔积或明确列出的组合]
-- 可平均条件：[Work 预填：只有哪些运行在任务变量组合和控制条件相同时可以平均]
-- 指标聚合层级：[Work 预填：通常先在每个独立重复内计算指标，再跨重复汇总；若采用配对、分层或池化估计，说明统计单位和依据]
-- 配对或分层规则：[Work 预填：需要保持的配对关系、阻断因素或分层键；没有则写“无”]
-- 不完整判定：[Work 预填：重复不足、组合缺失、控制条件变化、指标不可比时如何标记]
+- Complete planned combination set: [Cartesian product or explicit list]
+- Independent repeat mechanism: [seed, initialization, independent sample, or other]
+- Aggregation level: [normally compute within each independent repeat, then summarize across repeats]
+- Primary comparison or statistical test: [null hypothesis, effect size, interval, or decision rule]
+- Failure, missingness, invalidation, and exclusion rules: [predefined rules]
+- Incomplete or incomparable evidence rule: [predefined rule]
 
-### 2.6 任务边界
+### 2.7 Fixed decisions and approved flexibility
 
-**要完成：**
+**Fixed unless the human explicitly approves a change:**
 
-- [Work 预填：回答本任务问题所必需的实现、测试或实验]
-- [Work 预填：必须形成的技术能力、原始数据和完整聚合证据]
+- [methods, metrics, data scope, parameters, or comparison definitions]
 
-**不包含：**
+**Adjustable within the approved scope:**
 
-- [Work 预填：不属于本 TODO 的问题、扩展、重构或机制解释]
-- [Work 预填：应由后续 TODO 或人类实验报告承担的内容]
+- [engineering or Pilot choices and their permitted bounds]
 
-### 2.7 完成证据
+### 2.8 Scope
 
-本 TODO 不以得到正结果为完成条件。Codex 执行完成至少需要：
+**Required:**
 
-- [Work 预填：必须实现并经测试证明的研究能力]
-- [Work 预填：必须执行、交付脚本或明确无法执行的实验范围]
-- [Work 预填：必须生成的原始数据、`runs`、`aggregate_full`、manifest 和阶段审查材料]
-- [Work 预填：必须回答或明确无法回答的技术与实验问题]
+- [implementation, validation, and experiment work needed to answer the task]
+- [raw outputs and complete evidence that must be produced]
 
-## 3. Codex 实际技术记录
+**Excluded:**
 
-> 本节由 Codex 在执行中追加事实。不得改写第 1—2 节的研究语义。每次追加应引用对应阶段审查和人类批准记录。
+- [mechanistic interpretation, expansion, or refactoring outside this TODO]
+- [work that belongs to another TODO or to the human research report]
 
-### T-[Codex 执行中追加：编号]：[Codex 执行中追加：阶段与实际完成的技术能力]
+## 3. Required Outputs and Completion Criteria
 
-- 阶段：[Codex 填写：Exploration / Development / Pilot / Confirmation / Ablation-Diagnosis]
-- 实际完成：[Codex 填写：实现、脚本、数据链或验证能力的事实性摘要]
-- 关键技术选择：[Codex 填写：会影响复现、可比性或结果解释的实际选择]
-- 人类批准的实质变化：[Codex 填写：批准来源、变化内容及影响；没有则写“无”]
-- 测试摘要：[Codex 填写：采用了哪些风险驱动测试、结果及证据路径]
-- 已知限制：[Codex 填写：当前仍存在且可能影响后续工作的技术事实]
-- 记录时间：[Codex 填写：带时区时间]
+### 3.1 Required technical artifacts
 
-<!-- 每形成一组会影响研究理解的实际技术事实，就复制一个 T-xx 区块。 -->
+- [implementation and correctness evidence]
+- [immutable raw results]
+- [complete run-level table, complete aggregate table, and condition-merged table]
+- [failure, missingness, anomaly, and limitation records]
+- [code, configuration, version, command, checkpoint, and log information needed for reproduction]
 
-## 4. Codex 实验与证据索引
+### 3.2 Questions the outputs must answer
 
-> 本节由 Codex 在每个实验性阶段结束后、提交人类审查前立即追加。完整数值以磁盘表文件为准，不在 TODO 中手工抄录全部行。任何汇报指标必须来自同一控制条件下多次重复的 `aggregate_full`。
+1. [technical or experimental question that must be answerable]
+2. [question that must explicitly be marked unanswerable when evidence is insufficient]
 
-### E-[Codex 执行中追加：编号]：[Codex 执行中追加：该证据回答的具体问题]
+### 3.3 Completion criteria
 
-- 阶段：[Codex 填写：Exploration / Development / Pilot / Confirmation / Ablation-Diagnosis]
-- 证据类型：[Codex 填写：Technical / Experimental]
-- 目的：[Codex 填写：该证据用于核对什么能力、参数、趋势或正式判断]
-- 实验规格：[Experimental 时填写 `experiment_spec` 路径；Technical 时写“不适用”]
-- 计划任务变量组合数：[Experimental 时填写；Technical 时写“不适用”]
-- 每组合计划重复数：[Experimental 时填写；Technical 时写“不适用”]
-- 完整性状态：[Codex 填写：Complete / Incomplete / Invalid，并说明缺失、失败或不可比原因]
-- 原始数据根目录：[Experimental 时填写不可变原始数据目录；Technical 时写“不适用”]
-- 独立运行表：[Experimental 时填写 `runs` 路径；Technical 时写“不适用”]
-- 完整聚合表：[Experimental 时填写 `aggregate_full` 路径；必须每个计划组合恰好一行]
-- 聚合清单：[Experimental 时填写 `aggregation_manifest` 路径；Technical 时写“不适用”]
-- 测试与验证证据：[Codex 填写：测试报告、日志或可复现实例路径]
-- Codex 阶段审查材料：[Codex 填写：`CODEX_STAGE_REVIEW.md` 路径]
-- 事实性摘要：[Codex 填写：覆盖全部组合地概括均值、离散性、失败、缺失和异常；Technical 时概括测试与能力事实；不解释机制，不只报告最佳组合]
-- Codex 初始建议：[Codex 填写：建议动作及依据；明确标记“待人类审批”]
-- 人类阶段决定：[Codex 在人类回复后填写：决定、批准范围和来源]
-- 及时报告时间：[Codex 填写：带时区时间]
+The TODO is complete whether the result is positive, negative, or inconclusive when:
 
-<!-- 每产生一组可独立审查的证据，就复制一个 E-xx 区块。 -->
+- the specification has been implemented faithfully or shown to be infeasible for an auditable reason;
+- required tests and experiments have completed, or every incomplete item has an auditable cause;
+- every planned combination has a `complete`, `incomplete`, `failed`, `missing`, or `invalid` state in the result artifacts;
+- the referenced outputs answer Section 3.2 or establish why the current design cannot answer it;
+- the human approves completion or termination of the TODO.
 
-## 5. Codex 返回后的结果与报告衔接
+## 4. Output References
 
-> 本节仅在 Codex 完成整个 TODO 并返回 Work 后填写。Work 不改变完整聚合表的行数或实验事实。
+> Codex and Work may edit only the path values below. Do not add status fields, summaries, interpretations, stage records, or other narrative content.
 
-- Codex 执行包：[Work 收尾填写：`CODEX_EXECUTION_BUNDLE.md` 路径]
-- 完整事实表：[Work 收尾填写：最终 `aggregate_full` 路径或路径列表]
-- 论文候选表：[Work 收尾填写：逐表保持行数不变、完成列级整理后的文件路径]
-- 输入/输出行数校验：[Work 收尾填写：每个输入表与对应输出表的行数，必须相等]
-- 列变换清单：[Work 收尾填写：删列、改名、枚举重命名、显示舍入、排序和追踪规则]
-- 交付结果包：[Work 收尾填写：提交给人类撰写实验报告的 `RESULT_PACKAGE.md` 路径]
-- 人类实验报告：[Work 收尾填写：人类完成的报告路径；未提交时写“待提交”]
-
-### Work 的报告后任务评估
-
-- 评估状态：[Work 收尾填写：Pending / Completed]
-- 建议：[Work 收尾填写：继续同一研究线 / 定向补充 / 先重设计 / 证据充分而停止 / 信息增益过低而停止 / 建议独立新现象实验]
-- 依据：[Work 收尾填写：引用人类实验报告、E-xx 和论文候选表，说明证据缺口、边际收益和预期信息增益]
-- 候选新现象：[Work 收尾填写：仅在数据中存在值得独立研究的候选规律时填写；引用具体行并明确它尚非机制结论]
-- 后续 TODO 建议：[Work 收尾填写：候选任务标题、核心问题和来源依据；没有则写“无”]
-- 人类后续决定：[Work 收尾填写：Awaiting / Approved / Rejected / Revised]
+- Codex result directory: [path]
+- Codex raw-result index or directory: [path or paths]
+- Codex condition-merged table(s): [path or paths]
+- Work curated table(s): [path or paths]
+- Work figure directory: [path]
