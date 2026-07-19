@@ -1,5 +1,5 @@
 schema_version: 1
-rule_set_version: 1
+rule_set_version: 2
 name: research-task-lifecycle
 purpose: >-
   Evaluate rule-based lifecycle transitions after each task state, preserve the
@@ -60,6 +60,10 @@ evaluation_protocol:
   work_handoff: >-
     Work records artifact predicates and marks evaluation_required; Codex must
     evaluate the outgoing rules before any further lifecycle action.
+  figure_review_handoff: >-
+    The figure_review state presents drafts covering all applicable data and waits for researcher
+    recommendations. After the output is recorded by reference, Codex evaluates
+    the outgoing rules before final figure production.
 
 rule_set_change_control:
   version_field: rule_set_version
@@ -97,7 +101,18 @@ states:
     capabilities:
       - skills/publication-table-curation/SKILL.md
       - skills/research-figure-production/SKILL.md
-    purpose: Curate complete tables and produce reproducible figures from TODO-referenced Codex outputs.
+    figure_skill_mode: planning
+    purpose: Curate complete tables and prepare figure plans and drafts that cover all applicable data for researcher review.
+  figure_review:
+    owner: human
+    executor: human_input
+    skill: skills/human-research-review-gate/SKILL.md
+    purpose: Review draft figures and coverage, then provide explicit inclusion, exclusion, revision, or schematic recommendations.
+  figure_production:
+    owner: work
+    skill: skills/research-figure-production/SKILL.md
+    figure_skill_mode: final
+    purpose: Produce final figures from the recorded recommendations and verify that they are complete, traceable, and not misleading.
   completed:
     owner: human
     terminal: true
@@ -201,12 +216,45 @@ predicate_catalog:
   work_tables_complete:
     meaning: Work curated all required logical tables without changing row count or stable combination keys.
     evidence: Curated-table paths and transformation checks.
+  figure_plan_complete:
+    meaning: The draft plan maps every scientifically relevant table field, planned condition, coverage state, and TODO metric to a figure or an explicit non-graphical accounting entry.
+    evidence: Figure plan and table-to-figure coverage manifest.
+  figure_method_basis_recorded:
+    meaning: Each proposed graphical method identifies an inspected relevant-paper figure or an established scientific-graphics convention without fabricated attribution.
+    evidence: Figure plan source citations or named convention and access limitation.
+  draft_figures_complete:
+    meaning: The planning notebook executed and produced the complete draft figure set declared by the figure plan.
+    evidence: Executed planning notebook, draft exports, and draft manifest.
+  figure_source_coverage_complete:
+    meaning: Every applicable stable key, condition, metric, coverage state, failure state, and selected logical source is represented or explicitly accounted for without favorable selection.
+    evidence: Source-to-figure coverage reconciliation and stable-key checks.
+  figure_review_material_ready:
+    meaning: Draft figures, graphical-method basis, coverage summary, and known limitations are available for interactive researcher review.
+    evidence: Draft artifacts and review input check.
+  figure_recommendations_recorded:
+    meaning: The researcher provided explicit recommendations about figures to include, exclude, revise, or supplement with a labeled schematic.
+    evidence: Conversation or machine-readable review reference.
+  figure_recommendations_within_scope:
+    meaning: The recorded recommendations change presentation only, or any requested scientific change has been separately approved and recorded through the TODO.
+    evidence: Recommendation-to-TODO scope comparison.
+  figure_review_clarification_needed:
+    meaning: Researcher recommendations are absent, ambiguous, internally conflicting, or require an unresolved scientific choice.
+    evidence: Interactive review record and unresolved-question list.
+  figure_plan_revision_needed:
+    meaning: The table-to-figure mapping or draft set must be revised before faithful final production can begin.
+    evidence: Coverage failure or explicit researcher request for a revised draft.
   work_figures_complete:
-    meaning: The executed notebook and required exported figures exist in the TODO-referenced figure directory.
-    evidence: Notebook, figures, and figure manifest.
+    meaning: The final executed notebook and every researcher-approved exported data figure or labeled schematic exist in the TODO-referenced figure directory.
+    evidence: Final notebook, figures, and figure manifest.
   work_outputs_traceable:
-    meaning: Every figure and curated value can be traced to complete applicable Codex sources under TODO-defined rules.
-    evidence: Stable keys, source paths, row counts, and figure manifest.
+    meaning: Every curated value, draft figure, and final data figure can be traced to complete applicable sources under TODO-defined rules.
+    evidence: Stable keys, source paths, row counts, transformation manifest, and figure manifests.
+  figure_integrity_audit_passed:
+    meaning: The final audit found no unexplained condition omissions, incorrect statistical units, misleading aggregation or scales, unsupported titles, ambiguous units, or unlabeled marks and series.
+    evidence: Machine-readable figure integrity audit and notebook checks.
+  misleading_figure_risk_found:
+    meaning: A draft or final figure can reasonably mislead because of omitted applicable data, unsupported framing, unexplained marks, inappropriate aggregation, scale choices, or an empirical-looking schematic.
+    evidence: Figure review or integrity-audit finding linked to the affected figure.
   codex_output_defect_found:
     meaning: Work discovered a reproducible defect in Codex computation, aggregation, or source completeness.
     evidence: Source-to-output mismatch or failed invariant.
@@ -214,8 +262,11 @@ predicate_catalog:
     meaning: Work discovered that the frozen formal task set is incomplete but not invalidated by an implementation change.
     evidence: Missing formal combinations or outputs under the frozen specification.
   work_revision_needed:
-    meaning: Work table or figure production must continue without changing Codex scientific results.
-    evidence: Missing, failed, or incorrect presentation artifacts.
+    meaning: Work table curation or figure planning must continue before researcher review without changing Codex scientific results.
+    evidence: Missing, failed, or incorrect curated tables, plans, drafts, or coverage records.
+  figure_revision_needed:
+    meaning: Final figure production must continue to implement recorded recommendations or correct a presentation or integrity defect without changing Codex scientific results.
+    evidence: Missing final artifact, unmet recommendation, or failed figure integrity check.
   stop_warranted:
     meaning: Continuing this TODO has insufficient value, is infeasible within scope, or the human explicitly requests termination.
     evidence: Bounded infeasibility, completion analysis, or explicit human instruction.
@@ -664,7 +715,9 @@ rules:
     recommend_when:
       any:
         - work_revision_needed
-    guidance: Continue Work table or figure production without changing Codex scientific results.
+        - figure_plan_revision_needed
+        - misleading_figure_risk_found
+    guidance: Continue table curation or figure planning that covers all applicable data before researcher review.
   - id: work_postprocessing.to_development
     from: work_postprocessing
     to: development
@@ -705,26 +758,33 @@ rules:
       none:
         - codex_output_defect_found
         - stop_warranted
-    guidance: Enter bounded Diagnosis only for a TODO-defined explanation need revealed during complete visualization.
-  - id: work_postprocessing.to_completed
+    guidance: Enter bounded Diagnosis only for a TODO-defined explanation need revealed during complete table or draft-figure review.
+  - id: work_postprocessing.to_figure_review
     from: work_postprocessing
-    to: completed
-    kind: terminal
+    to: figure_review
+    kind: forward
     eligibility:
       all:
+        - current_scope_executed
+        - required_artifacts_complete
         - work_tables_complete
-        - work_figures_complete
+        - figure_plan_complete
+        - figure_method_basis_recorded
+        - draft_figures_complete
+        - figure_source_coverage_complete
+        - figure_review_material_ready
         - work_outputs_traceable
-        - todo_completion_evidence_satisfied
         - codex_outputs_ready_for_work
         - no_critical_correctness_risk
         - no_scope_change_required
       none:
         - work_revision_needed
+        - figure_plan_revision_needed
+        - misleading_figure_risk_found
         - codex_output_defect_found
         - formal_output_gap_found
         - stop_warranted
-    guidance: Complete the TODO after Work outputs are complete and the human accepts closure.
+    guidance: Present the draft set and its record of all applicable data for explicit researcher review before final production.
   - id: work_postprocessing.to_stopped
     from: work_postprocessing
     to: stopped
@@ -733,6 +793,227 @@ rules:
       all:
         - stop_warranted
     guidance: Stop without completion only through explicit human confirmation.
+
+  - id: figure_review.self
+    from: figure_review
+    to: figure_review
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - same_state_work_remaining
+        - figure_review_clarification_needed
+    guidance: Wait for or clarify the researcher's figure recommendations without inferring preferences.
+  - id: figure_review.to_work_postprocessing
+    from: figure_review
+    to: work_postprocessing
+    kind: backward
+    eligibility:
+      all:
+        - figure_plan_revision_needed
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - codex_output_defect_found
+        - formal_output_gap_found
+        - stop_warranted
+    guidance: Revise the table-to-figure mapping or drafts when the researcher requests another planning pass.
+  - id: figure_review.to_development
+    from: figure_review
+    to: development
+    kind: backward
+    eligibility:
+      all:
+        - codex_output_defect_found
+        - implementation_rework_needed
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Return to Development when figure review exposes a reproducible computation or aggregation defect.
+  - id: figure_review.to_confirmation
+    from: figure_review
+    to: confirmation
+    kind: backward
+    eligibility:
+      all:
+        - formal_output_gap_found
+        - confirmation_spec_frozen
+        - no_critical_correctness_risk
+        - continuation_warranted
+      none:
+        - implementation_rework_needed
+        - stop_warranted
+    guidance: Resume frozen Confirmation when review exposes only missing formal outputs.
+  - id: figure_review.to_ablation_diagnosis
+    from: figure_review
+    to: ablation_diagnosis
+    kind: backward
+    eligibility:
+      all:
+        - bounded_diagnosis_needed
+        - diagnostic_scope_ready
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - codex_output_defect_found
+        - stop_warranted
+    guidance: Enter bounded Diagnosis only for an approved explanation need revealed by complete drafts.
+  - id: figure_review.to_figure_production
+    from: figure_review
+    to: figure_production
+    kind: forward
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - work_tables_complete
+        - figure_plan_complete
+        - figure_method_basis_recorded
+        - draft_figures_complete
+        - figure_source_coverage_complete
+        - figure_review_material_ready
+        - figure_recommendations_recorded
+        - figure_recommendations_within_scope
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - figure_review_clarification_needed
+        - figure_plan_revision_needed
+        - codex_output_defect_found
+        - formal_output_gap_found
+        - bounded_diagnosis_needed
+        - stop_warranted
+    guidance: Produce final figures only after explicit, in-scope researcher recommendations are recorded.
+  - id: figure_review.to_stopped
+    from: figure_review
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop during figure review only through explicit human confirmation.
+
+  - id: figure_production.self
+    from: figure_production
+    to: figure_production
+    kind: self
+    eligibility:
+      always: true
+    recommend_when:
+      any:
+        - same_state_work_remaining
+        - figure_revision_needed
+        - misleading_figure_risk_found
+    guidance: Continue final figure production until recommendations and integrity checks are satisfied.
+  - id: figure_production.to_work_postprocessing
+    from: figure_production
+    to: work_postprocessing
+    kind: backward
+    eligibility:
+      all:
+        - figure_plan_revision_needed
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - codex_output_defect_found
+        - stop_warranted
+    guidance: Return to planning when the final set cannot faithfully implement the approved table-to-figure mapping.
+  - id: figure_production.to_figure_review
+    from: figure_production
+    to: figure_review
+    kind: backward
+    eligibility:
+      all:
+        - figure_review_clarification_needed
+        - figure_review_material_ready
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - codex_output_defect_found
+        - stop_warranted
+    guidance: Request another researcher decision when the recorded recommendations are insufficient or conflicting.
+  - id: figure_production.to_development
+    from: figure_production
+    to: development
+    kind: backward
+    eligibility:
+      all:
+        - codex_output_defect_found
+        - implementation_rework_needed
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - stop_warranted
+    guidance: Return to Development when final QA exposes a reproducible computation or aggregation defect.
+  - id: figure_production.to_confirmation
+    from: figure_production
+    to: confirmation
+    kind: backward
+    eligibility:
+      all:
+        - formal_output_gap_found
+        - confirmation_spec_frozen
+        - no_critical_correctness_risk
+        - continuation_warranted
+      none:
+        - implementation_rework_needed
+        - stop_warranted
+    guidance: Resume frozen Confirmation when final QA exposes only missing formal outputs.
+  - id: figure_production.to_ablation_diagnosis
+    from: figure_production
+    to: ablation_diagnosis
+    kind: backward
+    eligibility:
+      all:
+        - bounded_diagnosis_needed
+        - diagnostic_scope_ready
+        - continuation_warranted
+        - no_scope_change_required
+      none:
+        - codex_output_defect_found
+        - stop_warranted
+    guidance: Enter bounded Diagnosis only for a TODO-defined explanation need revealed by the final complete figure set.
+  - id: figure_production.to_completed
+    from: figure_production
+    to: completed
+    kind: terminal
+    eligibility:
+      all:
+        - current_scope_executed
+        - required_artifacts_complete
+        - work_tables_complete
+        - work_figures_complete
+        - work_outputs_traceable
+        - figure_plan_complete
+        - figure_method_basis_recorded
+        - figure_source_coverage_complete
+        - figure_recommendations_recorded
+        - figure_recommendations_within_scope
+        - figure_integrity_audit_passed
+        - todo_completion_evidence_satisfied
+        - codex_outputs_ready_for_work
+        - no_critical_correctness_risk
+        - no_scope_change_required
+      none:
+        - work_revision_needed
+        - figure_plan_revision_needed
+        - figure_revision_needed
+        - figure_review_clarification_needed
+        - misleading_figure_risk_found
+        - codex_output_defect_found
+        - formal_output_gap_found
+        - stop_warranted
+    guidance: Complete only after final figures implement the review, cover the data, remain traceable, and pass the integrity audit.
+  - id: figure_production.to_stopped
+    from: figure_production
+    to: stopped
+    kind: terminal
+    eligibility:
+      all:
+        - stop_warranted
+    guidance: Stop final figure production only through explicit human confirmation.
 
   - id: completed.self
     from: completed

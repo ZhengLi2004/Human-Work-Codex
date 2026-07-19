@@ -80,6 +80,23 @@ predicate_results:
 
 Use `unknown` when evidence is absent, incomplete, or conflicting. Never treat missing evidence as proof of `false` or `true`.
 
+For `figure_review`, reference the researcher's interactive output rather than copying its narrative into task state. For example:
+
+```yaml
+predicate_results:
+  figure_recommendations_recorded:
+    value: true
+    evidence_refs:
+      - conversation:figure-review-2026-07-19
+  figure_recommendations_within_scope:
+    value: true
+    evidence_refs:
+      - results/TODO-004/figures/figure-plan.json
+      - conversation:figure-review-2026-07-19
+```
+
+The final figure notebook may consume the referenced output, but the task-state YAML stores only the predicate values and references.
+
 For transition eligibility, an `unknown` in an `all`, unresolved `any`, or `none` clause makes the non-self rule ineligible. In particular, `unknown` in a `none` clause is not treated as `false`.
 
 ## Eligibility truth model
@@ -167,7 +184,7 @@ Append one history entry only after human approval. Preserve the logical basis o
 ```yaml
 history:
   - revision: 1
-    rule_set_version: 1
+    rule_set_version: 2
     from: development
     to: pilot
     rule_id: development.to_pilot

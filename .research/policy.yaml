@@ -1,4 +1,4 @@
-schema_version: 6
+schema_version: 7
 name: research-task-system-policy
 
 routing:
@@ -24,6 +24,8 @@ transitions:
   rule_set_version_match_required: true
   preserve_evaluation_snapshot_in_history: true
   approve_and_execute_requires_explicit_wording: true
+  figure_planning_review_and_production_are_separate_states: true
+  researcher_figure_review_required: true
 
 resources:
   default_limits:
@@ -63,6 +65,32 @@ io:
 
 work_figures:
   notebook_format: ipynb
+  lifecycle_states:
+    planning: work_postprocessing
+    researcher_review: figure_review
+    final_production: figure_production
+  allowed_complete_source_classes:
+    - raw_computation_results
+    - condition_merged_tables
+    - validated_work_curated_tables
+  curated_source_requires_row_and_key_preservation_manifest: true
+  all_applicable_conditions_must_be_accounted_for: true
+  scientific_table_information_coverage_manifest_required: true
+  inspected_paper_or_established_convention_basis_required: true
+  draft_figure_set_required_before_researcher_review: true
+  researcher_may_recommend_include_exclude_revise_or_schematic: true
+  generalized_diagrams_must_be_labeled_schematic: true
+  generalized_diagrams_cannot_replace_data_figures: true
+  final_integrity_audit_required: true
+  final_integrity_checks:
+    - source_and_condition_coverage
+    - statistical_unit_and_aggregation
+    - title_claim_support
+    - axis_scale_and_units
+    - legend_and_series_explanation
+    - missingness_and_failure_visibility
+    - researcher_recommendation_traceability
+    - rendered_legibility
   preferred_processing_packages:
     - numpy
     - scipy
@@ -77,6 +105,19 @@ work_figures:
     - png
   todo_update_field: Work figure directory
   additional_markdown_handoff_forbidden: true
+
+communication:
+  prefer_established_technical_terms: true
+  coined_terms_require_operational_definition: true
+  describe_process_before_local_label: true
+  evaluative_adjectives_require_explicit_criteria: true
+  separate_facts_interpretation_predicates_and_recommendations: true
+  concise_direct_style_required: true
+  examples:
+    use_sparingly: true
+    maximum_per_fragile_rule_cluster: 2
+    illustrative_only: true
+    may_not_supply_task_semantics_or_data: true
 
 artifacts:
   todo_template: .research/templates/TODO.md

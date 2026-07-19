@@ -13,8 +13,12 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 | `pilot` | `research-todo-executor` + `research-pilot` | computing, testing, batch, aggregation | Planned scope or repeats unclear |
 | `confirmation` | `research-todo-executor` + `research-confirmation` | computing, testing, batch, aggregation | Frozen semantics or formal prerequisites absent |
 | `ablation_diagnosis` | `research-todo-executor` + `research-ablation-diagnosis` | computing, testing, batch, aggregation | Candidate explanations or intervention scope unclear |
-| `work_postprocessing` ready | `publication-table-curation` then `research-figure-production` | None | Codex source paths incomplete |
-| Work decision boundary | `research-state-transition` Evaluate | human gate | Work predicates or artifacts are inconsistent |
+| `work_postprocessing` ready | `publication-table-curation` then `research-figure-production` Planning mode | None | Complete source paths, stable keys, or coverage fields absent |
+| Work planning decision boundary | `research-state-transition` Evaluate | human gate | Curated tables, draft figures, source basis, or coverage manifest inconsistent |
+| `figure_review` ready | `human-research-review-gate` figure-review procedure | None | Drafts or coverage summary for all applicable data absent |
+| Figure-review decision boundary | `research-state-transition` Evaluate | human gate | Researcher output absent, ambiguous, out of scope, or unreferenced |
+| `figure_production` ready | `research-figure-production` Final mode | None | Recorded recommendations or approved source coverage absent |
+| Final-figure decision boundary | `research-state-transition` Evaluate | human gate | Integrity audit, traceability, or requested figure artifacts incomplete |
 | `completed` or `stopped` | no execution route | post-report assessment | Human requests work inside a terminal TODO |
 | Aggregate completed runs | `research-evidence-aggregation` | batch when recomputation is needed | Manifest/raw evidence absent |
 | Post-report next-step assessment | `post-report-assessment` | human gate | Human report absent |
@@ -28,6 +32,9 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 - `research-evidence-aggregation`: run-level metrics, aggregate tables, or condition-merged tables.
 - `research-state-transition`: initialization, post-state rule evaluation, or human-confirmed transition application.
 - `human-research-review-gate`: transition choice, semantic change, restricted long run, completion, stop, or redesign.
+- `research-figure-production` Planning mode: graphical-method selection, drafts covering all applicable data, and a coverage manifest during `work_postprocessing`.
+- `human-research-review-gate` figure-review procedure: interactive researcher feedback during `figure_review`; wait for output.
+- `research-figure-production` Final mode: implement recorded recommendations and audit the final figures during `figure_production`.
 
 ## Transition routing
 
@@ -47,6 +54,22 @@ human selects one eligible rule path
 research-state-transition Apply
     ↓
 router may execute the new state only when separately authorized
+```
+
+For figures, the required state sequence is:
+
+```text
+work_postprocessing planning and drafts
+    ↓
+rule evaluation and human-confirmed figure_review
+    ↓
+interactive researcher recommendations
+    ↓
+rule evaluation and human-confirmed figure_production
+    ↓
+final figures plus integrity audit
+    ↓
+rule evaluation and human-confirmed completion or rework
 ```
 
 ## Router output

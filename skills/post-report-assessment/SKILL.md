@@ -41,6 +41,7 @@ Use this Skill after the human scientific report is available. Evaluate whether 
 - Do not create a second report or handoff document.
 - Do not automatically create or start the next TODO.
 - Do not mutate the terminal lifecycle state; additional scientific work requires a new TODO or an explicitly governed redesign.
+- Use the report's established terminology where it is precise. Do not replace a concrete process or uncertainty with a newly coined abstract label, and tie evaluative language to the cited evidence.
 
 ## Output contract
 

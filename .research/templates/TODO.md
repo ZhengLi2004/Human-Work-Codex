@@ -100,6 +100,8 @@ where:
 - [complete run-level table, complete aggregate table, and condition-merged table]
 - [failure, missingness, anomaly, and limitation records]
 - [code, configuration, version, command, checkpoint, and log information needed for reproduction]
+- [scientific fields, metrics, conditions, and coverage states that the figure set must communicate]
+- [relevant paper figures whose graphical methods should be considered, or `None`]
 
 ### 3.2 Questions the outputs must answer
 

@@ -39,6 +39,10 @@ Stop when a missing definition would change grouping or statistical meaning.
 10. Validate uniqueness, completeness, comparability, traceability, and row counts.
 11. Update only the Codex result and condition-merged-table path values in the TODO.
 
+## Concise example
+
+If the plan contains two conditions and three independent repeats per condition, `runs` represents all six planned run identities. If one run fails, `aggregate_full` still contains both condition rows; the affected row reports `n_planned: 3`, `n_valid: 2`, and one failure rather than dropping the failed run or the condition.
+
 ## Mandatory validations
 
 - every planned combination is present in `aggregate_full`;
@@ -67,6 +71,7 @@ Stop when a missing definition would change grouping or statistical meaning.
 - Do not substitute a best seed, best subject, or best parameter for the complete combination summary.
 - Do not change failure or exclusion rules after viewing the result direction.
 - Do not hide coverage or dispersion fields.
+- Describe joins, grouping, and aggregation with standard database and statistical terms; do not invent a label for an ordinary sequence of operations.
 
 ## Output contract
 

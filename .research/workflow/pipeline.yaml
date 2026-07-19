@@ -1,4 +1,4 @@
-schema_version: 6
+schema_version: 7
 name: research-task-system
 purpose: >-
   Route a TODO-defined research task through reusable Work and Codex Skills,
@@ -48,6 +48,9 @@ artifacts:
       - condition_merged_tables
       - notebooks
       - figures
+      - figure_plans
+      - figure_coverage_manifests
+      - figure_integrity_audits
     do_not_replace_todo_as_handoff: true
 
 roles:
@@ -58,6 +61,7 @@ roles:
       - transition_rule_path_confirmation
       - semantic_change_approval
       - long_running_job_launch
+      - figure_selection_and_revision_feedback
       - scientific_interpretation_and_report
       - todo_completion_or_stop_decision
       - next_todo_decision
@@ -65,7 +69,8 @@ roles:
     owns:
       - complete_todo_authoring
       - post_codex_table_curation
-      - post_codex_figure_production
+      - complete_data_figure_planning_and_drafts
+      - final_figure_production_after_researcher_review
       - work_output_path_updates_in_todo
       - post_report_information_gain_assessment
   codex:
@@ -88,7 +93,9 @@ routing:
   task_execution: skills/research-todo-executor/SKILL.md
   state_transition: skills/research-state-transition/SKILL.md
   post_codex_table_curation: skills/publication-table-curation/SKILL.md
-  post_codex_figure_production: skills/research-figure-production/SKILL.md
+  post_codex_figure_planning: skills/research-figure-production/SKILL.md
+  researcher_figure_review: skills/human-research-review-gate/SKILL.md
+  final_figure_production: skills/research-figure-production/SKILL.md
   post_report_assessment: skills/post-report-assessment/SKILL.md
   current_state_rule: >-
     Resolve the active lifecycle state from the task-state YAML. If the file is
@@ -118,6 +125,10 @@ skill_catalog:
   work_state:
     work_postprocessing:
       - skills/publication-table-curation/SKILL.md
+      - skills/research-figure-production/SKILL.md
+    figure_review:
+      - skills/human-research-review-gate/SKILL.md
+    figure_production:
       - skills/research-figure-production/SKILL.md
   capabilities:
     computing_implementation: skills/research-computing-implementation/SKILL.md
@@ -170,10 +181,20 @@ state_definitions:
       - skill: skills/research-evidence-aggregation/SKILL.md
         when: repeated research metrics are produced
   work_postprocessing:
-    purpose: Curate complete tables and produce reproducible figures from TODO-referenced Codex outputs.
+    purpose: Curate complete tables, map all scientific table information to an efficient figure set, and prepare drafts covering all applicable data for researcher review.
     ordered_capabilities:
       - skills/publication-table-curation/SKILL.md
       - skills/research-figure-production/SKILL.md
+    figure_skill_mode: planning
+  figure_review:
+    purpose: Present draft figures and their coverage record, then wait for explicit researcher recommendations.
+    ordered_capabilities:
+      - skills/human-research-review-gate/SKILL.md
+  figure_production:
+    purpose: Produce the final figure set from the approved recommendations and pass the figure integrity and traceability audit.
+    ordered_capabilities:
+      - skills/research-figure-production/SKILL.md
+    figure_skill_mode: final
   completed:
     purpose: Preserve a human-confirmed terminal completion state.
   stopped:
@@ -195,12 +216,23 @@ state_protocol:
     - Keep current.state unchanged.
     - Present all eligible rule paths, including self, and one Codex recommendation.
     - Stop for human confirmation.
-  after_work_state:
+  after_work_planning_state:
     - Update only Work output path values in the TODO.
-    - Record Work artifact facts and outgoing-rule predicate evidence in task-state YAML.
+    - Record curated-table, figure-plan, draft, coverage, and source-basis facts in task-state YAML.
     - Set execution.decision_boundary_reached to true, current.status to awaiting_transition_evaluation, and transition_review.status to evaluation_required.
-    - Return tables and figures to the human without a transition recommendation.
-    - Require Codex to evaluate closure, self, rework, or stop rules before any later lifecycle action.
+    - Return tables and draft figures without treating them as final.
+    - Require Codex to evaluate the path to figure_review, self, rework, or stop before any later lifecycle action.
+  during_figure_review:
+    - Present every draft figure, its source and condition coverage, and the graphical-method basis.
+    - Ask the researcher which figures to include, exclude, revise, or supplement with a labeled schematic.
+    - Wait for the researcher's output; do not infer preferences from silence.
+    - Treat any requested change to metrics, data scope, inclusion rules, or scientific claims as a semantic-change request.
+    - Record figure-review predicate evidence by conversation or artifact reference, mark the decision boundary, and require Codex rule evaluation.
+  after_final_figure_state:
+    - Follow the recorded researcher recommendations without changing TODO-defined scientific meaning.
+    - Audit complete condition coverage, statistical units, aggregation, titles, axes, units, legends, series labels, missingness, claim support, and rendered legibility.
+    - Save the executed notebook, final figures, figure manifest, coverage manifest, and integrity audit inside the figure directory.
+    - Record final figure predicates, mark the decision boundary, and require Codex to evaluate completion, revision, rework, or stop.
   apply_transition:
     - Require an eligible rule path explicitly selected by the human.
     - Resolve a target-only selection only when exactly one eligible rule reaches that target.
@@ -223,17 +255,34 @@ invariants:
   - Every planned combination remains represented, including failed, missing, invalid, or incomplete combinations.
   - Bulk numerical results are never written one CSV row at a time.
   - A job at or above the runtime threshold is launched by the human after preflight.
-  - Work starts table curation and figure production only in work_postprocessing and after Codex result paths are present in the TODO.
+  - Work starts table curation and figure planning only in work_postprocessing and after Codex result paths are present in the TODO.
+  - Final figure production occurs only in figure_production after a separate figure_review state records researcher recommendations.
+  - A validated Work-curated table may be a complete figure source when its manifest proves row and stable-key preservation.
+  - Every scientifically relevant table field, planned condition, coverage state, and TODO metric is mapped to the draft figure set or explicitly accounted for in the coverage manifest.
+  - A generalized diagram is labeled as a schematic, cannot replace quantitative data figures, and cannot imply unsupported mechanisms.
+  - Completion requires a final audit for omitted conditions, misleading aggregation or scales, unsupported titles, and unexplained marks or series.
   - Work creates no additional Markdown handoff and records only curated-table paths and the figure-directory path in the TODO.
+  - Established technical terms are preferred; local labels are defined operationally and evaluative adjectives require explicit criteria.
+  - Examples clarify procedure but never supply task data, scientific definitions, thresholds, or approval.
   - No new scientific question is hidden inside an existing TODO.
 
-post_codex_protocol:
+figure_lifecycle_protocol:
   - Resolve Codex result paths from the TODO.
   - Confirm current.state is work_postprocessing.
   - Curate complete tables without changing row count or stable combination keys.
-  - Produce figures in an ipynb using complete raw results, complete condition-merged tables, or both.
-  - Save the notebook, exported figures, and a machine-readable figure manifest inside the figure directory.
+  - Inspect graphical methods in relevant papers when available and record the exact source; otherwise name the established convention used without inventing an attribution.
+  - Map all scientific table information and conditions to an efficient set of data figures; use multiple panels or figures when one plot would obscure the data.
+  - Create drafts covering all applicable data and machine-readable plan and coverage manifests in an ipynb using raw results, condition-merged tables, validated curated tables, or an explicit combination.
   - Update only the Work curated table paths and Work figure directory path in the TODO.
-  - Record Work predicates, mark execution.decision_boundary_reached true, and mark transition_review.status evaluation_required.
-  - Return scientific observations and artifacts to the human rather than writing a second handoff document.
-  - Require later Codex transition evaluation before completion or rework.
+  - Mark the work_postprocessing decision boundary and require Codex evaluation before figure_review.
+  - In figure_review, present drafts and coverage interactively, request researcher recommendations, and wait.
+  - Mark the figure_review decision boundary after the output is available and require Codex evaluation before figure_production.
+  - In figure_production, implement the recorded recommendations and run the final figure integrity and traceability audit.
+  - Mark the figure_production decision boundary and require Codex evaluation before completion or rework.
+
+communication_contract:
+  - Use established scientific and engineering terminology when it exists.
+  - Describe concrete operations before introducing a local label; never present an invented label as established terminology.
+  - Tie robust, significant, optimal, complete, and generalizable to TODO-defined or recorded criteria.
+  - Separate facts, interpretation, predicate judgments, and recommendations.
+  - Prefer one concise worked example for a fragile rule and add a second only when it demonstrates a materially different boundary case.

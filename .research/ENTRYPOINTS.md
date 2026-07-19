@@ -83,26 +83,62 @@ Before handing the command to me:
 - keep decision_boundary_reached false until the current state actually ends.
 ```
 
-## 6. Work: curate tables and produce figures
+## 6. Work: curate tables and prepare drafts covering all applicable data
 
 Use after the human has confirmed `work_postprocessing`:
 
 ```text
 Use $research-task-router for [TODO path].
 
-Confirm current.state is work_postprocessing. Curate the complete Codex tables without changing rows or stable keys, then create the required figures in an executed ipynb. Each figure must use complete applicable raw results, condition-merged tables, or both. Update only the Work table paths and figure-directory path in the TODO. Create no Markdown handoff.
+Confirm current.state is work_postprocessing. Curate the complete Codex tables without changing rows or stable keys. Then use $research-figure-production in Planning mode.
 
-When Work finishes, record the Work rule predicates, set decision_boundary_reached true and transition_review.status to evaluation_required, return the tables and figures to me, and do not recommend or apply a transition.
+Use complete raw results, complete condition-merged tables, or validated row/key-preserving Work tables. Inspect relevant paper figures when available, choose established graphical methods, map all scientific table information and planned conditions to an efficient draft set, and write the plan and coverage manifests. Do not call drafts final.
+
+When planning finishes, record the Work predicates, set decision_boundary_reached true and transition_review.status to evaluation_required, return the tables and drafts, and do not recommend or apply a transition.
 ```
 
-Expected route: `$publication-table-curation`, then `$research-figure-production`.
+Expected route: `$publication-table-curation`, then `$research-figure-production` Planning mode.
 
-## 7. Codex: evaluate closure or rework after Work
+## 7. Researcher: review the draft figure set
+
+Use after the human has confirmed and executed `work_postprocessing.to_figure_review`:
 
 ```text
 Use $research-task-router for [TODO path].
 
-The Work execution has reached its decision boundary. Evaluate every outgoing work_postprocessing rule, including work_postprocessing.self. Show all eligible rule paths, recommend one, and stop for my decision.
+Confirm current.state is figure_review. Present every draft figure with its question, source, graphical-method basis, statistical unit, and condition-coverage summary. Ask which figures to retain, exclude, revise, split, combine, or supplement with a labeled schematic. Wait for my output; do not infer preferences from silence.
+```
+
+Expected route: `$human-research-review-gate` figure-review procedure.
+
+Example researcher output:
+
+```text
+Retain F1. Split F2 by dataset so all conditions remain readable. Exclude F3 because it duplicates F1, but keep its condition coverage in F1. Add a labeled pipeline schematic that is clearly separate from the data figures.
+```
+
+After the output is referenced, mark the `figure_review` decision boundary and require Codex rule evaluation. The response is not automatically a transition approval.
+
+## 8. Work: produce and audit final figures
+
+Use after the human has confirmed and authorized `figure_review.to_figure_production`:
+
+```text
+Use $research-task-router for [TODO path].
+
+Confirm current.state is figure_production. Use $research-figure-production in Final mode. Implement the recorded researcher recommendations faithfully, execute the notebook from a clean kernel, export the final figures, and write figure_manifest.json and figure_integrity_audit.json.
+
+Audit source and condition coverage, statistical units, aggregation, titles, axes, scales, units, legends, every curve or mark, missingness, failure states, schematic labeling, and recommendation traceability. If any check fails, record revision or misleading-risk predicates and do not make completion eligible.
+```
+
+Expected route: `$research-figure-production` Final mode.
+
+## 9. Codex: evaluate closure or rework after final figures
+
+```text
+Use $research-task-router for [TODO path].
+
+The final figure execution has reached its decision boundary. Evaluate every outgoing figure_production rule, including figure_production.self. Show all eligible rule paths, recommend one, and stop for my decision.
 ```
 
 Expected route: `$research-state-transition` Evaluate + human gate.
@@ -110,10 +146,10 @@ Expected route: `$research-state-transition` Evaluate + human gate.
 Human completion example:
 
 ```text
-Approve work_postprocessing.to_completed (Work Postprocessing → Completed).
+Approve figure_production.to_completed (Figure Production → Completed).
 ```
 
-## 8. Post-report assessment
+## 10. Post-report assessment
 
 ```text
 Use $research-task-router to assess the next research action after my report: [report path].

@@ -1,6 +1,6 @@
 interface:
   display_name: "Human Research Review Gate"
   short_description: "Request a blocking human decision"
-  default_prompt: "Use $human-research-review-gate to present eligible rule paths or another verified decision boundary and stop for explicit human choice."
+  default_prompt: "Use $human-research-review-gate to present eligible rule paths, draft-figure review material, or another verified decision boundary and wait for explicit human output."
 policy:
   allow_implicit_invocation: false

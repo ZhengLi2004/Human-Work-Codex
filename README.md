@@ -1,9 +1,9 @@
 # Research Task System
 
-Research Task System turns one complete research TODO into a rule-driven Work/Codex workflow. It works as follow:
+Research Task System turns one complete research TODO into a rule-driven Work/Codex workflow with explicit human decisions.
 
 ```text
-Research TODO
+Research TODO (Written by researcher)
     ↓
 Write an implementation TODO (Better with GPT work)
     ↓
@@ -17,9 +17,11 @@ Update research state YAML
     ↓
 ...... (loop)
     ↓
-Update research state YAML as postprocessing (From now on better with GPT work)
+Curate tables and prepares drafts (Better with GPT work)
     ↓
-Execute the recorded state
+Review the drafts and supplies recommendations (Written by researcher)
+    ↓
+Produce and check final figures (Better with GPT work)
     ↓
 Finish
 ```
@@ -127,9 +129,23 @@ Use $research-task-router for TODO/[name].md.
 Execute the recorded current state.
 ```
 
-Start post-processing by：
+Start table curation and figure planning by:
 ```text
 Use @Research Task System to process TODO/[name].md.
+```
+
+Review draft figures after the approved transition to `figure_review`:
+
+```text
+Use $research-task-router for TODO/[name].md.
+Present every draft figure and its coverage of all applicable data, then wait for my recommendations.
+```
+
+Produce final figures only after the approved transition to `figure_production`:
+
+```text
+Use $research-task-router for TODO/[name].md.
+Implement my recorded figure recommendations and run the final figure integrity audit.
 ```
 
 Infer the outgoing state by:
@@ -137,3 +153,7 @@ Infer the outgoing state by:
 Use $research-task-router for TODO/[name].md.
 Evaluate outgoing rules. Do not apply.
 ```
+
+## Communication discipline
+
+The system uses established scientific and engineering terms when available. It describes concrete operations before introducing a necessary local label, ties evaluative terms to explicit criteria, and uses only a small number of examples to clarify fragile rules.

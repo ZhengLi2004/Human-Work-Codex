@@ -21,6 +21,9 @@
 | Buffered/partitioned I/O | interruption, duplicate, schema, row-count, and atomic-publish tests | two chunks and one damaged chunk |
 | Parallel scheduling | serial/parallel equivalence + duplicate/missing task reconciliation | small complete manifest |
 | Figure source completeness | stable-key/coverage comparison against logical source | one figure specification |
+| Figure title, axes, legend, or unexplained series | manifest-to-render audit plus visual inspection | every final figure |
+| Researcher figure recommendation | recommendation-to-manifest trace check | every requested include, exclude, revision, or schematic |
+| Generalized diagram mistaken for data | kind/label/source audit | every schematic |
 
 ## Oracle priority
 

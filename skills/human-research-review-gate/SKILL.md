@@ -1,6 +1,6 @@
 ---
 name: human-research-review-gate
-description: Present a blocking human decision for eligible lifecycle transitions, semantic changes, restricted long-run launch, completion, stop, or redesign. Use after factual evidence or transition evaluation is ready. Do not approve, apply, or persist the decision yourself.
+description: Present a blocking human decision for eligible lifecycle transitions, semantic changes, restricted long-run launch, researcher review of draft figures, completion, stop, or redesign. Use after factual evidence, figure-review material, or transition evaluation is ready. Do not approve or apply a lifecycle transition yourself.
 ---
 
 # Human Research Review Gate
@@ -14,6 +14,7 @@ Stop execution at a governance boundary and request one explicit human decision 
 - selecting one eligible transition rule path, including the self-transition;
 - approving a fixed-method, metric, control, data-scope, or completion-criterion change;
 - launching a restricted long-running job;
+- obtaining interactive researcher recommendations on draft figures covering all applicable data during `figure_review`;
 - accepting incomplete or incomparable evidence;
 - completing, stopping, or redesigning a TODO;
 - separating a new scientific question into another TODO.
@@ -33,6 +34,29 @@ When a transition review is pending:
 9. Stop.
 
 After the human responds, route the selection to `$research-state-transition` Apply. Do not edit the state file in this Skill.
+
+## Figure-review procedure
+
+Use only when `current.state: figure_review` and the planning artifacts are ready.
+
+1. State the TODO, task-state path, revision, and figure-directory path.
+2. Show or link every draft figure. For each, state the question, source class, graphical method, statistical unit, and represented conditions.
+3. Summarize the table-to-figure coverage check, including missing, failed, invalid, or incomparable conditions. Do not overwhelm the researcher with operational provenance fields.
+4. Identify which relevant paper figures were inspected, or state plainly that none were available and name the established plot convention used.
+5. Ask for concrete recommendations: retain, exclude with reason, revise, split or combine, or add a supplemental generalized diagram.
+6. State that a generalized diagram will be labeled as a schematic and cannot replace complete quantitative figures.
+7. Flag any requested metric, inclusion-rule, condition-scope, statistical-unit, or scientific-claim change as a semantic change requiring separate approval.
+8. Wait for the researcher's output. Do not infer approval or preferences from silence.
+9. When output arrives, preserve its meaning and provide a concise action list plus an exact conversation reference for predicate evidence. Do not convert a suggestion into transition approval.
+10. Mark the review execution decision boundary through the governing workflow and require `$research-state-transition` Evaluate before final production.
+
+Example prompt:
+
+> Draft F1 shows every method across all noise levels; F2 shows failure counts for the same condition keys. Please specify which figures to retain, exclude, or revise, and whether you want a supplemental schematic. Excluding a data figure does not permit its conditions to disappear from the final quantitative set.
+
+Example response handling:
+
+> Researcher request: retain F1, split F2 by dataset, and add a labeled pipeline schematic. These are presentation changes; no metric, condition, or inclusion rule changes were requested.
 
 ## Semantic-change procedure
 
@@ -71,6 +95,8 @@ Return:
 - `eligible_transitions` including the self rule when applicable;
 - `recommended_transition` with rule ID and target;
 - `alternatives`;
+- `figure_review_material` and `coverage_summary` when applicable;
+- `researcher_recommendations` and exact evidence reference after figure review output arrives;
 - `explicit_human_decision_requested`;
 - `execution_requires_separate_authorization`.
 
@@ -82,3 +108,5 @@ Return:
 - Do not write approval into the TODO.
 - Do not create a stage-review, workflow, gate, or result-summary Markdown file.
 - Do not weaken the proposed scope to avoid asking for approval.
+- Do not omit drafts or conditions to shorten a figure-review prompt; summarize coverage and link the complete artifacts.
+- Do not use invented technical labels or persuasive adjectives. Name established plot types and state evidence directly.

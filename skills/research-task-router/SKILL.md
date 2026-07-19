@@ -1,6 +1,6 @@
 ---
 name: research-task-router
-description: Route TODO-centered research using the task-state YAML and rule-driven lifecycle. Use for TODO authoring, state initialization/evaluation/application, execution of the current state, Work table/figure processing, or post-report assessment. Do not execute work or infer a state outside the recorded rules.
+description: Route TODO-centered research using the task-state YAML and rule-driven lifecycle. Use for TODO authoring, state initialization/evaluation/application, execution of the current state, Work table and figure planning, researcher figure review, final figure production, or post-report assessment. Do not execute work or infer a state outside the recorded rules.
 ---
 
 # Research Task Router
@@ -12,6 +12,7 @@ Use this Skill as the single entry router. Resolve the TODO, task-state YAML, cu
 The router classifies and validates. It does not implement code, run experiments, curate tables, create figures, evaluate scientific predicates, or approve transitions.
 
 Read `references/routing-table.md` for the routing matrix.
+Read `references/worked-examples.md` when a concrete route example would clarify a fragile boundary; do not load examples merely to restate an obvious route.
 
 ## Related Skills
 
@@ -21,7 +22,8 @@ Read `references/routing-table.md` for the routing matrix.
 | Execute the current Codex-owned state | `$research-todo-executor` plus the recorded state Skill |
 | Initialize, evaluate, or apply lifecycle state | `$research-state-transition` |
 | Curate completed result tables | `$publication-table-curation` |
-| Produce figures from completed results | `$research-figure-production` |
+| Plan draft figures or produce reviewed final figures | `$research-figure-production` in the mode fixed by current state |
+| Request researcher review of draft figures | `$human-research-review-gate` figure-review procedure |
 | Request a blocking human decision | `$human-research-review-gate` |
 | Assess the next action after a human report | `$post-report-assessment` |
 
@@ -54,7 +56,9 @@ Choose one primary route:
 | Evaluate outgoing rules after a state | `$research-state-transition` Evaluate |
 | Apply a human-confirmed eligible rule path | `$research-state-transition` Apply |
 | Execute `exploration`, `development`, `pilot`, `confirmation`, or `ablation_diagnosis` recorded in task state | `$research-todo-executor` plus exactly one state Skill |
-| Execute `work_postprocessing` | `$publication-table-curation`, then `$research-figure-production` |
+| Execute `work_postprocessing` | `$publication-table-curation`, then `$research-figure-production` Planning mode |
+| Execute `figure_review` | `$human-research-review-gate` figure-review procedure; wait for the researcher's output |
+| Execute `figure_production` | `$research-figure-production` Final mode |
 | Aggregate completed runs without a broader state request | `$research-evidence-aggregation` |
 | Assess information gain after the human report | `$post-report-assessment` |
 | Check routing only | Return a route diagnosis |
@@ -89,7 +93,9 @@ When `current.status` is `awaiting_transition_evaluation` or `transition_review.
 When `current.status` is `ready`:
 
 - route a Codex-owned state to `$research-todo-executor` only when the human requests execution of the recorded current state;
-- route `work_postprocessing` to Work table curation and figure production;
+- route `work_postprocessing` to Work table curation and figure planning/drafts;
+- route `figure_review` to the human gate and stop until the researcher supplies recommendations;
+- route `figure_production` to final figure production and integrity QA;
 - do not execute terminal states.
 
 If the human names a target different from `current.state`, require a recorded eligible transition and explicit confirmation before routing execution.
@@ -128,11 +134,21 @@ For Work:
 ```text
 work_postprocessing state
 → publication-table-curation
-→ research-figure-production
-→ mark the Work execution decision boundary
-→ return artifacts to the human with transition evaluation required
+→ research-figure-production Planning mode
+→ mark the planning decision boundary
 → Codex research-state-transition Evaluate
-→ human confirmation
+→ human confirmation of figure_review
+→ figure_review state
+→ present drafts and coverage of all applicable data
+→ wait for researcher recommendations
+→ mark the review decision boundary
+→ Codex research-state-transition Evaluate
+→ human confirmation of figure_production
+→ research-figure-production Final mode
+→ figure integrity and traceability audit
+→ mark the final-production decision boundary
+→ Codex research-state-transition Evaluate
+→ human confirmation of completion or rework
 ```
 
 ## Routing gates
@@ -147,6 +163,8 @@ Check in order:
 6. **Artifact gate:** Are the implementation inputs or result paths required by the selected Skill available?
 7. **Integrity gate:** Are failed results, complete combinations, independent repeats, and predefined metrics preserved?
 8. **I/O gate:** Does execution avoid row-at-a-time scientific result writes?
+9. **Figure-stage gate:** Is the requested action planning, researcher review, or final production, and does it match `current.state`?
+10. **Communication gate:** Are established technical terms used, local labels defined operationally, and evaluative claims tied to explicit evidence?
 
 If any gate fails, return a blocking diagnosis instead of invoking an execution Skill.
 
@@ -177,5 +195,8 @@ Return:
 - Do not omit the self-transition rule from a pending state decision.
 - Do not create a parallel scientific handoff document.
 - Do not route Work figure production to Codex experiment execution.
+- Do not route final figure production directly from `work_postprocessing`; `figure_review` and its recorded output are mandatory.
+- Do not treat a generalized schematic as a substitute for complete quantitative figures.
 - Do not route Codex aggregation to Work table curation.
 - Do not allow row-wise CSV updates, repeated DataFrame concatenation in result loops, or per-row MATLAB `writetable` calls.
+- Do not coin terminology when an established technical term or a concrete sequence of operations is clearer.

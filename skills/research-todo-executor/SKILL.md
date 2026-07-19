@@ -163,3 +163,4 @@ At each pause or state decision boundary, return:
 - Do not delete failed, intermediate, negative, or contradictory results.
 - Do not write scientific results one row at a time to CSV or another shared table.
 - Do not apply or execute the transition recommended after this state.
+- Report with established technical terms and direct evidence. Define any necessary local label operationally and avoid evaluative adjectives that are not tied to TODO criteria.

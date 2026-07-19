@@ -35,6 +35,14 @@ Do not split merely because a task has multiple implementation files or experime
 9. Reserve the TODO `Output References` section for paths only.
 10. Validate that Codex can execute the task and Work can later curate tables and produce figures using only the TODO plus referenced result files.
 
+## Concise example
+
+Too vague: "Measure model robustness several times and make a good plot."
+
+Sufficiently concrete: "For every model × noise-level combination, compute balanced accuracy within each independent seed, summarize across five seeds with the TODO-defined interval, retain failed seeds in coverage counts, and test the stated paired contrast."
+
+The example illustrates specificity only. It does not define the metric, repeat count, or test for another TODO.
+
 ## Project-specific computing definition
 
 When the implementation language matters, define the scientific interface rather than over-prescribing code structure. Record constraints that affect meaning, such as numerical precision, expected array shapes, GPU equivalence, or cross-language file compatibility. Leave language selection to `$research-computing-implementation` unless the research method or existing codebase requires one language.
@@ -55,3 +63,4 @@ Do not create any additional scientific handoff Markdown. Do not initialize task
 - Do not place generic Pilot, Confirmation, testing, checkpoint, logging, or plotting procedures in the TODO.
 - Do not start implementation or experimentation.
 - Do not add lifecycle status, transition, or state fields to the TODO.
+- Prefer established domain terms. When no standard term exists, describe the operations and define any necessary local label instead of presenting a coined term as established vocabulary.

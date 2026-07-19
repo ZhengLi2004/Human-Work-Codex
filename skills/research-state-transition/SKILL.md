@@ -45,7 +45,7 @@ Do not combine Evaluate and Apply unless the human's current instruction explici
 1. Verify that the file revision, TODO identity, `current.state`, and `execution.state` are internally consistent.
 2. Compare `state_machine_rule_set_version` with the current shared `rule_set_version`. If they differ, discard any stale pending review, update the stored version, and perform a fresh evaluation. Never reuse eligibility computed under an older rule set.
 3. For `todo_ready`, evaluate directly. For every other executable state, require `execution.decision_boundary_reached: true` and `transition_review.status` equal to `evaluation_required` or `not_evaluated`.
-4. Collect predicate evidence from the TODO, commands, tests, manifests, logs, raw outputs, complete tables, Work artifacts, and the current execution record as applicable.
+4. Collect predicate evidence from the TODO, commands, tests, manifests, logs, raw outputs, complete tables, Work artifacts, the referenced researcher figure-review output, and the current execution record as applicable.
 5. Record every predicate used by an outgoing rule as `true`, `false`, or `unknown` with evidence references. Do not convert missing evidence into `false`.
 6. Evaluate every outgoing rule for `current.state` using the shared truth model.
 7. Include the exact self-transition rule as eligible, including for terminal states.
@@ -66,7 +66,9 @@ Recommend:
 - a backward transition when a reproducible correctness, mapping, or implementation defect requires it;
 - a forward transition only when every entry predicate is supported;
 - `work_postprocessing` only when complete Codex outputs satisfy the Work input contract;
-- `completed` only after Work tables and figures are complete and traceable;
+- `figure_review` only after curated tables, drafts covering all applicable data, graphical-method basis, and source coverage are ready;
+- `figure_production` only after explicit in-scope researcher recommendations are recorded;
+- `completed` only from `figure_production`, after final tables and figures are complete, traceable, and pass the integrity audit;
 - `stopped` only when stopping is warranted and human confirmation is required.
 
 Do not recommend a new state merely because its result would be desirable.
@@ -125,3 +127,5 @@ Return:
 - A pending evaluation cannot be applied after its rule-set version or state revision changes; it must be evaluated again.
 - Do not execute a newly approved state unless execution is also explicitly authorized.
 - Do not use the task-state YAML as a second scientific handoff document.
+- Do not skip the `figure_review` state or infer researcher figure preferences from silence.
+- Use established technical terms in predicate rationales; describe concrete operations instead of inventing labels.

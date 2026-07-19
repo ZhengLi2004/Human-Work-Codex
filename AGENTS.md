@@ -4,8 +4,8 @@ This file contains rules that apply to every task. Reusable procedures belong in
 
 ## 1. Roles and authority
 
-- **The human researcher** owns the scientific question, hypotheses, study design, transition confirmation, long-running job launch, scientific interpretation, and the decision to complete, stop, redesign, or create a TODO.
-- **Work** authors the complete TODO, curates completed result tables, and produces figures after Codex outputs are ready.
+- **The human researcher** owns the scientific question, hypotheses, study design, transition confirmation, long-running job launch, scientific interpretation, figure-selection and revision feedback, and the decision to complete, stop, redesign, or create a TODO.
+- **Work** authors the complete TODO, curates completed result tables, prepares figure plans and drafts that cover all applicable data, and produces final figures after the researcher review is recorded.
 - **Codex** initializes and maintains machine lifecycle state, implements, tests, runs, aggregates, preserves technical evidence, evaluates transition rules, recommends one eligible rule path, and applies a transition only after explicit human confirmation.
 
 Resolve conflicts in this order:
@@ -60,6 +60,7 @@ Engineering choices may vary only when they preserve scientific semantics, contr
 - Preserve the evaluated predicates, eligible rule paths, blockers, and Codex recommendation as an immutable snapshot in transition history.
 - Do not execute the newly approved target unless the same or a later human instruction explicitly authorizes execution.
 - Jobs at or above the long-running threshold in `.research/policy.yaml` are launched by the human after Codex completes preflight and supplies a reproducible command.
+- Figure planning, researcher review, and final figure production are separate lifecycle states. Do not skip `figure_review` or treat an initial draft as a final figure.
 
 ## 5. Python and MATLAB implementation policy
 
@@ -101,14 +102,18 @@ Do not treat successful execution as scientific support. Do not present Explorat
 
 ## 8. Work table and figure responsibilities
 
-Work may operate only when the task-state YAML records `current.state: work_postprocessing` and that state is ready or validly resumed.
+Work may curate tables and prepare figure drafts only when `current.state: work_postprocessing`. It may produce final figures only when `current.state: figure_production`. The human review occurs in the separate `figure_review` state.
 
 - Work may curate presentation tables only through documented column-level transformations that preserve rows and stable combination keys.
-- Work produces figures in a Jupyter notebook using complete data from at least one of the following for each figure: raw computation results, Codex-generated condition-merged tables, or both.
-- Work must not select only favorable seeds, conditions, subjects, sessions, or records.
-- Work writes no additional Markdown handoff. It updates only curated-table path values and the final figure-directory path in the TODO.
-- Work records machine-readable artifact facts and outgoing-rule predicates in the task-state YAML, marks the Work decision boundary, and requires later Codex rule evaluation. It must not change `current.state`, evaluate transition rules, recommend a path, or approve a transition.
-- Figure notebooks, exported figures, and any machine-readable figure manifest remain inside the referenced figure directory.
+- During `work_postprocessing`, Work maps all scientifically relevant table information, planned conditions, coverage states, and TODO metrics to an efficient set of draft figures. It records which inspected paper figure or established scientific-graphics convention supports each graphical method.
+- A figure may use complete raw results, complete Codex condition-merged tables, or validated Work-curated tables. A curated table is sufficient only when its transformation manifest proves row and stable-key preservation and it retains the fields needed for the figure.
+- Work must not select only favorable seeds, conditions, subjects, sessions, records, files, or table partitions. Operational provenance columns need not be plotted, but omitted scientific fields or conditions must be accounted for in the coverage manifest.
+- Work presents the draft figure set and coverage summary during `figure_review`, then waits for researcher recommendations about inclusion, exclusion, revision, or supplemental generalized diagrams.
+- A generalized diagram is a labeled schematic, not an empirical result. It may supplement but never replace the complete data figures, and it must not imply unsupported mechanisms or measured relationships.
+- During `figure_production`, Work follows the recorded recommendations and checks the final set for missing conditions, misleading aggregation or scales, unexplained titles, unlabeled curves or marks, ambiguous units, and unsupported claims.
+- Work writes no additional Markdown handoff. It updates only curated-table path values and the figure-directory path in the TODO.
+- Work records machine-readable artifact facts and outgoing-rule predicates in the task-state YAML, marks each Work or human-review decision boundary, and requires later Codex rule evaluation. It must not change `current.state`, evaluate transition rules, recommend a path, or approve a transition.
+- Drafts, the executed notebook, exported figures, coverage and integrity audits, and machine-readable manifests remain inside the referenced figure directory.
 
 ## 9. Prohibited behavior
 
@@ -124,3 +129,18 @@ Do not:
 - launch a restricted long job or expand scientific scope without human approval;
 - create a second scientific handoff document;
 - add narrative execution records to the TODO beyond file or directory paths in `Output References`.
+- omit applicable conditions or series from a figure without making the omission and its TODO-defined basis explicit;
+- use a title, legend, axis, scale, or schematic that implies a claim not supported by the plotted data or approved research meaning.
+
+## 10. Terminology, examples, and communication
+
+- Prefer established terms from the relevant scientific field, statistics, numerical computing, data engineering, and software testing.
+- Do not coin a sophisticated-sounding noun when a standard term or a short sequence of operations is clearer. If no established term exists, describe the operations first; introduce a local label only when it is necessary, define it once, and do not present it as accepted terminology.
+- Tie evaluative words to explicit criteria. Use terms such as `robust`, `significant`, `optimal`, `complete`, or `generalizable` only when the TODO or recorded evidence defines and supports them.
+- Use direct sentences and limit decorative adjectives. Separate observed facts, interpretation, predicate judgments, and recommendations.
+- Use a small number of concrete examples to clarify fragile rules. Examples illustrate procedure only; they never supply task data, scientific definitions, thresholds, or approval.
+
+Example:
+
+- Avoid: "The semantic fidelity engine performs holistic evidence harmonization."
+- Prefer: "Validate the schema and stable keys, left-join observed runs onto the planned-condition table, then aggregate across independent repeats."
