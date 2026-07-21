@@ -111,6 +111,8 @@ Work may curate tables and prepare figure drafts only when `current.state: work_
 - Work presents the draft figure set and coverage summary during `figure_review`, then waits for researcher recommendations about inclusion, exclusion, revision, or supplemental generalized diagrams.
 - A generalized diagram is a labeled schematic, not an empirical result. It may supplement but never replace the complete data figures, and it must not imply unsupported mechanisms or measured relationships.
 - During `figure_production`, Work follows the recorded recommendations and checks the final set for missing conditions, misleading aggregation or scales, unexplained titles, unlabeled curves or marks, ambiguous units, and unsupported claims.
+- Durable draft and final figure generation must be reproducible from an executed Jupyter notebook. A standalone `.py` script may render only disposable metadata, layout, style, legend, scale, or other diagnostic previews; keep the script and every image it creates under the platform temporary directory, never under the result root, figure directory, or repository. A temporary preview is not a draft, final figure, scientific evidence, or predicate evidence and must be reproduced by the notebook before use.
+- Every Python-rendered chart, including a temporary diagnostic preview, must import `scienceplots` and apply a style stack whose base is `science`. Use `science` plus `no-latex` by default; add a named journal or language style only when required and record the exact stack. Missing SciencePlots is a dependency blocker, not permission to fall back silently.
 - Work writes no additional Markdown handoff. It updates only curated-table path values and the figure-directory path in the TODO.
 - Work records machine-readable artifact facts and outgoing-rule predicates in the task-state YAML, marks each Work or human-review decision boundary, and requires later Codex rule evaluation. It must not change `current.state`, evaluate transition rules, recommend a path, or approve a transition.
 - Drafts, the executed notebook, exported figures, coverage and integrity audits, and machine-readable manifests remain inside the referenced figure directory.
@@ -131,6 +133,8 @@ Do not:
 - add narrative execution records to the TODO beyond file or directory paths in `Output References`.
 - omit applicable conditions or series from a figure without making the omission and its TODO-defined basis explicit;
 - use a title, legend, axis, scale, or schematic that implies a claim not supported by the plotted data or approved research meaning.
+- promote a temporary `.py` preview or temporary image into a governed draft, final figure, manifest, or lifecycle evidence record;
+- generate a Python chart without the `science` SciencePlots base style.
 
 ## 10. Terminology, examples, and communication
 

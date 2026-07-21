@@ -96,7 +96,11 @@ ln -s ../skills .agents/skills
 | `SKILL.md` | Reusable workflow, guardrails, and output contract |
 | `AGENTS.md` | Permanent scientific and execution governance |
 | `.research/policy.yaml` | Adjustable resource, storage, and transition policy |
+| `skills/research-figure-production/references/` | Source-linked chart selection, caveat-audit, and Python plotting guidance |
+| `skills/research-figure-production/assets/scientific_plot_patterns.py` | Optional plotting helpers that avoid implicit filtering, aggregation, or uncertainty estimation |
 | `results/{todo_id}/` | State, logs, checkpoints, raw outputs, tables, notebooks, and figures |
+
+Governed draft and final charts come from an executed `.ipynb` and use a SciencePlots stack based on `science` (`science` + `no-latex` by default). Standalone `.py` plotting is reserved for disposable diagnostic previews; keep both the script and its images in the platform temporary directory and reproduce any retained design in the notebook.
 
 ## Usage
 

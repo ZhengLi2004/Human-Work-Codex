@@ -260,6 +260,8 @@ invariants:
   - A validated Work-curated table may be a complete figure source when its manifest proves row and stable-key preservation.
   - Every scientifically relevant table field, planned condition, coverage state, and TODO metric is mapped to the draft figure set or explicitly accounted for in the coverage manifest.
   - A generalized diagram is labeled as a schematic, cannot replace quantitative data figures, and cannot imply unsupported mechanisms.
+  - Every governed draft and final figure is reproduced by an executed Jupyter notebook; standalone Python diagnostic previews and their images remain disposable under the platform temporary directory and cannot satisfy artifact predicates.
+  - Every Python chart imports SciencePlots, uses a style stack based on science, and records the exact governed-figure stack in its manifest.
   - Completion requires a final audit for omitted conditions, misleading aggregation or scales, unsupported titles, and unexplained marks or series.
   - Work creates no additional Markdown handoff and records only curated-table paths and the figure-directory path in the TODO.
   - Established technical terms are preferred; local labels are defined operationally and evaluative adjectives require explicit criteria.
@@ -271,13 +273,16 @@ figure_lifecycle_protocol:
   - Confirm current.state is work_postprocessing.
   - Curate complete tables without changing row count or stable combination keys.
   - Inspect graphical methods in relevant papers when available and record the exact source; otherwise name the established convention used without inventing an attribution.
+  - Classify variable roles and the analytical task, compare feasible chart candidates, and record the selected chart, rejected alternatives, inspected links, Python example or copied-helper reference when used, and applicable caveat IDs.
   - Map all scientific table information and conditions to an efficient set of data figures; use multiple panels or figures when one plot would obscure the data.
-  - Create drafts covering all applicable data and machine-readable plan and coverage manifests in an ipynb using raw results, condition-merged tables, validated curated tables, or an explicit combination.
+  - Create drafts covering all applicable data and machine-readable plan and coverage manifests in an executed ipynb using raw results, condition-merged tables, validated curated tables, or an explicit combination.
+  - Use SciencePlots with the science base style for every Python chart and record the exact style stack; use science plus no-latex by default.
+  - Allow standalone Python plot scripts only for disposable diagnostic previews under the platform temporary directory; never promote their images to governed figure artifacts or predicate evidence.
   - Update only the Work curated table paths and Work figure directory path in the TODO.
   - Mark the work_postprocessing decision boundary and require Codex evaluation before figure_review.
   - In figure_review, present drafts and coverage interactively, request researcher recommendations, and wait.
   - Mark the figure_review decision boundary after the output is available and require Codex evaluation before figure_production.
-  - In figure_production, implement the recorded recommendations and run the final figure integrity and traceability audit.
+  - In figure_production, implement the recorded recommendations in an executed notebook and run the final figure integrity and traceability audit, including the SciencePlots style stack and pass, fail, or not-applicable evidence for every triggered chart caveat.
   - Mark the figure_production decision boundary and require Codex evaluation before completion or rework.
 
 communication_contract:

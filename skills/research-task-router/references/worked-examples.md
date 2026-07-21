@@ -29,13 +29,15 @@ Situation:
 
 Correct route:
 
-1. In `work_postprocessing`, curate the table, inspect relevant paper figures when available, map every method and noise condition to drafts, and write the coverage manifest.
+1. In `work_postprocessing`, curate the table, inspect relevant paper figures when available, map every method and noise condition to drafts, and render the governed set from an executed notebook using a SciencePlots stack based on `science`.
 2. Evaluate `work_postprocessing.to_figure_review`; do not call the drafts final.
 3. In `figure_review`, show the drafts and coverage summary and wait for the researcher to request inclusion, exclusion, revisions, or a supplemental schematic.
 4. After the review output is recorded and the transition is approved, enter `figure_production`.
 5. Produce the final figures and audit condition coverage, statistical units, titles, axes, units, legends, series, and missingness before evaluating completion.
 
 Incorrect route: curate the table, draw only the clearest two conditions, and transition directly from `work_postprocessing` to `completed`.
+
+A standalone `.py` layout preview is also not a draft. Keep its script and images under the platform temporary directory and reproduce any retained design in the executed notebook.
 
 ## Example 3: use standard terms or describe the process
 

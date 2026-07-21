@@ -2,6 +2,14 @@
 
 Use this reference after the TODO has fixed the scientific meaning. Language and package choices are engineering decisions unless the TODO explicitly fixes them.
 
+## Contents
+
+- [Selection matrix](#selection-matrix)
+- [Python implementation guidance](#python-implementation-guidance)
+- [MATLAB implementation guidance](#matlab-implementation-guidance)
+- [Visualization artifact boundary](#visualization-artifact-boundary)
+- [Cross-language boundary](#cross-language-boundary)
+
 ## Selection matrix
 
 | Workload characteristic | Prefer Python | Prefer MATLAB |
@@ -99,6 +107,16 @@ testCase = TestCase.forInteractiveUse;
 testCase.verifyThat(actual, IsEqualTo(expected, ...
     'Within', RelativeTolerance(1e-7)));
 ```
+
+## Visualization artifact boundary
+
+Use Python, Matplotlib, and SciencePlots for chart rendering in this repository, even when MATLAB produces the numerical source data.
+
+- Governed draft and final research figures come from an executed Jupyter notebook so code, configuration, and cell outputs remain reviewable together.
+- A standalone `.py` file may inspect metadata or render disposable layout, style, legend, scale, or other diagnostic cues. Create the script and all of its images under the platform temporary directory, not the repository, result root, or figure directory.
+- A temporary diagnostic cannot become a draft, final figure, scientific artifact, or predicate reference. Reproduce any retained choice in the executed notebook.
+- Import `scienceplots` before applying styles. Every Python chart uses a stack whose base is `science`; use `science` plus `no-latex` unless a tested environment and output requirement justify another recorded stack.
+- Treat a missing SciencePlots dependency as a blocker. Do not silently substitute Matplotlib defaults, seaborn defaults, or a MATLAB figure.
 
 ## Cross-language boundary
 

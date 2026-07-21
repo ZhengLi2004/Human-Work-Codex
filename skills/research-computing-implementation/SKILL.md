@@ -9,11 +9,7 @@ description: Design, implement, or optimize scientific computing code in Python 
 
 Use this Skill whenever scientific code is created or materially optimized. Select Python, MATLAB, or an explicit hybrid boundary based on the computational workload and the existing codebase, not personal preference.
 
-Read:
-
-- `references/python-matlab-guide.md` for package and function guidance;
-- `references/io-throughput.md` for bulk I/O rules and anti-patterns;
-- `assets/python_buffered_results_template.py` and `assets/matlab_buffered_results_template.m` when a starting implementation is useful.
+Read `references/python-matlab-guide.md` when choosing a language or package boundary, crossing Python/MATLAB, or generating a chart. Read `references/io-throughput.md` when result storage, file count, serialization, resume behavior, or I/O cost is material. Use `assets/python_buffered_results_template.py` or `assets/matlab_buffered_results_template.m` only when matching buffered-output boilerplate is useful.
 
 ## Choose the implementation language
 

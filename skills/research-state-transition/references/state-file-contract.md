@@ -1,5 +1,18 @@
 # Task-State File Contract
 
+## Contents
+
+- [Location](#location)
+- [Authority](#authority)
+- [Rule-set version](#rule-set-version)
+- [Status values](#status-values)
+- [Predicate results](#predicate-results)
+- [Eligibility truth model](#eligibility-truth-model)
+- [Evaluated rules and eligible transitions](#evaluated-rules-and-eligible-transitions)
+- [Human selection](#human-selection)
+- [Atomic update](#atomic-update)
+- [Transition history](#transition-history)
+
 ## Location
 
 Use the policy path pattern, normally:
@@ -184,7 +197,7 @@ Append one history entry only after human approval. Preserve the logical basis o
 ```yaml
 history:
   - revision: 1
-    rule_set_version: 2
+    rule_set_version: 3
     from: development
     to: pilot
     rule_id: development.to_pilot

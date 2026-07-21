@@ -92,7 +92,7 @@ Use $research-task-router for [TODO path].
 
 Confirm current.state is work_postprocessing. Curate the complete Codex tables without changing rows or stable keys. Then use $research-figure-production in Planning mode.
 
-Use complete raw results, complete condition-merged tables, or validated row/key-preserving Work tables. Inspect relevant paper figures when available, choose established graphical methods, map all scientific table information and planned conditions to an efficient draft set, and write the plan and coverage manifests. Do not call drafts final.
+Use complete raw results, complete condition-merged tables, or validated row/key-preserving Work tables. Inspect relevant paper figures when available, choose established graphical methods, map all scientific table information and planned conditions to an efficient draft set, and write the plan and coverage manifests. Generate governed drafts from an executed Jupyter notebook and apply the SciencePlots `science` + `no-latex` style stack. A standalone Python preview and every image it creates belong only in the platform temporary directory and cannot become a draft. Do not call drafts final.
 
 When planning finishes, record the Work predicates, set decision_boundary_reached true and transition_review.status to evaluation_required, return the tables and drafts, and do not recommend or apply a transition.
 ```
@@ -126,7 +126,7 @@ Use after the human has confirmed and authorized `figure_review.to_figure_produc
 ```text
 Use $research-task-router for [TODO path].
 
-Confirm current.state is figure_production. Use $research-figure-production in Final mode. Implement the recorded researcher recommendations faithfully, execute the notebook from a clean kernel, export the final figures, and write figure_manifest.json and figure_integrity_audit.json.
+Confirm current.state is figure_production. Use $research-figure-production in Final mode. Implement the recorded researcher recommendations faithfully, execute the notebook from a clean kernel, export the final figures with a recorded SciencePlots style stack based on `science`, and write figure_manifest.json and figure_integrity_audit.json.
 
 Audit source and condition coverage, statistical units, aggregation, titles, axes, scales, units, legends, every curve or mark, missingness, failure states, schematic labeling, and recommendation traceability. If any check fails, record revision or misleading-risk predicates and do not make completion eligible.
 ```

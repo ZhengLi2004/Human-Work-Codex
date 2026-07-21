@@ -1,5 +1,5 @@
 schema_version: 1
-rule_set_version: 2
+rule_set_version: 3
 name: research-task-lifecycle
 purpose: >-
   Evaluate rule-based lifecycle transitions after each task state, preserve the
@@ -223,8 +223,8 @@ predicate_catalog:
     meaning: Each proposed graphical method identifies an inspected relevant-paper figure or an established scientific-graphics convention without fabricated attribution.
     evidence: Figure plan source citations or named convention and access limitation.
   draft_figures_complete:
-    meaning: The planning notebook executed and produced the complete draft figure set declared by the figure plan.
-    evidence: Executed planning notebook, draft exports, and draft manifest.
+    meaning: The planning notebook executed with a recorded SciencePlots stack based on science and produced the complete draft figure set declared by the figure plan; temporary script previews do not count.
+    evidence: Executed planning notebook, recorded style stack, draft exports, and draft manifest.
   figure_source_coverage_complete:
     meaning: Every applicable stable key, condition, metric, coverage state, failure state, and selected logical source is represented or explicitly accounted for without favorable selection.
     evidence: Source-to-figure coverage reconciliation and stable-key checks.
@@ -244,13 +244,13 @@ predicate_catalog:
     meaning: The table-to-figure mapping or draft set must be revised before faithful final production can begin.
     evidence: Coverage failure or explicit researcher request for a revised draft.
   work_figures_complete:
-    meaning: The final executed notebook and every researcher-approved exported data figure or labeled schematic exist in the TODO-referenced figure directory.
-    evidence: Final notebook, figures, and figure manifest.
+    meaning: The final executed notebook and every researcher-approved exported data figure or labeled schematic exist in the TODO-referenced figure directory and record a SciencePlots stack based on science; no temporary script preview is promoted.
+    evidence: Final notebook, figures, style-stack record, and figure manifest.
   work_outputs_traceable:
     meaning: Every curated value, draft figure, and final data figure can be traced to complete applicable sources under TODO-defined rules.
     evidence: Stable keys, source paths, row counts, transformation manifest, and figure manifests.
   figure_integrity_audit_passed:
-    meaning: The final audit found no unexplained condition omissions, incorrect statistical units, misleading aggregation or scales, unsupported titles, ambiguous units, or unlabeled marks and series.
+    meaning: The final audit confirmed executed-notebook provenance and a SciencePlots stack based on science, and found no promoted temporary preview, unexplained condition omission, incorrect statistical unit, misleading aggregation or scale, unsupported title, ambiguous unit, or unlabeled mark or series.
     evidence: Machine-readable figure integrity audit and notebook checks.
   misleading_figure_risk_found:
     meaning: A draft or final figure can reasonably mislead because of omitted applicable data, unsupported framing, unexplained marks, inappropriate aggregation, scale choices, or an empirical-looking schematic.

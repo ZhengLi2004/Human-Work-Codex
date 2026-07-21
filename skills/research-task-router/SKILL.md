@@ -11,7 +11,7 @@ Use this Skill as the single entry router. Resolve the TODO, task-state YAML, cu
 
 The router classifies and validates. It does not implement code, run experiments, curate tables, create figures, evaluate scientific predicates, or approve transitions.
 
-Read `references/routing-table.md` for the routing matrix.
+Read `references/routing-table.md` when two routes overlap, a state-specific handoff is unclear, or the route must be checked against the full matrix.
 Read `references/worked-examples.md` when a concrete route example would clarify a fragile boundary; do not load examples merely to restate an obvious route.
 
 ## Related Skills
@@ -29,17 +29,14 @@ Read `references/worked-examples.md` when a concrete route example would clarify
 
 ## Resolve the task and state
 
-Resolve in this order:
+Locate the control artifacts in this order:
 
-1. the human's current instruction and explicit approvals;
-2. the applicable `AGENTS.md`;
-3. `.research/policy.yaml`;
-4. `.research/workflow/pipeline.yaml`;
-5. `.research/workflow/state-machine.yaml`;
-6. the TODO path explicitly provided by the human;
-7. the task-state YAML derived from the TODO identifier and result root;
-8. result paths recorded in the TODO;
-9. repository code and technical artifacts required by the selected workflow.
+1. the TODO path explicitly provided by the human;
+2. the task-state YAML derived from the TODO identifier and result root;
+3. result paths recorded in the TODO;
+4. the applicable `AGENTS.md`, shared state machine, policy, pipeline, selected Skills, repository code, and technical artifacts required by the route.
+
+When located sources conflict, apply the authority order in `AGENTS.md`: current human instruction, TODO scientific meaning, task-state lifecycle facts, `AGENTS.md`, shared state-machine rules, policy, selected Skills, then existing engineering conventions. Treat `.research/workflow/pipeline.yaml` as routing guidance that cannot override a higher-authority source.
 
 If the TODO cannot be identified, block. Do not guess a task identifier.
 

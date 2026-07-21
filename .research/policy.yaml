@@ -65,6 +65,17 @@ io:
 
 work_figures:
   notebook_format: ipynb
+  durable_render_source: executed_notebook
+  temporary_python_plot_probe_allowed: true
+  temporary_plot_output_root: system_temp
+  temporary_plot_outputs_are_disposable: true
+  temporary_plot_outputs_cannot_satisfy_figure_predicates: true
+  required_plot_style_package: SciencePlots
+  required_plot_style_base: science
+  default_plot_style_stack:
+    - science
+    - no-latex
+  plot_style_stack_manifest_required: true
   lifecycle_states:
     planning: work_postprocessing
     researcher_review: figure_review
@@ -77,6 +88,11 @@ work_figures:
   all_applicable_conditions_must_be_accounted_for: true
   scientific_table_information_coverage_manifest_required: true
   inspected_paper_or_established_convention_basis_required: true
+  chart_selection_record_required: true
+  chart_selection_reference: skills/research-figure-production/references/chart-selection-guide.md
+  chart_caveat_reference: skills/research-figure-production/references/chart-caveat-checklist.md
+  gallery_examples_cannot_define_scientific_semantics: true
+  applicable_chart_caveat_status_and_evidence_required: true
   draft_figure_set_required_before_researcher_review: true
   researcher_may_recommend_include_exclude_revise_or_schematic: true
   generalized_diagrams_must_be_labeled_schematic: true
@@ -90,6 +106,8 @@ work_figures:
     - legend_and_series_explanation
     - missingness_and_failure_visibility
     - researcher_recommendation_traceability
+    - chart_specific_caveats
+    - scienceplots_style
     - rendered_legibility
   preferred_processing_packages:
     - numpy

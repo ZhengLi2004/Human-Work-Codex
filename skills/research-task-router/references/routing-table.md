@@ -32,9 +32,11 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 - `research-evidence-aggregation`: run-level metrics, aggregate tables, or condition-merged tables.
 - `research-state-transition`: initialization, post-state rule evaluation, or human-confirmed transition application.
 - `human-research-review-gate`: transition choice, semantic change, restricted long run, completion, stop, or redesign.
-- `research-figure-production` Planning mode: graphical-method selection, drafts covering all applicable data, and a coverage manifest during `work_postprocessing`.
+- `research-figure-production` Planning mode: graphical-method selection, executed-notebook drafts covering all applicable data, mandatory SciencePlots styling, and a coverage manifest during `work_postprocessing`.
 - `human-research-review-gate` figure-review procedure: interactive researcher feedback during `figure_review`; wait for output.
-- `research-figure-production` Final mode: implement recorded recommendations and audit the final figures during `figure_production`.
+- `research-figure-production` Final mode: implement recorded recommendations in an executed notebook and audit the final figures, including the recorded SciencePlots style stack, during `figure_production`.
+
+Standalone `.py` plot scripts are not lifecycle routes. They may create only disposable diagnostic previews under the platform temporary directory; neither the script nor its images can satisfy a figure predicate.
 
 ## Transition routing
 

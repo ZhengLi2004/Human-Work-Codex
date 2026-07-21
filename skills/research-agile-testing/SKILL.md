@@ -24,7 +24,7 @@ Read `references/test-selection-matrix.md` for risk-to-test mapping.
 9. For optimized Python/MATLAB code, compare against the correctness reference within scientifically justified tolerances.
 10. Run the affected tests and report commands, environment, results, and uncovered risk.
 11. Convert reproducible real defects into regression tests.
-12. For figures, reconcile stable keys and planned conditions against the coverage manifest, then inspect every final title, axis, scale, unit, legend, curve, mark, and schematic label.
+12. For figures, verify that governed outputs come from the executed notebook, temporary `.py` previews remain under the platform temporary directory, and every chart records a SciencePlots stack based on `science`. Reconcile stable keys and planned conditions against the coverage manifest, then inspect every final title, axis, scale, unit, legend, curve, mark, and schematic label.
 
 ## Language-specific tools
 

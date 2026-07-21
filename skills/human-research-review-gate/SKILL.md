@@ -40,15 +40,16 @@ After the human responds, route the selection to `$research-state-transition` Ap
 Use only when `current.state: figure_review` and the planning artifacts are ready.
 
 1. State the TODO, task-state path, revision, and figure-directory path.
-2. Show or link every draft figure. For each, state the question, source class, graphical method, statistical unit, and represented conditions.
+2. Show or link every governed draft figure. For each, state the executed notebook, SciencePlots style stack, question, source class, graphical method, statistical unit, and represented conditions. Do not present a temporary `.py` preview.
 3. Summarize the table-to-figure coverage check, including missing, failed, invalid, or incomparable conditions. Do not overwhelm the researcher with operational provenance fields.
 4. Identify which relevant paper figures were inspected, or state plainly that none were available and name the established plot convention used.
-5. Ask for concrete recommendations: retain, exclude with reason, revise, split or combine, or add a supplemental generalized diagram.
-6. State that a generalized diagram will be labeled as a schematic and cannot replace complete quantitative figures.
-7. Flag any requested metric, inclusion-rule, condition-scope, statistical-unit, or scientific-claim change as a semantic change requiring separate approval.
-8. Wait for the researcher's output. Do not infer approval or preferences from silence.
-9. When output arrives, preserve its meaning and provide a concise action list plus an exact conversation reference for predicate evidence. Do not convert a suggestion into transition approval.
-10. Mark the review execution decision boundary through the governing workflow and require `$research-state-transition` Evaluate before final production.
+5. Summarize the selected chart, the plausible alternatives that were rejected, the selection reason, and the chart-specific caveats that the final audit will check. Link the exact Data-to-Viz or Python Gallery page only when it was actually inspected.
+6. Ask for concrete recommendations: retain, exclude with reason, revise, split or combine, or add a supplemental generalized diagram.
+7. State that a generalized diagram will be labeled as a schematic and cannot replace complete quantitative figures.
+8. Flag any requested metric, inclusion-rule, condition-scope, statistical-unit, or scientific-claim change as a semantic change requiring separate approval.
+9. Wait for the researcher's output. Do not infer approval or preferences from silence.
+10. When output arrives, preserve its meaning and provide a concise action list plus an exact conversation reference for predicate evidence. Do not convert a suggestion into transition approval.
+11. Mark the review execution decision boundary through the governing workflow and require `$research-state-transition` Evaluate before final production.
 
 Example prompt:
 

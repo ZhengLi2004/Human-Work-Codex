@@ -1,6 +1,6 @@
 {
   "name": "research-task-system",
-  "version": "7.0.0+codex.20260719044943",
+  "version": "7.0.0+codex.20260721142116",
   "description": "TODO-centered, rule-driven human-governed research workflows with persistent YAML state, explicit self-transitions, exact rule-path approval, complete evidence, and researcher-reviewed scientific figures.",
   "author": {
     "name": "Zheng Li"
