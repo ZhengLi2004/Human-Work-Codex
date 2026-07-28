@@ -5,6 +5,8 @@
 - [Location](#location)
 - [Authority](#authority)
 - [Rule-set version](#rule-set-version)
+- [TODO fingerprint](#todo-fingerprint)
+- [TODO change events](#todo-change-events)
 - [Status values](#status-values)
 - [Predicate results](#predicate-results)
 - [Eligibility truth model](#eligibility-truth-model)
@@ -39,6 +41,60 @@ The task-state file stores `state_machine_rule_set_version`. Every evaluation al
 - Increment `rule_set_version` in the shared state machine whenever predicate semantics, eligibility logic, or transition rules change.
 - Do not apply a pending review when its rule-set version differs from the current shared version.
 - Evaluate mode may adopt the current version only by clearing any stale pending review and recomputing every outgoing rule. Apply mode never adopts a new version implicitly.
+
+## TODO fingerprint
+
+Store the SHA-256 digest of the complete TODO bytes:
+
+```yaml
+todo_fingerprint:
+  algorithm: sha256
+  value: 0123456789abcdef...
+  synchronized_at: 2026-07-28T12:00:00+08:00
+```
+
+Every evaluation stores the same digest in `transition_review.based_on_todo_fingerprint`. Recompute it before Evaluate and Apply. A mismatch invalidates the pending review and blocks transition application; do not silently accept an edited scientific contract.
+
+## TODO change events
+
+Every authorized edit changes the complete-file digest. Codex increments state revision, refreshes the fingerprint, and records machine metadata for either an Output References path update or a verified-parameter rewrite. Path changes may be batched before transition evaluation and do not require scientific approval. A verified-parameter rewrite requires complete evidence, explicit researcher selection, and Work authorship at a decision boundary.
+
+An unexplained mismatch is not an authorized edit. If it is rejected, restore the exact approved TODO bytes from version control or another researcher-verified source; the stored hash alone cannot reconstruct content. Then increment revision and append a `rejected_unapproved_edit_restoration` event with the observed mismatching digest. This makes the old review stale even though the restored digest equals the stored approved digest. If exact restoration is unavailable, remain blocked. Any approved scientific change outside the predefined verified-parameter rule starts a new versioned TODO and a new task-state file at `todo_ready`.
+
+```yaml
+todo_change_events:
+  - state_revision: 2
+    change_type: output_reference_path_update
+    prior_fingerprint: 123456...
+    current_fingerprint: abcdef...
+    changed_by: codex
+    approval_ref: null
+    evidence_refs:
+      - results/TODO-004/tables/condition-merged.parquet
+    changed_at: 2026-07-28T11:50:00+08:00
+  - state_revision: 3
+    change_type: verified_hyperparameter_selection
+    prior_fingerprint: abcdef...
+    current_fingerprint: 012345...
+    changed_by: work
+    approval_ref: conversation-2026-07-28
+    evidence_refs:
+      - results/TODO-004/tables/pilot-parameter-selection.parquet
+      - results/TODO-004/pilot/selection-rule.json
+    changed_at: 2026-07-28T12:00:00+08:00
+  - state_revision: 4
+    change_type: rejected_unapproved_edit_restoration
+    prior_fingerprint: 012345...
+    current_fingerprint: 012345...
+    observed_unapproved_fingerprint: fedcba...
+    changed_by: codex
+    approval_ref: conversation-2026-07-28-reject-edit
+    evidence_refs:
+      - conversation:metric-edit-rejected-2026-07-28
+    changed_at: 2026-07-28T12:10:00+08:00
+```
+
+Each event proves edit scope and traceability without duplicating TODO values. Rejected candidates, obsolete designs, and comparison narrative stay in immutable technical evidence, not in the rewritten TODO or this event. Clear any prior review and evaluate again against the new fingerprint.
 
 ## Status values
 
@@ -186,7 +242,7 @@ For every write:
 1. read the current revision and current shared rule-set version;
 2. construct the complete next YAML in memory;
 3. write a sibling temporary file;
-4. read it back and verify required keys, revision, rule-set version, rule ID, and selected target consistency;
+4. read it back and verify required keys, revision, rule-set version, TODO fingerprint, and, when applicable, rule ID and selected-target consistency;
 5. rename it atomically over the prior state file;
 6. never perform row-wise or partial in-place YAML edits.
 
@@ -197,7 +253,7 @@ Append one history entry only after human approval. Preserve the logical basis o
 ```yaml
 history:
   - revision: 1
-    rule_set_version: 3
+    rule_set_version: 4
     from: development
     to: pilot
     rule_id: development.to_pilot
@@ -205,6 +261,7 @@ history:
     approval_ref: conversation-2026-07-16
     decided_at: 2026-07-16T10:20:00-07:00
     evaluation_snapshot:
+      todo_fingerprint: 0123456789abcdef...
       execution_id: development-001
       execution_status: completed
       predicate_results:

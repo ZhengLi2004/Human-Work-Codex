@@ -56,6 +56,7 @@ Use `unknown` when the probe does not decide a predicate.
 - Do not turn Exploration into full Development or an open-ended search.
 - Do not change TODO formulas, metrics, data meaning, or scope.
 - Do not treat exploratory observations as formal evidence.
+- Do not write an exploratory hyperparameter preference into the TODO as a verified fixed value; use the TODO-defined complete verification and approval procedure.
 - Do not choose or apply a next state inside this Skill.
 - Do not update the TODO beyond allowed output paths.
 

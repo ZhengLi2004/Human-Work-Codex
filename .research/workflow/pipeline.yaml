@@ -1,4 +1,4 @@
-schema_version: 7
+schema_version: 8
 name: research-task-system
 purpose: >-
   Route a TODO-defined research task through reusable Work and Codex Skills,
@@ -9,13 +9,26 @@ artifacts:
   todo:
     template: .research/templates/TODO.md
     owns:
-      - complete_research_definition
+      - complete_current_action_research_definition
       - mathematical_and_algorithmic_specification
       - variables_controls_metrics_and_statistics
       - required_outputs_and_completion_criteria
       - output_path_references
     execution_edits_limited_to:
       - output_path_values
+    controlled_verified_parameter_rewrite:
+      requires:
+        - lifecycle_decision_boundary
+        - complete_verification_evidence
+        - explicit_human_selection
+      performed_by: work
+      state_sync_performed_by: codex
+      removes:
+        - completed_selection_instructions
+        - rejected_candidate_lists
+        - obsolete_designs
+        - status_and_comparison_narrative
+      preserves_prior_evidence_outside_todo: true
   task_state:
     template: .research/templates/task-state.yaml
     state_machine: .research/workflow/state-machine.yaml
@@ -24,6 +37,8 @@ artifacts:
       - current_lifecycle_state
       - current_execution_status
       - state_machine_rule_set_version
+      - todo_sha256_fingerprint
+      - todo_change_event_references
       - evaluated_transition_rules
       - eligible_transition_rule_paths
       - codex_transition_recommendation
@@ -60,6 +75,7 @@ roles:
       - todo_approval
       - transition_rule_path_confirmation
       - semantic_change_approval
+      - experimentally_supported_hyperparameter_selection
       - long_running_job_launch
       - figure_selection_and_revision_feedback
       - scientific_interpretation_and_report
@@ -68,6 +84,7 @@ roles:
   work:
     owns:
       - complete_todo_authoring
+      - verified_parameter_current_action_todo_rewrite
       - post_codex_table_curation
       - complete_data_figure_planning_and_drafts
       - final_figure_production_after_researcher_review
@@ -76,6 +93,7 @@ roles:
   codex:
     owns:
       - task_state_initialization
+      - todo_fingerprint_synchronization
       - implementation_within_todo_scope
       - risk_driven_testing
       - experiment_preflight_and_execution_code
@@ -146,13 +164,13 @@ state_definitions:
       - skills/research-agile-testing/SKILL.md
       - skills/human-research-review-gate/SKILL.md
   development:
-    purpose: Build the minimum scientifically faithful implementation that is credible for Pilot or another TODO-defined endpoint.
+    purpose: Build an efficient runnable scaffold, make the TODO implementation correct and self-checked, then optimize measured bottlenecks without changing numerical meaning.
     default_capabilities:
       - skills/research-computing-implementation/SKILL.md
       - skills/research-agile-testing/SKILL.md
       - skills/human-research-review-gate/SKILL.md
   pilot:
-    purpose: Run a controlled, complete Pilot grid with independent repeats, performance evidence, and full result preservation.
+    purpose: Run a controlled, complete Pilot grid with independent repeats, performance evidence, full result preservation, and evidence for any TODO-defined parameter-selection rule.
     default_capabilities:
       - skills/research-computing-implementation/SKILL.md
       - skills/research-agile-testing/SKILL.md
@@ -204,20 +222,32 @@ state_protocol:
   initialize:
     - Derive todo_id and result root from the TODO and policy.
     - Create task-state YAML at todo_ready when it does not exist.
+    - Compute and store the TODO SHA-256 fingerprint.
     - Evaluate initial outgoing rules before applying a human-selected state.
   before_execution:
     - Read the TODO, task-state YAML, policy, pipeline, and state machine.
+    - Verify that the stored TODO SHA-256 fingerprint matches the current TODO; synchronize an authorized Output References path edit or verified-parameter rewrite before continuing.
+    - For a rejected unexplained edit, restore the exact approved TODO and record review invalidation through Synchronize TODO; for an approved broader scientific change, create a new versioned TODO at todo_ready.
     - Refuse execution when a transition review is awaiting a human decision.
     - Execute only current.state unless the human explicitly approves and applies another eligible rule path.
   after_codex_state:
     - Record execution status, artifact references, and predicate evidence in task-state YAML.
     - Set execution.decision_boundary_reached to true, current.status to awaiting_transition_evaluation, and transition_review.status to evaluation_required.
-    - Invoke research-state-transition in Evaluate mode.
+    - If the state selected a hyperparameter under a predefined rule, complete after_verified_parameter_selection before transition evaluation.
+    - Otherwise invoke research-state-transition in Evaluate mode directly.
     - Keep current.state unchanged.
     - Present all eligible rule paths, including self, and one Codex recommendation.
     - Stop for human confirmation.
+  after_verified_parameter_selection:
+    - Preserve the complete candidate grid, selection rule, failures, and result artifacts outside the TODO.
+    - Require an explicit researcher selection supported by the verification evidence.
+    - Have Work rewrite the TODO to fix the approved value and describe only remaining actions.
+    - Remove completed selection work, rejected candidates, obsolete designs, and comparison or status prose from the active TODO without deleting technical evidence.
+    - Have Codex compute the new TODO fingerprint, increment task-state revision, append a change event containing approval and evidence references, and invalidate any pending transition review.
+    - Re-evaluate every outgoing rule against the rewritten TODO before a transition can be applied.
   after_work_planning_state:
     - Update only Work output path values in the TODO.
+    - Require Codex to synchronize the authorized path edits, refresh the TODO fingerprint, and increment task-state revision before transition evaluation.
     - Record curated-table, figure-plan, draft, coverage, and source-basis facts in task-state YAML.
     - Set execution.decision_boundary_reached to true, current.status to awaiting_transition_evaluation, and transition_review.status to evaluation_required.
     - Return tables and draft figures without treating them as final.
@@ -237,23 +267,29 @@ state_protocol:
     - Require an eligible rule path explicitly selected by the human.
     - Resolve a target-only selection only when exactly one eligible rule reaches that target.
     - Require the rule ID and target to match the recorded evaluation and current revision.
-    - Verify state revision and evaluated rule-set version.
+    - Verify state revision, evaluated rule-set version, and evaluated TODO fingerprint.
     - Append immutable transition history with the complete evaluation snapshot and atomically update current.state.
     - Do not execute the target state unless execution is also explicitly authorized.
 
 invariants:
   - The TODO is the only scientific task handoff document.
   - The task-state YAML is machine lifecycle control and never duplicates the TODO.
-  - Codex and Work edit only Output References path values in the TODO during execution.
+  - Outside an evidence-backed, human-approved verified-parameter rewrite by Work at a decision boundary, Codex and Work edit only Output References path values in the TODO during execution.
+  - The active TODO contains current actions and fixed current decisions, not progress history, rejected candidates, obsolete designs, or old-versus-new comparisons.
+  - Experimentally selected hyperparameters enter the active TODO only after complete verification evidence and explicit researcher approval.
+  - Complete candidate and negative evidence remains immutable outside the rewritten TODO.
+  - A scientific change outside the predefined verified-parameter rule requires a new versioned TODO with a new stable identifier; it is never synchronized into the active task.
   - Every state evaluation includes an eligible transition to itself.
   - Rule evaluation does not change current.state.
-  - A pending review is invalid when its state revision or rule-set version no longer matches.
+  - A pending review is invalid when its state revision, rule-set version, or evaluated TODO fingerprint no longer matches.
   - Only an explicit human confirmation applies a transition.
   - A human may select any eligible rule path, including the self-transition, not only the Codex recommendation.
   - A rule path outside the eligible set requires new evidence, a rule-set change, or a TODO/scientific-scope decision before transition.
   - Every reported metric is computed at the TODO-defined independent-repeat level before aggregation unless another estimator is explicitly defined.
   - Every planned combination remains represented, including failed, missing, invalid, or incomplete combinations.
   - Bulk numerical results are never written one CSV row at a time.
+  - Non-plotting computation defaults to MATLAB unless a documented Python-only capability or measured MATLAB infeasibility requires an exception.
+  - Scientific implementation follows make it work, make it right, make it fast; material optimization follows a representative profile and is accepted only with before/after measurements and equivalence evidence.
   - A job at or above the runtime threshold is launched by the human after preflight.
   - Work starts table curation and figure planning only in work_postprocessing and after Codex result paths are present in the TODO.
   - Final figure production occurs only in figure_production after a separate figure_review state records researcher recommendations.

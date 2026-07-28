@@ -30,6 +30,7 @@ Require:
 - `current.status` is `ready`, or a valid same-state resume is requested;
 - `transition_review.status` is `not_evaluated`, unless a valid same-state resume is requested;
 - the state-file TODO identifier and path match the resolved TODO;
+- the SHA-256 digest of the current TODO matches `todo_fingerprint.value`;
 - the human requested execution of the recorded state rather than a different target.
 
 Stop if any condition fails.
@@ -45,6 +46,7 @@ Extract from the TODO:
 - variables, controls, planned combinations, repeats, and metrics;
 - fixed decisions and approved flexibility;
 - required technical artifacts and completion criteria;
+- experimentally verified fixed hyperparameters and any current in-scope parameter-selection rule;
 - result paths already present.
 
 Extract from task state:
@@ -63,18 +65,21 @@ Do not copy this contract into another handoff file.
 3. Select exactly one state Skill matching `current.state`.
 4. Select the minimum capability Skills required by the TODO and scope.
 5. Inspect existing code and data boundaries before editing.
-6. Implement the smallest scientifically faithful vertical slice.
-7. Use `$research-computing-implementation` for Python/MATLAB choices, performance, and storage design.
+6. Implement the smallest scientifically faithful vertical slice using **“Make it work, make it right, make it fast”** in order: runnable efficient scaffold, faithful implementation plus self-check, then representative profiling and equivalence-protected optimization.
+7. Use `$research-computing-implementation` for the MATLAB-first non-plotting boundary, Python exceptions, plotting boundary, performance, and storage design.
 8. Use `$research-agile-testing` after each high-risk slice.
 9. When experimental metrics are produced, save immutable raw outputs and use `$research-evidence-aggregation`.
 10. When multiple recoverable units, substantial I/O, concurrency, or long runtime are involved, use `$research-batch-execution`.
 11. Store technical outputs under one result root, normally `results/{todo_id}/`.
 12. Update only the relevant Codex path values in the TODO `Output References` section.
-13. At the state decision boundary, record execution status, artifact references, and state-relevant predicate results in the task-state YAML.
-14. Set `execution.decision_boundary_reached` to `true`, `current.status` to `awaiting_transition_evaluation`, and `transition_review.status` to `evaluation_required`.
-15. Invoke `$research-state-transition` in Evaluate mode.
-16. Invoke `$human-research-review-gate` with every eligible rule path and the Codex recommendation.
-17. Stop. Do not apply or execute another state.
+13. If a path value changed, invoke `$research-state-transition` in Synchronize TODO mode to refresh the fingerprint and revision before the decision boundary.
+14. At the state decision boundary, record execution status, artifact references, and state-relevant predicate results in the task-state YAML.
+15. Set `execution.decision_boundary_reached` to `true`, `current.status` to `awaiting_transition_evaluation`, and `transition_review.status` to `evaluation_required`.
+16. If the current execution was defined to select a hyperparameter, invoke `$human-research-review-gate` for an explicit evidence-backed value selection before transition evaluation. Stop until the researcher responds; Codex does not edit the scientific TODO.
+17. After approval, have Work use `$research-report-to-todos` to rewrite the TODO to the approved fixed value and remaining actions only. Then invoke `$research-state-transition` first in Synchronize TODO mode and subsequently in a separate Evaluate operation.
+18. Otherwise invoke `$research-state-transition` in Evaluate mode directly.
+19. Invoke `$human-research-review-gate` with every eligible rule path and the Codex recommendation.
+20. Stop. Do not apply or execute another state.
 
 ## Execution status
 
@@ -120,6 +125,8 @@ During Codex execution, edit only these path values when the corresponding outpu
 
 Do not add implementation summaries, tests, state, decisions, or interpretations to the TODO.
 
+After an authorized Output References path edit, invoke `$research-state-transition` in Synchronize TODO mode before evaluation so the stored fingerprint and revision remain current. The verified-parameter rewrite is not a Codex execution edit: Work performs it only after complete evidence and explicit researcher selection; Codex then synchronizes task state and reevaluates transitions.
+
 ## Long-running jobs
 
 When estimated runtime reaches the policy threshold:
@@ -156,6 +163,7 @@ At each pause or state decision boundary, return:
 
 - Do not create another scientific handoff document.
 - Do not edit TODO content outside path values.
+- Do not bypass the Work-authored verified-parameter rewrite by writing a selected value into the TODO from Codex execution.
 - Do not infer or change `current.state`.
 - Do not present implementation success as scientific support.
 - Do not present smoke-test, Exploration, or Pilot evidence as Confirmation.

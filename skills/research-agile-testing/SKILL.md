@@ -22,9 +22,11 @@ Read `references/test-selection-matrix.md` for risk-to-test mapping.
 7. For random code, use fixed seeds to test implementation determinism; estimate research uncertainty with independent repeats, not repeated unit tests.
 8. For parallel and resume logic, inject interruption, duplicate launch, corruption, and partial-output cases.
 9. For optimized Python/MATLAB code, compare against the correctness reference within scientifically justified tolerances.
-10. Run the affected tests and report commands, environment, results, and uncovered risk.
-11. Convert reproducible real defects into regression tests.
-12. For figures, verify that governed outputs come from the executed notebook, temporary `.py` previews remain under the platform temporary directory, and every chart records a SciencePlots stack based on `science`. Reconcile stable keys and planned conditions against the coverage manifest, then inspect every final title, axis, scale, unit, legend, curve, mark, and schematic label.
+10. Keep Development gate evidence distinct: test scaffold interfaces and storage for **work**, scientific behavior and the independent oracle for **right**, then before/after performance plus equivalence for **fast**.
+11. For MATLAB optimizations, compare loop/vectorized, serial/parallel, CPU/GPU, and MATLAB-reference/MEX paths only when each path exists. Include representative memory and transfer cost, not kernel time alone.
+12. Run the affected tests and report commands, environment, results, and uncovered risk.
+13. Convert reproducible real defects into regression tests.
+14. For figures, verify that governed outputs come from the executed notebook, temporary `.py` previews remain under the platform temporary directory, and every chart records a SciencePlots stack based on `science`. Reconcile stable keys and planned conditions against the coverage manifest, then inspect every final title, axis, scale, unit, legend, curve, mark, and schematic label.
 
 ## Language-specific tools
 
@@ -47,7 +49,9 @@ Use as appropriate:
 - `verifyEqual`, `verifyThat`, and explicit tolerances;
 - function-based tests for small numerical units;
 - temporary folders for MAT/Parquet/checkpoint tests;
-- serial-versus-`parfor` and CPU-versus-`gpuArray` equivalence checks.
+- serial-versus-`parfor` and CPU-versus-`gpuArray` equivalence checks;
+- MATLAB-reference-versus-MEX or generated-MEX comparisons, compiler/build smoke tests, and fallback-path tests when compiled code is used;
+- `timeit`/`gputimeit` benchmarks on representative shapes after warm-up, with end-to-end profiling for material changes.
 
 ## I/O test requirements
 
@@ -67,6 +71,8 @@ When result storage changes, test:
 - Do not delete failing cases to reduce burden.
 - Do not run an entire Pilot or Confirmation as a routine test suite.
 - Do not test unrelated modules to create the appearance of thoroughness.
+- Do not accept a faster path before a runnable scaffold and an independent correctness reference exist.
+- Do not infer that vectorization, MEX, parallel workers, or a GPU is beneficial without representative before/after measurements.
 
 ## Output contract
 

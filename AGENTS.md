@@ -4,8 +4,8 @@ This file contains rules that apply to every task. Reusable procedures belong in
 
 ## 1. Roles and authority
 
-- **The human researcher** owns the scientific question, hypotheses, study design, transition confirmation, long-running job launch, scientific interpretation, figure-selection and revision feedback, and the decision to complete, stop, redesign, or create a TODO.
-- **Work** authors the complete TODO, curates completed result tables, prepares figure plans and drafts that cover all applicable data, and produces final figures after the researcher review is recorded.
+- **The human researcher** owns the scientific question, hypotheses, study design, experimentally supported hyperparameter selection, transition confirmation, long-running job launch, scientific interpretation, figure-selection and revision feedback, and the decision to complete, stop, redesign, or create a TODO.
+- **Work** authors and, after an approved verified-parameter decision, rewrites the complete current-action TODO; curates completed result tables; prepares figure plans and drafts that cover all applicable data; and produces final figures after the researcher review is recorded.
 - **Codex** initializes and maintains machine lifecycle state, implements, tests, runs, aggregates, preserves technical evidence, evaluates transition rules, recommends one eligible rule path, and applies a transition only after explicit human confirmation.
 
 Resolve conflicts in this order:
@@ -19,18 +19,20 @@ Resolve conflicts in this order:
 7. The selected Skills.
 8. Existing engineering conventions in the repository.
 
-A human may approve a scientific or workflow change, but Codex must record the change through the appropriate TODO or rule update before applying a transition that was previously ineligible. Stop the affected work when a conflict would change scientific meaning.
+A human may approve a scientific or workflow change, but Codex must record it through a new versioned TODO or a rule update before applying a transition that was previously ineligible. Stop the affected work when a conflict would change scientific meaning. Except for the bounded verified-parameter rewrite below, do not amend the scientific content of an active TODO; create a new TODO with a new stable identifier and initialize its lifecycle at `todo_ready`. If redesign text was already written over the old TODO, reject and restore that in-place edit for the old task, invalidate its review, and approve the content only in the new TODO.
 
 ## 2. TODO and task-state boundaries
 
 Each research task has one authoritative scientific handoff document: its TODO.
 
-- The TODO contains the complete research definition, mathematical specification, variables, controls, metrics, evidence requirements, completion criteria, and output path references.
+- The TODO contains only the current actionable research definition: mathematical specification, variables, controls, metrics, evidence requirements, completion criteria, and output path references needed for the work that remains.
 - The task-state YAML is a machine control artifact, normally `results/{todo_id}/task-state.yaml`. It stores only current lifecycle state, execution status, predicate evidence references, evaluated and eligible rule paths, recommendations, rule-set version, revisions, and immutable human-confirmed evaluation history.
 - Do not copy formulas, research background, result prose, tables, scientific interpretation, or TODO sections into the task-state YAML.
 - Do not create task-specific workflow Markdown, evidence ledgers, stage-review Markdown, execution bundles, result packages, or parallel narrative handoffs.
 - Logs, checkpoints, manifests, raw outputs, tables, notebooks, figures, and the task-state YAML are technical artifacts. They do not replace the TODO.
-- During execution, Codex and Work may edit only path values in the TODO's `Output References` section.
+- Do not use the TODO as a progress log, decision history, rejected-design archive, or comparison with an obsolete design. Preserve those facts in immutable technical evidence or version control.
+- A candidate hyperparameter range may appear only when experimentally selecting it is itself part of the current TODO. Do not present an unverified candidate as a fixed downstream value.
+- Outside the controlled verified-parameter rewrite in Section 3, Codex and Work may edit only path values in the TODO's `Output References` section during execution.
 
 ## 3. Scientific semantics and change control
 
@@ -45,31 +47,48 @@ Do not change any of the following without explicit human approval:
 
 Engineering choices may vary only when they preserve scientific semantics, control fairness, statistical independence, and output meaning. If faithful implementation is not possible, record a blocker and evaluate the applicable transition rules rather than silently degrading the method.
 
+When an in-scope experiment is intended to select a hyperparameter for later work:
+
+1. preserve the complete candidate grid, selection rule, failures, and results outside the TODO as immutable evidence;
+2. require the researcher to approve the selected value by reference to that evidence;
+3. at a lifecycle decision boundary, have Work rewrite the TODO so the approved value is fixed and only remaining actions are described;
+4. remove completed selection instructions, rejected candidates, obsolete designs, status prose, and old-versus-new comparisons from the active TODO without deleting their evidence;
+5. have Codex recompute the TODO SHA-256 fingerprint, increment the task-state revision, record the approval and evidence references without duplicating the selected value, invalidate any pending transition review, and evaluate the outgoing rules again.
+
+If the verified value changes the scientific question, metric, data scope, comparison, or confirmation design beyond the approved selection rule, create a new versioned TODO for the explicitly approved redesign instead of using this rewrite procedure.
+
 ## 4. Rule-driven lifecycle state
 
 - Broad task-system requests start with `$research-task-router`.
 - Resolve the active state from the task-state YAML, not from remembered conversation text or directory contents.
 - If the task-state file is absent, initialize it at `todo_ready`; do not infer the first executable state.
 - Execute only `current.state` unless the human explicitly confirms and applies another eligible rule path.
-- After any executable state reaches a decision boundary, mark transition evaluation as required. Codex then invokes `$research-state-transition` in Evaluate mode.
+- After any executable state reaches a decision boundary, mark transition evaluation as required. If the state selected a hyperparameter under a predefined rule, complete the researcher-selection, Work rewrite, and Codex fingerprint synchronization first; Codex then invokes `$research-state-transition` in Evaluate mode.
 - Evaluate every outgoing rule and include the self-transition. Unknown evidence never satisfies a non-self rule; every `none` predicate must be explicitly false.
 - Rule evaluation may update `transition_review`, but it must not change `current.state`.
 - Codex recommends exactly one eligible rule path. The human may confirm any eligible rule path, including the self-transition. Prefer an exact `rule_id`; accept a target alone only when it maps to one eligible rule.
-- Apply a transition only after an explicit human rule-path selection, state-revision check, rule-set-version check, and atomic state-file update.
+- Apply a transition only after an explicit human rule-path selection, state-revision check, rule-set-version check, TODO-fingerprint check, and atomic state-file update.
+- After an authorized `Output References` path edit, Codex refreshes the complete-file TODO fingerprint, increments task-state revision, records a path-update event, and invalidates any review based on the prior fingerprint before evaluation or application.
+- An unexplained TODO-fingerprint mismatch blocks execution and transition application. If the edit is rejected, restore the exact approved TODO from version control or another researcher-verified source, increment task-state revision, record the detected-and-restored integrity event, invalidate the old review, and evaluate again; remain blocked if exact restoration is unavailable. If the scientific edit is approved, preserve the old task and evidence and author a new versioned TODO at `todo_ready`.
 - Increment the shared `rule_set_version` whenever predicate semantics, eligibility logic, or transition rules change; stale pending reviews must be evaluated again.
-- Preserve the evaluated predicates, eligible rule paths, blockers, and Codex recommendation as an immutable snapshot in transition history.
+- Preserve the evaluated TODO fingerprint, predicates, eligible rule paths, blockers, and Codex recommendation as an immutable snapshot in transition history.
 - Do not execute the newly approved target unless the same or a later human instruction explicitly authorizes execution.
 - Jobs at or above the long-running threshold in `.research/policy.yaml` are launched by the human after Codex completes preflight and supplies a reproducible command.
 - Figure planning, researcher review, and final figure production are separate lifecycle states. Do not skip `figure_review` or treat an initial draft as a final figure.
 
-## 5. Python and MATLAB implementation policy
+## 5. MATLAB-first implementation policy
 
 Use `$research-computing-implementation` whenever scientific code is written or materially optimized.
 
-- Prefer **MATLAB** when the task is dominated by dense matrix algebra, vectorized numerical operations, established MATLAB signal-processing code, or MATLAB-specific toolboxes.
-- Prefer **Python** when the task is dominated by large multi-file data processing, heterogeneous data pipelines, machine learning, deep neural networks, or integration with the Python scientific ecosystem.
+- Use **MATLAB by default for non-plotting computation**. This is a repository policy, not a claim that MATLAB is faster for every workload.
+- Use **Python** for a non-plotting component only when a required capability depends on a Python-only package or interface, such as a TODO-required PyTorch implementation, or when measured, documented constraints make MATLAB infeasible. Existing Python convenience alone is not an exception.
+- Use **Python, Jupyter, Matplotlib, and SciencePlots for governed plotting** under Section 8, even when MATLAB produces the numerical data.
 - A hybrid design is acceptable only when the boundary is explicit and the interchange cost is justified. Prefer Parquet for tabular interchange and MAT v7.3/HDF5-compatible files for large multidimensional arrays.
-- Preserve the TODO's numerical meaning when vectorizing, parallelizing, moving work to a GPU, or changing storage formats.
+- Follow **“Make it work, make it right, make it fast”** in that order:
+  1. **Work:** build an environment-compatible end-to-end scaffold with realistic interfaces, shapes, bulk I/O, and one representative task path.
+  2. **Right:** implement the TODO faithfully and self-check formulas, invariants, controls, units, shapes, and representative outputs against an independent oracle or audited small case.
+  3. **Fast:** profile representative work, optimize measured bottlenecks, and prove numerical and scientific equivalence after each material change.
+- Preserve the TODO's numerical meaning when changing algorithms, eliminating repeated work, vectorizing, relying on MATLAB JIT behavior, compiling a MEX function, generating code, parallelizing, moving work to a GPU, or changing storage formats.
 
 ## 6. I/O and performance integrity
 
@@ -83,7 +102,9 @@ Scientific data output must be designed for throughput and traceability.
 - Publish completed chunks atomically and validate them before marking a task complete.
 - Write task-state YAML atomically as a complete document; do not patch individual YAML lines in place.
 - Measure I/O behavior during preflight when file count, serialization, or storage latency may dominate runtime.
-- Optimization must not alter the planned sample set, random process, comparison conditions, or metric definitions.
+- Optimize in measured order: remove unnecessary work and improve algorithmic complexity; improve data layout, allocation, and vectorization or JIT-friendly code; then consider built-ins, MEX or generated code, parallel workers, and GPU execution when their setup, transfer, portability, toolbox, and maintenance costs are justified.
+- MATLAB's execution engine optimization is automatic; do not claim a manual JIT switch. Treat MATLAB Coder's JIT MEX generation as a separate optional toolchain.
+- Optimization must not alter the planned sample set, random process, comparison conditions, or metric definitions. Keep the correct reference path and record before/after benchmarks plus equivalence tests.
 
 ## 7. Evidence integrity
 
@@ -130,7 +151,11 @@ Do not:
 - omit the self-transition rule from any state evaluation;
 - launch a restricted long job or expand scientific scope without human approval;
 - create a second scientific handoff document;
-- add narrative execution records to the TODO beyond file or directory paths in `Output References`.
+- add status history, rejected candidates, obsolete designs, or old-versus-new design commentary to the active TODO;
+- select or write an experimentally determined hyperparameter into the TODO without complete evidence and explicit researcher approval;
+- synchronize a broader scientific redesign into an active TODO instead of creating a new versioned TODO;
+- use Python for non-plotting computation without a documented repository-policy exception;
+- optimize a scientific kernel before a runnable scaffold and a correctness reference exist;
 - omit applicable conditions or series from a figure without making the omission and its TODO-defined basis explicit;
 - use a title, legend, axis, scale, or schematic that implies a claim not supported by the plotted data or approved research meaning.
 - promote a temporary `.py` preview or temporary image into a governed draft, final figure, manifest, or lifecycle evidence record;

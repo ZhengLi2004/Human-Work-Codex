@@ -1,7 +1,7 @@
 {
   "name": "research-task-system",
-  "version": "7.0.0+codex.20260721142116",
-  "description": "TODO-centered, rule-driven human-governed research workflows with persistent YAML state, explicit self-transitions, exact rule-path approval, complete evidence, and researcher-reviewed scientific figures.",
+  "version": "7.0.0+codex.20260728053544",
+  "description": "Current-action TODO research workflows with MATLAB-first computation, fingerprinted YAML state, exact human-approved rule paths, complete evidence, and researcher-reviewed scientific figures.",
   "author": {
     "name": "Zheng Li"
   },
@@ -23,8 +23,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Research Task System",
-    "shortDescription": "Route rule-driven research across Work and Codex",
-    "longDescription": "Author one complete research TODO, maintain a versioned YAML lifecycle with explicit self-transitions and human-confirmed rule paths, execute Python or MATLAB research code, preserve complete evidence, curate tables, plan drafts covering all applicable data, obtain researcher feedback, and audit final figures without parallel scientific handoffs.",
+    "shortDescription": "Run MATLAB-first, rule-driven research workflows",
+    "longDescription": "Author a current-action research TODO, maintain a fingerprinted and versioned YAML lifecycle with explicit self-transitions and human-confirmed rule paths, execute MATLAB-first non-plotting research code through work/right/fast gates, preserve complete evidence, govern verified parameter rewrites, and produce researcher-reviewed scientific figures without parallel scientific handoffs.",
     "developerName": "Research Task System",
     "category": "Productivity",
     "capabilities": [
@@ -32,9 +32,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use Research Task System to author complete TODO specifications from this research material.",
+      "Use Research Task System to author current-action-only TODO specifications from this research material.",
       "Use Research Task System to initialize or inspect task state, evaluate all outgoing rules including self, and wait for human confirmation of one rule path.",
-      "Use Research Task System to execute the recorded state, including the separate figure planning, researcher review, and final QA states."
+      "Use Research Task System to execute the recorded state with MATLAB-first computation and make-it-work, make-it-right, make-it-fast gates, including the separate figure planning, researcher review, and final QA states."
     ]
   }
 }

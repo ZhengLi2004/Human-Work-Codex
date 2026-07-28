@@ -22,6 +22,8 @@ Read `references/batch-run-contract.md` and `references/io-throughput-checklist.
 
 Stop if the complete planned task set cannot be generated before execution.
 
+Implement non-plotting batch orchestration in MATLAB by default through `$research-computing-implementation`. A Python runner requires the same documented Python-only capability or measured MATLAB-infeasibility exception as any other non-plotting component.
+
 ## Workflow
 
 1. Generate and persist the complete task manifest.

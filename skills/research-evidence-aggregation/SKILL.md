@@ -25,6 +25,8 @@ Before aggregation, resolve from the TODO:
 
 Stop when a missing definition would change grouping or statistical meaning.
 
+Implement non-plotting aggregation in MATLAB by default through `$research-computing-implementation`. Use the Python I/O guidance below only for a documented Python-only exception.
+
 ## Workflow
 
 1. Validate the raw-result index and task manifest.
@@ -60,7 +62,7 @@ If the plan contains two conditions and three independent repeats per condition,
 ## I/O requirements
 
 - Do not build outputs by reopening CSV for every row.
-- In Python, accumulate records or Arrow record batches and write chunk/partition files; avoid repeated `pd.concat` in loops.
+- In Python under a documented exception, accumulate records or Arrow record batches and write chunk/partition files; avoid repeated `pd.concat` in loops.
 - In MATLAB, preallocate/collect table chunks and use `parquetwrite`, `writetable`, or MAT/HDF5 output at batch boundaries rather than per row.
 - Merge worker outputs once after execution or use a partitioned dataset with independent files.
 

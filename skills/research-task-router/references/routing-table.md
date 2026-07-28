@@ -4,10 +4,11 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 
 | Request or state | Required route | Optional capabilities | Blocking condition |
 |---|---|---|---|
-| Author or split complete TODOs | `research-report-to-todos` | None | Source meaning or metric definition cannot be resolved |
+| Author or split current-action TODOs | `research-report-to-todos` | None | Source meaning or metric definition cannot be resolved |
 | Missing task state | `research-state-transition` Initialize | None | TODO identifier cannot be resolved |
-| `evaluation_required` or `awaiting_transition_evaluation` | `research-state-transition` Evaluate | human gate | Decision boundary, evidence, or state revision is inconsistent |
-| Apply transition | `research-state-transition` Apply | None | Rule path is not eligible, ambiguous, stale, or not human-confirmed |
+| Authorized Output References edit, approved Work parameter rewrite, or exact restoration after a rejected edit | `research-state-transition` Synchronize TODO, then a separate Evaluate at a decision boundary | human gate for parameter selection or semantic-edit decision | Edit scope, restoration, evidence, approval, or TODO fingerprint is inconsistent |
+| `evaluation_required` or `awaiting_transition_evaluation` | `research-state-transition` Evaluate | human gate | Decision boundary, evidence, state revision, or TODO fingerprint is inconsistent |
+| Apply transition | `research-state-transition` Apply | None | Rule path is not eligible, ambiguous, stale, fingerprint-mismatched, or not human-confirmed |
 | `exploration` | `research-todo-executor` + `research-exploration` | computing, testing | State not ready or TODO incomplete |
 | `development` | `research-todo-executor` + `research-development` | computing, testing, batch | State not ready or TODO incomplete |
 | `pilot` | `research-todo-executor` + `research-pilot` | computing, testing, batch, aggregation | Planned scope or repeats unclear |
@@ -26,12 +27,12 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 
 ## Capability triggers
 
-- `research-computing-implementation`: Python/MATLAB code, numerical performance, parallel/GPU execution, or storage design.
+- `research-computing-implementation`: MATLAB-first non-plotting code, documented Python-only exceptions, Python plotting, numerical performance, parallel/GPU execution, or storage design.
 - `research-agile-testing`: scientific invariants, formulas, metrics, control semantics, randomness, recovery, or regression risk.
 - `research-batch-execution`: multiple recoverable units, checkpoint/resume, material I/O, concurrency, or long runtime.
 - `research-evidence-aggregation`: run-level metrics, aggregate tables, or condition-merged tables.
-- `research-state-transition`: initialization, post-state rule evaluation, or human-confirmed transition application.
-- `human-research-review-gate`: transition choice, semantic change, restricted long run, completion, stop, or redesign.
+- `research-state-transition`: initialization, authorized TODO-rewrite synchronization, post-state rule evaluation, or human-confirmed transition application.
+- `human-research-review-gate`: transition choice, verified-parameter selection, semantic change, restricted long run, completion, stop, or redesign.
 - `research-figure-production` Planning mode: graphical-method selection, executed-notebook drafts covering all applicable data, mandatory SciencePlots styling, and a coverage manifest during `work_postprocessing`.
 - `human-research-review-gate` figure-review procedure: interactive researcher feedback during `figure_review`; wait for output.
 - `research-figure-production` Final mode: implement recorded recommendations in an executed notebook and audit the final figures, including the recorded SciencePlots style stack, during `figure_production`.
@@ -44,6 +45,8 @@ Standalone `.py` plot scripts are not lifecycle routes. They may create only dis
 state execution reaches decision boundary
     ↓
 transition_review.status = evaluation_required
+    ↓
+[when defined: complete parameter evidence → human selection → Work current-action TODO rewrite → fingerprint synchronization]
     ↓
 research-state-transition Evaluate
     ↓

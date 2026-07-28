@@ -1,5 +1,5 @@
-schema_version: 1
-rule_set_version: 3
+schema_version: 2
+rule_set_version: 4
 name: research-task-lifecycle
 purpose: >-
   Evaluate rule-based lifecycle transitions after each task state, preserve the
@@ -12,6 +12,7 @@ state_file:
   role: machine_control_state
   atomic_write_required: true
   revision_check_required: true
+  todo_sha256_fingerprint_required: true
   prohibited_content:
     - research_definition
     - mathematical_specification
@@ -52,24 +53,63 @@ human_control:
   target_only_confirmation_requires_unique_rule: true
   recommendation_is_not_approval: true
   approve_and_execute_requires_explicit_wording: true
+  experimentally_selected_hyperparameter_requires_explicit_approval: true
 
 evaluation_protocol:
   evaluator: codex
   trigger: execution_decision_boundary_reached
   required_after_every_executable_state: true
   work_handoff: >-
-    Work records artifact predicates and marks evaluation_required; Codex must
-    evaluate the outgoing rules before any further lifecycle action.
+    Work records artifact predicates and marks evaluation_required; Codex first
+    synchronizes any authorized TODO path edit, then evaluates the outgoing
+    rules before any further lifecycle action.
   figure_review_handoff: >-
     The figure_review state presents drafts covering all applicable data and waits for researcher
     recommendations. After the output is recorded by reference, Codex evaluates
     the outgoing rules before final figure production.
+  todo_fingerprint_check: >-
+    Evaluation and application require the current TODO SHA-256 fingerprint to
+    match task state. An authorized Output References path update or
+    verified-parameter rewrite increments state revision, refreshes the
+    fingerprint, invalidates the pending review, and requires a complete
+    reevaluation at a decision boundary.
 
 rule_set_change_control:
   version_field: rule_set_version
   increment_required_when_predicates_or_rules_change: true
   pending_reviews_invalidated_by_version_mismatch: true
   apply_requires_matching_evaluated_version: true
+
+todo_change_control:
+  active_todo_contains_current_actions_only: true
+  output_reference_path_update:
+    authorized_actors:
+      - codex
+      - work
+    increment_revision: true
+    refresh_sha256_fingerprint: true
+    append_machine_event: true
+    synchronize_before_transition_evaluation: true
+  rejected_unapproved_edit_restoration:
+    require_restored_fingerprint_match: true
+    increment_revision: true
+    append_integrity_event: true
+    invalidate_pending_transition_review: true
+    reevaluate_outgoing_rules: true
+  verified_parameter_rewrite_requires:
+    - lifecycle_decision_boundary
+    - complete_verification_evidence
+    - explicit_human_selection
+    - work_authored_todo_rewrite
+  rewrite_state_sync:
+    actor: codex
+    increment_revision: true
+    refresh_sha256_fingerprint: true
+    append_machine_event_with_approval_and_evidence_refs: true
+    invalidate_pending_transition_review: true
+    reevaluate_outgoing_rules: true
+  rejected_candidates_and_obsolete_designs_remain_outside_todo: true
+  scientific_change_outside_verified_parameter_rule_requires_new_versioned_todo: true
 
 states:
   todo_ready:
@@ -83,7 +123,7 @@ states:
   development:
     owner: codex
     skill: skills/research-development/SKILL.md
-    purpose: Build and verify the minimum scientifically faithful implementation.
+    purpose: Build an efficient runnable scaffold, verify the scientifically faithful implementation, then optimize measured bottlenecks with equivalence protection.
   pilot:
     owner: codex
     skill: skills/research-pilot/SKILL.md
@@ -124,8 +164,8 @@ states:
 
 predicate_catalog:
   todo_definition_complete:
-    meaning: The TODO contains the definitions required to execute the proposed target state without inventing scientific semantics.
-    evidence: TODO sections and unresolved-ambiguity check.
+    meaning: The TODO contains only the current actions and fixed definitions required to execute the proposed target state without inventing scientific semantics; it contains no progress history, obsolete design, or unresolved value presented as fixed.
+    evidence: TODO sections, current-action check, and unresolved-ambiguity check.
   current_scope_executed:
     meaning: The approved scope for the current state completed or ended with an auditable bounded outcome.
     evidence: Commands, manifests, tests, logs, and result artifacts.
@@ -154,11 +194,17 @@ predicate_catalog:
     meaning: Code, configuration, tests, or storage behavior must be created or materially changed.
     evidence: Gap between TODO and current implementation.
   existing_implementation_pilot_ready:
-    meaning: An existing implementation already satisfies Development-level correctness and smoke-test requirements for the Pilot scope.
-    evidence: Code review, tests, and one-combination one-repeat run.
+    meaning: An existing implementation already satisfies the Development work-right-fast gates for the Pilot scope.
+    evidence: Environment-compatible scaffold run, correctness tests and self-check, representative profile, optimization/equivalence evidence, and one-combination one-repeat run.
+  implementation_scaffold_validated:
+    meaning: An environment-compatible end-to-end scaffold runs one representative task path with realistic interfaces, shapes, bulk storage, and recovery boundaries.
+    evidence: Scaffold command, environment record, representative artifact, schema checks, and I/O checks.
   implementation_matches_todo:
-    meaning: The implementation reproduces the TODO's formulas, variables, controls, units, and output meanings.
-    evidence: Scientific-code tests and review.
+    meaning: The correctness reference and production implementation reproduce the TODO's formulas, variables, controls, units, and output meanings and pass an independent oracle or audited-small-case self-check.
+    evidence: Scientific-code tests, self-check artifact, reference comparison, and review.
+  performance_optimization_complete:
+    meaning: Representative profiling identified the material bottlenecks; applicable techniques, including the MATLAB optimization ladder for non-plotting computation, were evaluated in measured order; accepted changes have before-and-after benchmarks and equivalence tests; and unmodified bottlenecks have a recorded cost or feasibility reason.
+    evidence: Profile, benchmark, resource measurements, optimization log, and numerical/scientific equivalence tests.
   risk_matched_tests_sufficient:
     meaning: Tests cover the material scientific and engineering risks of the implementation used for the next state.
     evidence: Test commands and results.
@@ -166,7 +212,7 @@ predicate_catalog:
     meaning: One representative combination and one independent repeat completed end to end with valid outputs.
     evidence: Smoke-test artifacts and reconciliation.
   pilot_scope_defined:
-    meaning: The Pilot combination set, repeat rule, adjustable parameters, metrics, and stopping boundary are explicit.
+    meaning: The Pilot combination set, repeat rule, adjustable parameters, metrics, and stopping boundary are explicit; every experimental hyperparameter decision also defines feasibility constraints, tie handling, and a selection rule before results are inspected.
     evidence: TODO and human-approved scope.
   pilot_grid_complete:
     meaning: Every approved Pilot combination has a reconciled complete, incomplete, failed, missing, invalid, or incomparable state.
@@ -175,11 +221,14 @@ predicate_catalog:
     meaning: Pilot behavior, stability, cost, and failure evidence justify freezing and running Confirmation.
     evidence: Complete Pilot summaries, not a selected best result.
   confirmation_spec_frozen:
-    meaning: Code/config version, conditions, repeats, controls, metrics, exclusion rules, and output paths are fixed for Confirmation.
-    evidence: Frozen configuration or manifest and TODO consistency check.
+    meaning: Code/config version, conditions, repeats, controls, metrics, experimentally selected hyperparameters, exclusion rules, and output paths are fixed for Confirmation and match the current-action TODO.
+    evidence: Frozen configuration or manifest, current TODO, and consistency check.
+  verified_hyperparameters_recorded:
+    meaning: Every hyperparameter that the target design requires to be selected experimentally has complete verification evidence, explicit researcher approval, and a fixed value in the current TODO; rejected candidates and obsolete designs remain only in technical evidence. This is true with explicit not-applicable evidence when no such hyperparameter exists.
+    evidence: When applicable, complete verification artifacts, selection-rule result, approval reference, TODO fixed-value check, and TODO change event; otherwise, a TODO check showing that the target design has no experimentally selected hyperparameter.
   confirmation_prerequisites_ready:
-    meaning: Existing implementation and evidence already satisfy all Confirmation entry gates.
-    evidence: Regression tests, formal preflight, and frozen manifest.
+    meaning: Existing implementation and evidence already satisfy the work-right-fast implementation gates and all Confirmation entry gates.
+    evidence: Scaffold artifact, correctness and equivalence tests, representative profile/benchmark, formal preflight, and frozen manifest.
   implementation_rework_needed:
     meaning: A correct next run requires changing implementation or data handling rather than merely continuing the current state.
     evidence: Reproducible defect or violated invariant.
@@ -205,7 +254,7 @@ predicate_catalog:
     meaning: A documented implementation, corruption, or frozen-spec violation invalidates the formal run independently of result direction.
     evidence: Exact defect, affected artifacts, and invalidation record.
   todo_completion_evidence_satisfied:
-    meaning: Current Codex evidence answers the TODO's required questions or audibly establishes why the design cannot answer them.
+    meaning: Current Codex evidence answers the TODO's required questions or auditably establishes why the design cannot answer them.
     evidence: TODO completion criteria mapped to complete artifacts.
   codex_outputs_ready_for_work:
     meaning: TODO output references resolve to complete raw results and condition-merged tables suitable for Work.
@@ -328,6 +377,7 @@ rules:
         - todo_definition_complete
         - confirmation_prerequisites_ready
         - confirmation_spec_frozen
+        - verified_hyperparameters_recorded
         - no_critical_correctness_risk
         - no_scope_change_required
       none:
@@ -461,15 +511,17 @@ rules:
       all:
         - current_scope_executed
         - required_artifacts_complete
+        - implementation_scaffold_validated
         - implementation_matches_todo
         - risk_matched_tests_sufficient
         - smoke_test_passed
+        - performance_optimization_complete
         - pilot_scope_defined
         - no_critical_correctness_risk
         - no_scope_change_required
       none:
         - stop_warranted
-    guidance: Enter Pilot only after a scientifically faithful vertical slice is verified end to end.
+    guidance: Enter Pilot only after the implementation has passed the work, right, and fast gates with end-to-end evidence.
   - id: development.to_work_postprocessing
     from: development
     to: work_postprocessing
@@ -477,12 +529,17 @@ rules:
     eligibility:
       all:
         - current_scope_executed
+        - implementation_scaffold_validated
+        - implementation_matches_todo
+        - risk_matched_tests_sufficient
+        - smoke_test_passed
+        - performance_optimization_complete
         - todo_completion_evidence_satisfied
         - codex_outputs_ready_for_work
         - no_critical_correctness_risk
       none:
         - stop_warranted
-    guidance: Hand off when Development itself produced the complete evidence required by the TODO.
+    guidance: Hand off when Development passed the work, right, and fast gates and itself produced the complete evidence required by the TODO.
   - id: development.to_stopped
     from: development
     to: stopped
@@ -539,13 +596,14 @@ rules:
         - required_artifacts_complete
         - pilot_grid_complete
         - pilot_evidence_supports_confirmation
+        - verified_hyperparameters_recorded
         - confirmation_spec_frozen
         - no_critical_correctness_risk
         - no_scope_change_required
       none:
         - implementation_rework_needed
         - stop_warranted
-    guidance: Enter Confirmation only after complete Pilot evidence justifies a frozen formal specification.
+    guidance: Enter Confirmation only after complete Pilot evidence justifies the specification and every experimentally selected hyperparameter is approved and fixed in the current TODO.
   - id: pilot.to_work_postprocessing
     from: pilot
     to: work_postprocessing
@@ -554,13 +612,14 @@ rules:
       all:
         - current_scope_executed
         - required_artifacts_complete
+        - verified_hyperparameters_recorded
         - todo_completion_evidence_satisfied
         - codex_outputs_ready_for_work
         - no_critical_correctness_risk
       none:
         - implementation_rework_needed
         - stop_warranted
-    guidance: Hand off when the TODO is intentionally completed at Pilot rather than requiring Confirmation.
+    guidance: Hand off when the TODO is intentionally completed at Pilot and any experimentally selected hyperparameter has been approved and fixed in the current TODO.
   - id: pilot.to_stopped
     from: pilot
     to: stopped
@@ -677,6 +736,7 @@ rules:
     eligibility:
       all:
         - diagnosis_supports_confirmation
+        - verified_hyperparameters_recorded
         - confirmation_spec_frozen
         - no_critical_correctness_risk
         - no_scope_change_required
@@ -738,6 +798,7 @@ rules:
     eligibility:
       all:
         - formal_output_gap_found
+        - verified_hyperparameters_recorded
         - confirmation_spec_frozen
         - no_critical_correctness_risk
         - continuation_warranted
@@ -839,6 +900,7 @@ rules:
     eligibility:
       all:
         - formal_output_gap_found
+        - verified_hyperparameters_recorded
         - confirmation_spec_frozen
         - no_critical_correctness_risk
         - continuation_warranted
@@ -954,6 +1016,7 @@ rules:
     eligibility:
       all:
         - formal_output_gap_found
+        - verified_hyperparameters_recorded
         - confirmation_spec_frozen
         - no_critical_correctness_risk
         - continuation_warranted

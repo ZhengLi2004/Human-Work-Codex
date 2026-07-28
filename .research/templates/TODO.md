@@ -1,13 +1,16 @@
 # TODO-[Work: identifier]: [Work: research task title]
 
 > **Objective:** [Work: state exactly what will be implemented or tested, under which conditions, and which research judgment the result will inform.]
+>
+> **Authoring rule:** Describe only current work and the fixed decisions needed to perform it. Do not retain progress notes, completed selection instructions, rejected candidates, obsolete designs, or old-versus-new comparisons.
 
 ## 1. Research Definition
 
 - Source research material: [path, version, and relevant section]
 - Parent research question: [preserve the researcher's intended meaning]
-- Hypothesis or unresolved uncertainty: [state the pre-analysis expectation or uncertainty]
-- Role of this TODO: [state which implementation or evidence gap this task closes]
+- Current research question or decision: [state the exact question this work must answer]
+- Current pre-specified hypothesis: [state the hypothesis tested by this work, or `None`]
+- Role of this TODO: [state the current implementation or evidence closure]
 - Project scope: [project, dataset, method, and experimental object]
 - Dependencies: [other TODO identifiers, or `None`]
 
@@ -17,7 +20,7 @@
 
 ### 2.1 Project-object mapping
 
-[Map the research objects, method components, inputs, outputs, controls, and evaluation targets to concrete repository modules and data. Distinguish verified mappings from assumptions that require Exploration.]
+[Map the research objects, method components, inputs, outputs, controls, and evaluation targets needed by the current work to concrete repository modules and data. If verifying a mapping is the current task, state the probe and decision rule; do not preserve superseded mappings as background narrative.]
 
 ### 2.2 Inputs, outputs, and analysis units
 
@@ -48,7 +51,9 @@ where:
 
 | Variable | Research meaning | Complete values or sampling rule | Role |
 |---|---|---|---|
-| [intentionally varied factor] | [meaning] | [complete range] | [primary comparison / Pilot parameter study / stratification / other] |
+| [intentionally varied factor] | [meaning] | [complete range] | [primary comparison / experimentally verified parameter selection / stratification / other] |
+
+If this TODO selects a hyperparameter experimentally, put the complete approved candidate range, decision metric, feasibility constraints, tie rule, stopping rule, and selection rule here. Do not also state a provisional downstream value. After verification and explicit researcher approval, Work rewrites the TODO to retain the approved value and remaining work; complete candidate evidence remains in the result artifacts.
 
 ### 2.5 Controls and comparability
 
@@ -79,6 +84,14 @@ where:
 
 - [engineering or Pilot choices and their permitted bounds]
 
+**Experimentally verified hyperparameters used by this current task:**
+
+| Parameter | Fixed value | Applies to |
+|---|---|---|
+| [parameter, or `None`] | [fixed value] | [method, condition, or component] |
+
+Include a row only after the verification experiment is complete and the researcher has approved the value. Keep approval and evidence references in the task-state change event and technical artifacts. Do not retain rejected values or obsolete designs in this TODO.
+
 ### 2.8 Scope
 
 **Required:**
@@ -90,6 +103,8 @@ where:
 
 - [mechanistic interpretation, expansion, or refactoring outside this TODO]
 - [work that belongs to another TODO or to the human research report]
+
+The excluded list defines current scope; it is not a history of abandoned work. Omit obsolete alternatives and comparisons with earlier designs.
 
 ## 3. Required Outputs and Completion Criteria
 
@@ -120,7 +135,7 @@ The TODO is complete whether the result is positive, negative, or inconclusive w
 
 ## 4. Output References
 
-> Codex and Work may edit only the path values below. Do not add status fields, summaries, interpretations, stage records, or other narrative content.
+> Outside the governed verified-parameter rewrite, Codex and Work may edit only the path values below. Do not add status fields, summaries, interpretations, stage records, or other narrative content.
 
 - Codex result directory: [path]
 - Codex raw-result index or directory: [path or paths]

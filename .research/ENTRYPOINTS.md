@@ -9,6 +9,8 @@ Use $research-task-router to process this research material: [path].
 
 Create one or more complete TODOs. Each TODO must contain the full task definition, mathematical formulas, variables, controls, metrics, repeats, statistical question, required outputs, and completion criteria.
 
+Describe only the current work and fixed current decisions. If a hyperparameter requires experimental selection, make that verification the current task; do not write a provisional downstream value. Do not retain progress notes, rejected candidates, obsolete designs, or old-versus-new comparisons.
+
 Do not create workflow Markdown, an evidence ledger, a review packet, or a result package. Do not add lifecycle state fields to the TODO. Do not start implementation.
 ```
 
@@ -21,7 +23,7 @@ Codex initializes task state when lifecycle work first begins.
 ```text
 Use $research-task-router for [TODO path].
 
-Initialize its task-state YAML if missing. Evaluate every outgoing rule from todo_ready, including todo_ready.self. Show each eligible rule_id, source, target, and kind. Recommend one path, but do not apply it until I confirm.
+Initialize its task-state YAML and TODO SHA-256 fingerprint if missing. Evaluate every outgoing rule from todo_ready, including todo_ready.self. Show each eligible rule_id, source, target, and kind. Recommend one path, but do not apply it until I confirm.
 ```
 
 Expected route: `$research-state-transition` Initialize, then Evaluate.
@@ -40,6 +42,8 @@ Expected route: `$research-state-transition` Apply, then `$research-todo-executo
 Use $research-task-router to execute the current state for [TODO path].
 
 Read current.state from task-state.yaml. Do not infer or replace it. Use the minimum required implementation, testing, batch, and aggregation Skills. At the decision boundary, record predicate evidence, mark transition evaluation as required, evaluate every outgoing rule including self, recommend one eligible rule path, and stop for my decision.
+
+For implementation, use MATLAB for non-plotting computation unless a required Python-only package or measured MATLAB infeasibility is documented. Follow "Make it work, make it right, make it fast": run an efficient scaffold, implement and self-check the TODO faithfully, then profile and optimize with before/after benchmarks and equivalence tests.
 ```
 
 Expected route: `$research-todo-executor` + exactly one recorded state Skill + minimum capability Skills + `$research-state-transition` Evaluate + human gate.
@@ -158,3 +162,17 @@ Use the original TODO and complete result tables as factual sources. Treat my re
 ```
 
 Expected route: `$post-report-assessment`.
+
+## 11. Work and Codex: record a verified hyperparameter
+
+Use after a complete TODO-defined selection experiment reaches a decision boundary and the researcher approves the rule-supported value:
+
+```text
+Use $research-task-router for [TODO path].
+
+The complete parameter evidence is at [paths], and I approve [parameter] = [value] under the predefined selection rule. Have Work rewrite the TODO so this value is fixed and only remaining actions are described. Remove completed selection instructions, rejected candidates, obsolete designs, status prose, and old-versus-new comparisons from the active TODO, but preserve all technical evidence.
+
+Then have Codex synchronize the TODO SHA-256 fingerprint, increment task-state revision, invalidate any pending transition review, evaluate every outgoing rule again, and stop for my transition decision.
+```
+
+Expected route: `$research-report-to-todos`, then `$research-state-transition` Synchronize TODO, then a separate Evaluate operation and human gate.

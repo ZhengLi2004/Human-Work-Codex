@@ -15,6 +15,7 @@ All must hold:
 
 - task state is `confirmation` and ready or validly resumed;
 - the specification, code/config version, condition set, repeats, metrics, controls, failure rules, and output namespace are frozen;
+- every hyperparameter that required experimental selection has complete evidence, explicit researcher approval, and a fixed value in the current TODO; the task-state TODO fingerprint matches;
 - relevant regression and integration tests pass;
 - no unresolved leakage, comparability, aggregation, or storage-integrity risk remains;
 - formal outputs are distinct from preflight and Pilot outputs.
@@ -70,6 +71,7 @@ Evaluate applicable predicates such as:
 ## Boundaries
 
 - Do not tune, change metrics, or revise exclusions after viewing results.
+- Do not enter Confirmation with a candidate grid or provisional selected value where the frozen design requires one fixed hyperparameter.
 - Keep new exploratory analyses separate from the predefined primary analysis.
 - Do not interpret a non-significant result as proof of no effect.
 - Do not write a formal scientific narrative.

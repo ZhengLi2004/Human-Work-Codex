@@ -7,24 +7,29 @@ Use this reference after the TODO has fixed the scientific meaning. Language and
 - [Selection matrix](#selection-matrix)
 - [Python implementation guidance](#python-implementation-guidance)
 - [MATLAB implementation guidance](#matlab-implementation-guidance)
+- [MATLAB optimization ladder](#matlab-optimization-ladder)
 - [Visualization artifact boundary](#visualization-artifact-boundary)
 - [Cross-language boundary](#cross-language-boundary)
+- [Authoritative MATLAB references](#authoritative-matlab-references)
 
 ## Selection matrix
 
-| Workload characteristic | Prefer Python | Prefer MATLAB |
-|---|---|---|
-| Large heterogeneous tabular datasets, partitioned files, or distributed preprocessing | pandas, PyArrow, Polars only when approved, Dask only when justified | `datastore` and `tall` can work, but cross-file table engineering is usually less flexible |
-| Dense linear algebra already expressed as array equations | NumPy/SciPy | Native MATLAB arrays and matrix operations are often the clearest choice |
-| Existing MATLAB algorithm/toolbox code with validated numerical behavior | Port only with explicit need and equivalence tests | Keep MATLAB and improve vectorization/preallocation first |
-| Neural networks or custom GPU training | PyTorch is the default; TensorFlow/JAX only when the project already requires them | `trainnet`, `dlnetwork`, and Deep Learning Toolbox are suitable when the project is MATLAB-centered |
-| Complex figure/data-product pipeline after Codex | Python/Jupyter | Use MATLAB figures only when the TODO or existing validated workflow requires them |
-| Cross-language tabular interchange | Parquet with an explicit schema | `parquetread` / `parquetwrite` when supported by the installed release |
-| Cross-language large numeric arrays | HDF5 with named datasets, shapes, dtypes, and axis metadata | MAT v7.3 or HDF5; verify Python reader compatibility |
+This repository deliberately defaults to MATLAB for non-plotting computation. That policy is not a universal performance claim; representative benchmarks still decide whether an optimization is effective.
 
-Do not choose a language only because a single operation is syntactically shorter. Consider existing validated code, data volume, library support, reproducibility, and the cost of cross-language conversion.
+| Requirement | Repository decision | Required record |
+|---|---|---|
+| Numerical kernels, preprocessing, orchestration, aggregation, or storage | MATLAB | Release, toolboxes, environment, and work/right/fast evidence |
+| TODO-required Python-only package or interface, such as a required PyTorch implementation | Python for the smallest coherent component | Exact dependency, why substitution would change or prevent the method, and boundary tests |
+| MATLAB cannot implement the required component faithfully in the current environment | Python exception | Measured capability or compatibility evidence and human-visible rationale |
+| Governed plotting | Python/Jupyter, Matplotlib, and SciencePlots | Executed notebook and exact style stack |
+| Cross-language tabular interchange | Parquet with an explicit schema | Round-trip schema and key test |
+| Cross-language large numeric arrays | MAT v7.3 or HDF5 | Dataset names, shape, dtype, axis order, and round-trip test |
+
+Existing Python code, convenience, familiarity, or syntax length does not by itself satisfy the exception. Avoid a hybrid when conversion, duplicated dependencies, or debugging cost is larger than the isolated benefit.
 
 ## Python implementation guidance
+
+Apply this section only to governed plotting or a documented non-plotting exception.
 
 ### Array and numerical work
 
@@ -67,6 +72,13 @@ Tolerance must follow the algorithm, dtype, and scientific decision boundary; do
 
 ## MATLAB implementation guidance
 
+### Functions, execution engine, and algorithm structure
+
+- Put reusable hot code in functions; keep input classes and shapes stable when the algorithm permits.
+- MATLAB's execution engine applies optimizations automatically. There is no general manual JIT switch to enable. Measure representative functions after warm-up.
+- Remove unnecessary evaluations, repeated parsing/conversion, repeated factorizations, and loop-invariant work before tuning syntax.
+- Improve asymptotic complexity, exploit sparsity or structure, and select an appropriate numerical algorithm before adding workers or a GPU.
+
 ### Array and matrix work
 
 - Express dense numerical work with matrix multiplication, broadcasting/implicit expansion, logical indexing, reductions, `pagemtimes`, and appropriate toolbox routines.
@@ -74,7 +86,7 @@ Tolerance must follow the algorithm, dtype, and scientific decision boundary; do
 - Use `A\b`, decomposition objects, or iterative solvers instead of `inv(A)*b`.
 - Move invariant work outside loops only after proving the value does not depend on the iteration.
 - Avoid repeated conversion among tables, cells, structures, and numeric arrays inside hot loops. Convert once at a clear boundary.
-- Use MATLAB Profiler and `timeit`/`gputimeit` for representative kernels.
+- Use MATLAB Profiler to locate bottlenecks and `timeit`/`gputimeit` for representative kernels. Re-profile the complete workload after local changes because the bottleneck can move.
 
 ### Large data and storage
 
@@ -94,6 +106,14 @@ Tolerance must follow the algorithm, dtype, and scientific decision boundary; do
 - Validate CPU/GPU numerical equivalence at TODO-appropriate tolerances.
 - Do not open a large parallel pool before measuring per-worker memory and BLAS/thread behavior.
 
+### MEX and generated code
+
+- Consider C/C++ MEX only after profiling identifies a stable hot kernel that MATLAB and toolbox functions do not address adequately.
+- Keep the MATLAB reference implementation and test MEX output against it at TODO-justified tolerances.
+- Record C/C++ source, headers, build command, supported MATLAB releases/platforms, compiler, architecture, external-library versions, and a MATLAB fallback.
+- Treat MATLAB Coder as an optional licensed toolchain. `codegen` can generate C/C++ or MEX for supported MATLAB code; `codegen -jit` refers specifically to JIT MEX generation, not general MATLAB execution.
+- Include compile/startup cost when it is material, and benchmark the representative end-to-end workload rather than only the fastest inner call.
+
 ### Testing
 
 Use `matlab.unittest` and numerical constraints, for example:
@@ -107,6 +127,19 @@ testCase = TestCase.forInteractiveUse;
 testCase.verifyThat(actual, IsEqualTo(expected, ...
     'Within', RelativeTolerance(1e-7)));
 ```
+
+## MATLAB optimization ladder
+
+Apply each rung only to a measured bottleneck and preserve the prior correctness oracle.
+
+1. **Eliminate work:** cache proven invariants, remove duplicate conversions and reads, fuse repeated passes when semantics permit, and avoid computing unused outputs.
+2. **Improve the algorithm:** reduce complexity, exploit matrix/sparse/streaming structure, use stable decompositions or iterative solvers, and improve task granularity.
+3. **Improve memory behavior:** preallocate, reuse buffers, avoid accidental copies and oversized temporaries, choose appropriate dtypes, and batch I/O.
+4. **Use MATLAB effectively:** functions with stable types/shapes, measured vectorization, optimized built-ins, decomposition objects, and suitable toolbox routines.
+5. **Compile a stable kernel:** hand-written MEX or MATLAB Coder-generated MEX when toolchain and portability costs are justified.
+6. **Parallelize independent work:** `parfor`, `parfeval`, batch jobs, or distributed arrays after measuring transfer, scheduling, memory, and oversubscription.
+7. **Use the GPU:** keep data resident, use supported large operations, minimize transfers, and measure with `gputimeit`.
+8. **Re-profile end to end:** record before/after wall time and resources, rerun equivalence tests, and reject changes that lack useful net benefit.
 
 ## Visualization artifact boundary
 
@@ -133,3 +166,12 @@ For every exchanged artifact, record:
 - a small round-trip test in both languages when both consume the artifact.
 
 MATLAB is column-major and uses 1-based indexing; NumPy is usually row-major in presentation and uses 0-based indexing. Never translate index arrays, reshape operations, or flattened matrices without an explicit equivalence test.
+
+## Authoritative MATLAB references
+
+- [Techniques to Improve Performance](https://www.mathworks.com/help/matlab/matlab_prog/techniques-for-improving-performance.html): functions, preallocation, and general performance practices.
+- [Profile Your Code to Improve Performance](https://www.mathworks.com/help/matlab/matlab_prog/profiling-for-improving-performance.html) and [`timeit`](https://www.mathworks.com/help/matlab/ref/timeit.html): representative profiling and timing.
+- [Improve `parfor` Performance](https://www.mathworks.com/help/parallel-computing/improve-parfor-performance.html): transfer, worker, and scheduling costs.
+- [`gpuArray`](https://www.mathworks.com/help/parallel-computing/gpuarray.html) and [Measure and Improve GPU Performance](https://www.mathworks.com/help/parallel-computing/measure-and-improve-gpu-performance.html): supported GPU execution, transfer cost, and `gputimeit`.
+- [C MEX functions](https://www.mathworks.com/help/matlab/matlab_external/c-mex-functions.html) and [Build C MEX programs](https://www.mathworks.com/help/matlab/matlab_external/build-c-mex-programs.html): native extension interface and compiler/build requirements.
+- [Generate C/C++ Code](https://www.mathworks.com/help/coder/generating-code.html) and [`codegen`](https://www.mathworks.com/help/coder/ref/codegen.html): MATLAB Coder generation and JIT MEX options.

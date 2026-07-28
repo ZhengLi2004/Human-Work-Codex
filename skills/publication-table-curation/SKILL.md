@@ -62,8 +62,9 @@ For each logical table:
 5. Write curated tables in Parquet by default; write CSV only when small and required for interchange.
 6. Save the transformation manifest beside the curated tables.
 7. Update only the `Work curated table(s)` path value in the TODO.
-8. When task state is available, append curated-table artifact references and record `work_tables_complete` as `true`, `false`, or `unknown` with evidence. Do not change `current.state`.
-9. Hand the paths and transformation manifest to `$research-figure-production` in Planning mode. The curated table may serve as a figure source when the manifest proves row and stable-key preservation and the table retains all fields required by that figure.
+8. Record that the TODO path changed and require Codex to invoke `$research-state-transition` in Synchronize TODO mode before transition evaluation.
+9. When task state is available, append curated-table artifact references and record `work_tables_complete` as `true`, `false`, or `unknown` with evidence. Do not change `current.state`.
+10. Hand the paths and transformation manifest to `$research-figure-production` in Planning mode. The curated table may serve as a figure source when the manifest proves row and stable-key preservation and the table retains all fields required by that figure.
 
 ## Concise example
 
@@ -73,4 +74,4 @@ Forbidden: keep only the SNR values with the highest mean score or delete failed
 
 ## Output contract
 
-Produce curated table file(s) or dataset directory and a machine-readable transformation manifest. Return input/output validation results and task-state evidence updates in chat. On normal success, continue to `$research-figure-production` Planning mode without evaluating transitions. If curation reaches an auditable failure or blocker that prevents figure planning, set the Work execution to a decision boundary (`execution.decision_boundary_reached: true`, `current.status: awaiting_transition_evaluation`, `transition_review.status: evaluation_required`) and return control for Codex rule evaluation. Do not create a Markdown result package or recommend a lifecycle transition.
+Produce curated table file(s) or dataset directory and a machine-readable transformation manifest. Return input/output validation results and task-state evidence updates in chat. On normal success, continue to `$research-figure-production` Planning mode without evaluating transitions; the curated-table and figure-directory path changes may be synchronized together, but Codex must synchronize them before evaluation. If curation reaches an auditable failure or blocker that prevents figure planning, synchronize any path change, set the Work execution to a decision boundary (`execution.decision_boundary_reached: true`, `current.status: awaiting_transition_evaluation`, `transition_review.status: evaluation_required`), and return control for Codex rule evaluation. Do not create a Markdown result package or recommend a lifecycle transition.

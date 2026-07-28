@@ -1,6 +1,6 @@
 interface:
   display_name: "Research Development"
-  short_description: "Build a scientifically faithful implementation"
-  default_prompt: "Use $research-development when task-state current.state is development."
+  short_description: "Run work-right-fast scientific development"
+  default_prompt: "Use $research-development when task-state current.state is development to build the scaffold, verify the TODO implementation, and optimize measured bottlenecks in order."
 policy:
   allow_implicit_invocation: false

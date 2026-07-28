@@ -18,9 +18,9 @@ Read `references/worked-examples.md` when a concrete route example would clarify
 
 | Workflow | Skill |
 |---|---|
-| Create or revise complete TODOs | `$research-report-to-todos` |
+| Create or rewrite current-action TODOs | `$research-report-to-todos` |
 | Execute the current Codex-owned state | `$research-todo-executor` plus the recorded state Skill |
-| Initialize, evaluate, or apply lifecycle state | `$research-state-transition` |
+| Initialize, synchronize a verified-parameter rewrite, evaluate, or apply lifecycle state | `$research-state-transition` |
 | Curate completed result tables | `$publication-table-curation` |
 | Plan draft figures or produce reviewed final figures | `$research-figure-production` in the mode fixed by current state |
 | Request researcher review of draft figures | `$human-research-review-gate` figure-review procedure |
@@ -50,6 +50,7 @@ Choose one primary route:
 |---|---|
 | Create, revise, or split a task specification from research material | `$research-report-to-todos` |
 | Initialize a missing task-state YAML | `$research-state-transition` Initialize |
+| Record an authorized Output References edit, approved Work parameter rewrite, or exact restoration after rejecting an unapproved edit | `$research-state-transition` Synchronize TODO |
 | Evaluate outgoing rules after a state | `$research-state-transition` Evaluate |
 | Apply a human-confirmed eligible rule path | `$research-state-transition` Apply |
 | Execute `exploration`, `development`, `pilot`, `confirmation`, or `ablation_diagnosis` recorded in task state | `$research-todo-executor` plus exactly one state Skill |
@@ -64,7 +65,9 @@ Return `no_system_route` for general research questions, formula tutoring, liter
 
 ## Resolve lifecycle control
 
-Use `current.state`, `current.status`, `transition_review.status`, and `revision` from the task-state YAML.
+Use `current.state`, `current.status`, `transition_review.status`, `revision`, and the stored TODO SHA-256 fingerprint from the task-state YAML. Recompute the TODO digest before routing lifecycle work. An unexplained mismatch is a blocker.
+
+If the human rejects an unexplained edit, route exact restoration through `$research-state-transition` Synchronize TODO to invalidate the old review before reevaluation. If the human approves a scientific change outside the predefined verified-parameter procedure, route Work to a new versioned TODO and initialize its lifecycle at `todo_ready`; do not synchronize the changed scientific content into the active task.
 
 ### Pending transition review
 
@@ -82,6 +85,7 @@ Do not rerun the current state while a transition decision is pending unless the
 When `current.status` is `awaiting_transition_evaluation` or `transition_review.status` is `evaluation_required`:
 
 - route to `$research-state-transition` Evaluate before any execution, Work action, or transition application;
+- exception: when an authorized TODO path edit or a complete evidence-backed Work parameter rewrite has not yet been synchronized, route first to `$research-state-transition` Synchronize TODO; a parameter rewrite routes through `$research-report-to-todos` before synchronization. Only then Evaluate;
 - require `execution.decision_boundary_reached: true`, except for `todo_ready`;
 - do not ask the human to choose a path until Codex has recorded the complete eligible rule set and one recommendation.
 
@@ -106,7 +110,7 @@ If the human names a target different from `current.state`, require a recorded e
 
 For Codex state execution, add only capabilities required by the TODO and current state:
 
-- `$research-computing-implementation` for Python/MATLAB code, numerical optimization, parallel/GPU execution, or storage-boundary changes.
+- `$research-computing-implementation` for MATLAB-first non-plotting code, a documented Python-only exception, Python plotting, numerical optimization, parallel/GPU execution, or storage-boundary changes.
 - `$research-agile-testing` for formulas, data semantics, controls, metrics, randomness, recovery, or implementation behavior.
 - `$research-evidence-aggregation` for repeated metrics, complete run tables, aggregate tables, or condition-merged tables.
 - `$research-batch-execution` for multiple recoverable units, material I/O, checkpoint/resume, concurrency, or long runtime.
@@ -121,6 +125,8 @@ state resolution
 → risk-matched testing
 → formal execution when applicable
 → aggregation
+→ evidence-backed human hyperparameter selection and Work TODO rewrite when defined
+→ TODO fingerprint synchronization
 → transition rule evaluation
 → human confirmation
 → transition application
@@ -153,8 +159,8 @@ work_postprocessing state
 Check in order:
 
 1. **Authority gate:** Is the human authorizing execution, transition application, semantic change, or long-run launch as required?
-2. **TODO gate:** Does the TODO define the scientific action without invention?
-3. **State gate:** Does the task-state file exist, match the TODO, and permit this action at its current revision?
+2. **TODO gate:** Does the TODO define only the current scientific action without invention, status history, rejected candidates, or obsolete-design prose? Are experimentally selected fixed values verified and approved?
+3. **State gate:** Does the task-state file exist, match the TODO identifier and SHA-256 fingerprint, and permit this action at its current revision?
 4. **Transition gate:** Is the exact rule path recorded as eligible and explicitly confirmed?
 5. **Scope gate:** Is the work inside the TODO rather than a hidden new scientific question?
 6. **Artifact gate:** Are the implementation inputs or result paths required by the selected Skill available?
@@ -172,16 +178,17 @@ Return:
 1. `classification`;
 2. `resolved_todo`;
 3. `resolved_state_file`;
-4. `state_revision`;
-5. `current_state` and status;
-6. `execution_status` and `decision_boundary_reached`;
-7. `transition_review_status`;
-8. `requested_action`;
-9. `selected_skills` in call order;
-10. `excluded_skills` most likely to be confused with the route;
-11. `blocking_issues`;
-12. `route_result`: `ready`, `blocked`, or `no_system_route`;
-13. `next_action`.
+4. `todo_fingerprint_match` and authorized change class when applicable;
+5. `state_revision`;
+6. `current_state` and status;
+7. `execution_status` and `decision_boundary_reached`;
+8. `transition_review_status`;
+9. `requested_action`;
+10. `selected_skills` in call order;
+11. `excluded_skills` most likely to be confused with the route;
+12. `blocking_issues`;
+13. `route_result`: `ready`, `blocked`, or `no_system_route`;
+14. `next_action`.
 
 ## Hard rules
 
@@ -196,4 +203,7 @@ Return:
 - Do not treat a generalized schematic as a substitute for complete quantitative figures.
 - Do not route Codex aggregation to Work table curation.
 - Do not allow row-wise CSV updates, repeated DataFrame concatenation in result loops, or per-row MATLAB `writetable` calls.
+- Do not route unexplained TODO edits past the fingerprint gate or reuse a transition review after a TODO rewrite.
+- Do not route a broader approved scientific redesign through Synchronize TODO; create a new versioned TODO and initialize it at `todo_ready`.
+- Do not route non-plotting Python merely for convenience; require the computing Skill's documented exception.
 - Do not coin terminology when an established technical term or a concrete sequence of operations is clearer.

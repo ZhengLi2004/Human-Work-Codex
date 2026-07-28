@@ -8,6 +8,7 @@
 | Data leakage | split-membership and provenance checks | one representative partition |
 | Control fairness | configuration diff / invariant checks | paired control and treatment |
 | Module boundary | focused integration test | one path across the boundary |
+| Development scaffold | environment/interface/schema/I/O contract test | one representative task path with placeholder clearly labeled |
 | Full experiment chain | end-to-end smoke test | one combination, one repeat |
 | Defect repair | regression test | minimal reproducer |
 | Randomness | fixed-seed determinism + independent-repeat checks | two reruns |
@@ -16,10 +17,14 @@
 | CPU/GPU equivalence | numerical comparison + decision-boundary check | representative small and memory-relevant cases |
 | Python vectorization | loop/reference equivalence + memory benchmark | representative array shape |
 | MATLAB vectorization | scalar/loop reference + `matlab.unittest` comparison | representative matrix/page shape |
+| Redundant-computation removal | call-count/invariant test + differential result check | one repeated kernel with invariant and varying inputs |
+| MATLAB function/type/shape refactor | reference comparison + representative `timeit` benchmark | warm function calls at production-relevant shapes |
+| Hand-written or generated MEX | MATLAB-reference differential test + clean-build/fallback test + benchmark | supported platform and representative hot-kernel inputs |
 | Cross-language interchange | round-trip schema, dtype, shape, key, and index test | one representative artifact |
 | Aggregation | synthetic complete/incomplete grids | every status class |
 | Buffered/partitioned I/O | interruption, duplicate, schema, row-count, and atomic-publish tests | two chunks and one damaged chunk |
 | Parallel scheduling | serial/parallel equivalence + duplicate/missing task reconciliation | small complete manifest |
+| Parallel or GPU transfer overhead | end-to-end benchmark including pool/startup or host/device transfer | representative task batch and memory-relevant shape |
 | Figure source completeness | stable-key/coverage comparison against logical source | one figure specification |
 | Chart selection rationale | variable-role/task classification plus candidate-to-plan comparison | every planned figure |
 | Chart-specific caveat | trigger-to-audit status and rendered-evidence check | every applicable `DTV-Cxx` ID |
@@ -43,4 +48,4 @@
 - Python: `pytest`, `numpy.testing`, `pandas.testing`, `scipy` reference routines, and `torch.testing` when applicable.
 - MATLAB: `matlab.unittest`, numerical constraints, deterministic fixtures, and CPU/GPU or loop/vectorized differential tests.
 
-A performance improvement is not accepted merely because it is faster. It must preserve the TODO-defined numerical behavior and result population.
+A performance improvement is not accepted merely because one kernel is faster. It must preserve the TODO-defined numerical behavior and result population, improve the representative end-to-end workload enough to justify its cost, and retain the independent correctness reference.

@@ -42,6 +42,7 @@ Evaluate applicable predicates such as:
 - `diagnosis_supports_pilot`;
 - `diagnosis_supports_confirmation`;
 - `pilot_scope_defined`;
+- `verified_hyperparameters_recorded`;
 - `confirmation_spec_frozen`;
 - `no_critical_correctness_risk`;
 - `no_scope_change_required`;

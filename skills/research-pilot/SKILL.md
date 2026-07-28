@@ -1,6 +1,6 @@
 ---
 name: research-pilot
-description: Execute the recorded Pilot state over the complete approved Pilot condition grid and independent repeats to evaluate behavior, stability, parameter marginal value, failures, and cost. Use only when task-state current.state is pilot. Do not cherry-pick results or choose the next state directly.
+description: Execute the recorded Pilot state over the complete approved condition grid and independent repeats to evaluate behavior, stability, predefined hyperparameter selection, failures, and cost. Use only when task-state current.state is pilot. Preserve every candidate, require human approval before a selected value enters the TODO, and do not choose the next state directly.
 ---
 
 # Research Pilot
@@ -16,6 +16,7 @@ Run the smallest controlled experiment that is complete enough to judge method b
 - reviewed Development implementation or equivalent existing evidence;
 - complete Pilot combination set;
 - repeat rules, metrics, controls, allowed flexibility, and resource policy.
+- for any experimental hyperparameter selection, the complete candidate range, metric, tie rule, feasibility constraints, and selection rule defined before results are inspected.
 
 ## Workflow
 
@@ -29,8 +30,10 @@ Run the smallest controlled experiment that is complete enough to judge method b
 8. Use `$research-evidence-aggregation` to produce complete `runs`, `aggregate_full`, and condition-merged tables.
 9. Reconcile every planned combination, including failed, missing, invalid, insufficient-repeat, and incomparable states.
 10. Report quality, dispersion, coverage, runtime, memory, GPU memory, I/O behavior, and parameter marginal value.
-11. Record execution status, artifact references, and applicable predicate results in task state.
-12. Return control to `$research-todo-executor` for rule evaluation.
+11. When the TODO defines a hyperparameter-selection decision, apply its fixed rule to the complete evidence, record the selected candidate and tie/feasibility outcome in a technical artifact, and invoke `$human-research-review-gate` for explicit researcher selection. Do not alter the candidate evidence or TODO.
+12. After approval, require Work to rewrite the TODO with the fixed value and only remaining actions, then require Codex to synchronize the TODO fingerprint and reevaluate transitions. Rejected candidates remain in immutable Pilot artifacts.
+13. Record execution status, artifact references, and applicable predicate results in task state.
+14. Return control to `$research-todo-executor` for rule evaluation.
 
 ## Parameter evidence
 
@@ -57,6 +60,7 @@ Evaluate applicable predicates such as:
 - `required_artifacts_complete`;
 - `pilot_grid_complete`;
 - `pilot_evidence_supports_confirmation`;
+- `verified_hyperparameters_recorded`;
 - `confirmation_spec_frozen`;
 - `implementation_rework_needed`;
 - `bounded_diagnosis_needed`;
@@ -75,7 +79,7 @@ Evaluate applicable predicates such as:
 - Do not call a parameter value “best” unless the TODO defines that decision rule.
 - Do not present Pilot results as Confirmation.
 - Do not choose or apply a next state.
-- Do not update the TODO beyond allowed output paths.
+- Codex must not update the TODO beyond allowed output paths. The only scientific rewrite is performed by Work after complete evidence and explicit researcher approval, then synchronized through task state.
 
 ## Output contract
 

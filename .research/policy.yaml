@@ -1,4 +1,4 @@
-schema_version: 7
+schema_version: 8
 name: research-task-system-policy
 
 routing:
@@ -11,6 +11,64 @@ routing:
   initialize_missing_state_as: todo_ready
   separate_scientific_handoff_documents_forbidden: true
 
+todo_authoring:
+  current_action_only: true
+  progress_or_status_narrative_forbidden: true
+  obsolete_design_narrative_forbidden: true
+  rejected_candidates_belong_in_technical_evidence: true
+  unverified_hyperparameter_cannot_be_fixed_for_downstream_work: true
+  candidate_range_allowed_when_selection_is_current_work: true
+  output_reference_path_update:
+    allowed_during_execution: true
+    codex_or_work_only: true
+    fingerprint_refresh_required: true
+    task_state_revision_increment_required: true
+    may_be_batched_before_transition_evaluation: true
+  rejected_unapproved_edit_restoration:
+    exact_approved_content_restoration_required: true
+    observed_mismatch_fingerprint_recorded: true
+    task_state_revision_increment_required: true
+    pending_transition_review_invalidated: true
+    transition_reevaluation_required: true
+  verified_parameter_rewrite:
+    decision_boundary_required: true
+    complete_evidence_required: true
+    explicit_human_selection_required: true
+    work_rewrites_todo: true
+    codex_refreshes_sha256_fingerprint: true
+    task_state_revision_increment_required: true
+    pending_transition_review_invalidated: true
+    transition_reevaluation_required: true
+    preserve_prior_evidence_outside_todo: true
+  other_scientific_revision_requires_new_versioned_todo: true
+
+implementation:
+  principle:
+    - make_it_work
+    - make_it_right
+    - make_it_fast
+  non_plotting_default_language: matlab
+  python_non_plotting_requires_documented_exception: true
+  python_exception_examples:
+    - required_python_only_package_or_interface
+    - measured_matlab_infeasibility
+  plotting_language: python
+  plotting_policy_section: work_figures
+  reference_implementation_required_before_optimization: true
+  profile_representative_work_before_optimization: true
+  before_after_benchmark_required_for_material_optimization: true
+  numerical_and_scientific_equivalence_required: true
+  matlab_optimization_methods_to_consider:
+    - redundant_computation_elimination
+    - algorithmic_complexity
+    - memory_layout_and_preallocation
+    - vectorization_and_jit_friendly_code
+    - optimized_builtins_and_toolboxes
+    - mex_or_generated_code
+    - parallel_computing
+    - gpu_acceleration
+    - bulk_io_and_partitioning
+
 transitions:
   evaluate_after_every_executable_state: true
   work_marks_evaluation_required_for_codex: true
@@ -22,6 +80,8 @@ transitions:
   atomic_state_write_required: true
   revision_match_required: true
   rule_set_version_match_required: true
+  todo_fingerprint_match_required: true
+  todo_change_invalidates_pending_review: true
   preserve_evaluation_snapshot_in_history: true
   approve_and_execute_requires_explicit_wording: true
   figure_planning_review_and_production_are_separate_states: true

@@ -13,6 +13,7 @@ Stop execution at a governance boundary and request one explicit human decision 
 
 - selecting one eligible transition rule path, including the self-transition;
 - approving a fixed-method, metric, control, data-scope, or completion-criterion change;
+- selecting an experimentally verified hyperparameter before Work writes it into the current TODO;
 - launching a restricted long-running job;
 - obtaining interactive researcher recommendations on draft figures covering all applicable data during `figure_review`;
 - accepting incomplete or incomparable evidence;
@@ -64,8 +65,20 @@ Example response handling:
 1. State the current TODO and lifecycle state.
 2. Identify the exact fixed definition that would change.
 3. Explain how the change affects interpretation, comparability, or prior artifacts.
-4. Give the smallest safe options: reject, amend the TODO, create a new TODO, or invalidate/version prior evidence.
+4. Give the safe options: reject and restore the approved TODO, or approve a redesign that Work records in a new versioned TODO with a new stable identifier while prior evidence remains preserved. If proposed redesign text was already written over the old TODO, reject that in-place mutation for the old task, restore and invalidate its review, and approve the same scientific content only for the new TODO. Do not amend the active TODO outside the bounded verified-parameter procedure.
 5. Request one explicit decision and stop.
+
+## Verified-parameter selection procedure
+
+Use only when the current TODO predefined the candidate set, metric, feasibility constraints, tie rule, and selection rule and the complete verification run has reached a decision boundary.
+
+1. State the TODO, task-state path and revision, parameter, selection rule, and complete evidence paths.
+2. Summarize every candidate's decision metric, dispersion, coverage/failure state, and relevant resource cost. Do not show only the selected candidate.
+3. State the value produced by the predefined rule, including ties, infeasible candidates, and any unresolved evidence.
+4. Ask the researcher to approve that value, reject it, request an in-scope rerun, or initiate a scientific redesign. Do not treat the rule output alone as approval.
+5. State that approval authorizes Work to rewrite the TODO with the fixed value and remaining actions only; it does not approve a lifecycle transition or execute another state.
+6. After the response, preserve an exact conversation reference and route the approved selection plus evidence references to `$research-report-to-todos` for the rewrite, then to `$research-state-transition` in Synchronize TODO mode.
+7. Stop when evidence is incomplete, the rule is ambiguous, or the requested value falls outside the predefined rule; do not negotiate a favorable candidate into the TODO.
 
 ## Long-run request fields
 
@@ -98,6 +111,7 @@ Return:
 - `alternatives`;
 - `figure_review_material` and `coverage_summary` when applicable;
 - `researcher_recommendations` and exact evidence reference after figure review output arrives;
+- `verified_parameter_selection`, complete evidence references, and exact approval reference when applicable;
 - `explicit_human_decision_requested`;
 - `execution_requires_separate_authorization`.
 
@@ -107,6 +121,7 @@ Return:
 - Do not apply a transition or edit `current.state`.
 - Do not omit an eligible self-transition or its rule ID.
 - Do not write approval into the TODO.
+- Do not write or imply a selected hyperparameter before complete verification evidence and explicit researcher approval.
 - Do not create a stage-review, workflow, gate, or result-summary Markdown file.
 - Do not weaken the proposed scope to avoid asking for approval.
 - Do not omit drafts or conditions to shorten a figure-review prompt; summarize coverage and link the complete artifacts.

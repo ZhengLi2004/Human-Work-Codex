@@ -1,9 +1,16 @@
-schema_version: 1
+schema_version: 2
 todo_id: TODO-000
 todo_path: TODO/TODO-000.md
 state_machine: .research/workflow/state-machine.yaml
-state_machine_rule_set_version: 3
+state_machine_rule_set_version: 4
 revision: 0
+
+todo_fingerprint:
+  algorithm: sha256
+  value: null
+  synchronized_at: null
+
+todo_change_events: []
 
 current:
   state: todo_ready
@@ -26,6 +33,7 @@ transition_review:
   status: not_evaluated
   based_on_revision: 0
   based_on_rule_set_version: null
+  based_on_todo_fingerprint: null
   evaluated_at: null
   from_state: todo_ready
   evaluated_rules: []

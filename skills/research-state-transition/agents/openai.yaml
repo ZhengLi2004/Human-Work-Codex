@@ -1,6 +1,6 @@
 interface:
   display_name: "Research State Transition"
-  short_description: "Evaluate and apply eligible rule paths"
-  default_prompt: "Use $research-state-transition to evaluate all outgoing lifecycle rules including self, or apply one explicitly human-confirmed eligible rule_id and target."
+  short_description: "Synchronize and evaluate lifecycle state"
+  default_prompt: "Use $research-state-transition to initialize state, synchronize an authorized TODO edit or exact restoration after a rejected edit, evaluate all outgoing rules including self, or apply one human-confirmed eligible path after fingerprint checks."
 policy:
   allow_implicit_invocation: false

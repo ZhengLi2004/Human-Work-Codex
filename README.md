@@ -90,8 +90,8 @@ ln -s ../skills .agents/skills
 
 | File or directory | Purpose |
 |---|---|
-| `TODO.md` | Complete scientific specification and output path references |
-| `results/{todo_id}/task-state.yaml` | Current lifecycle state, rule evaluation, approvals, revision, and versioned evaluation history |
+| `TODO.md` | Complete current-action scientific specification and output path references |
+| `results/{todo_id}/task-state.yaml` | Current lifecycle state, TODO SHA-256 fingerprint, rule evaluation, approvals, revision, authorized change references, and versioned evaluation history |
 | `.research/workflow/state-machine.yaml` | Reusable predicates, states, and transition rules |
 | `SKILL.md` | Reusable workflow, guardrails, and output contract |
 | `AGENTS.md` | Permanent scientific and execution governance |
@@ -101,6 +101,12 @@ ln -s ../skills .agents/skills
 | `results/{todo_id}/` | State, logs, checkpoints, raw outputs, tables, notebooks, and figures |
 
 Governed draft and final charts come from an executed `.ipynb` and use a SciencePlots stack based on `science` (`science` + `no-latex` by default). Standalone `.py` plotting is reserved for disposable diagnostic previews; keep both the script and its images in the platform temporary directory and reproduce any retained design in the notebook.
+
+## Implementation policy
+
+Non-plotting computation defaults to MATLAB. A Python component requires a documented Python-only package/interface or measured MATLAB infeasibility; governed plotting remains Python/Jupyter with SciencePlots.
+
+Development follows **"Make it work, make it right, make it fast"**: first run an efficient environment-compatible scaffold, then implement and independently self-check the TODO, and finally profile representative work and optimize with before/after benchmarks plus equivalence tests.
 
 ## Usage
 

@@ -74,8 +74,9 @@ Never select records because they make a cleaner or more supportive figure. When
 8. Create and execute the planning notebook from a clean kernel and export the complete draft figure set under `draft/`. Adapt gallery or helper code to the validated source and compute no hidden estimator, interval, filter, or model fit. Temporary `.py` previews do not count as drafts.
 9. Write `draft-figure-manifest.json` with executed-notebook provenance, the exact SciencePlots style stack, method basis, chart-selection record, source classes, stable keys, statistical units, transformations, titles, axes, units, series labels, applicable caveat IDs, and coverage counts.
 10. Update only the `Work figure directory` path in the TODO.
-11. Record applicable predicates, including `figure_plan_complete`, `figure_method_basis_recorded`, `draft_figures_complete`, `figure_source_coverage_complete`, `figure_review_material_ready`, `work_outputs_traceable`, and risks or revision needs.
-12. Mark the `work_postprocessing` decision boundary and return control for Codex transition evaluation. The eligible forward target is `figure_review`, not completion.
+11. Record that the TODO path changed and require Codex to invoke `$research-state-transition` in Synchronize TODO mode before transition evaluation.
+12. Record applicable predicates, including `figure_plan_complete`, `figure_method_basis_recorded`, `draft_figures_complete`, `figure_source_coverage_complete`, `figure_review_material_ready`, `work_outputs_traceable`, and risks or revision needs.
+13. Mark the `work_postprocessing` decision boundary and return control for Codex transition evaluation. The eligible forward target is `figure_review`, not completion.
 
 ## Researcher-review material
 
@@ -141,4 +142,4 @@ Planning mode produces an executed planning notebook, draft figures, `figure-pla
 
 Final mode produces an executed final notebook, final exported figures, `figure_manifest.json`, and `figure_integrity_audit.json`. The manifest records the notebook and exact SciencePlots style stack; the audit records those checks plus status and evidence for every applicable chart caveat.
 
-Return the task-state path, mode, execution status, source and coverage results, recorded predicates, failures or ambiguities, and the mandatory next action: Codex must invoke `$research-state-transition` in Evaluate mode before any later lifecycle action.
+Return the task-state path, mode, execution status, source and coverage results, recorded predicates, failures or ambiguities, and the mandatory next action. In Planning mode, Codex first invokes `$research-state-transition` in Synchronize TODO mode when the figure-directory path changed, then invokes a separate Evaluate operation. In Final mode, Codex invokes Evaluate directly unless another authorized TODO path edit also requires synchronization. No later lifecycle action may precede evaluation.
