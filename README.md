@@ -2,41 +2,35 @@
 
 Research Task System turns one complete research TODO into a rule-driven Work/Codex workflow with explicit human decisions.
 
-```text
-Research TODO (Written by researcher)
+~~~text
+Research TODO
     ↓
-Write an implementation TODO (Better with GPT work)
+Current-action implementation TODO
     ↓
-Initialize research state YAML (From now on better with Codex)
+Fingerprint and initialize task-state YAML
     ↓
-Recommend and confirm outgoing state
+Evaluate and human-confirm one eligible rule path
     ↓
-Execute the recorded state
+Execute only the recorded state
     ↓
-Update research state YAML
+Preserve complete evidence and validate aggregation
     ↓
-...... (loop)
+Curate tables and prepare draft figures
     ↓
-Curate tables and prepares drafts (Better with GPT work)
+Researcher reviews every draft and its coverage
     ↓
-Review the drafts and supplies recommendations (Written by researcher)
+Produce and validate final figures
     ↓
-Produce and check final figures (Better with GPT work)
-    ↓
-Finish
-```
+Finish, rework, redesign, or stop by an eligible rule path
+~~~
 
 ## Repository layout
 
-```text
+~~~text
 .
-├── .codex-plugin/
-│   └── plugin.json
-├── .agents/
-│   └── plugins/
-│       └── marketplace.json
-├── agents/
-│   └── openai.yaml
+├── .codex-plugin/plugin.json
+├── .agents/plugins/marketplace.json
+├── agents/openai.yaml
 ├── skills/
 │   ├── research-task-router/
 │   ├── research-todo-executor/
@@ -59,111 +53,177 @@ Finish
 │   ├── ENTRYPOINTS.md
 │   ├── policy.yaml
 │   ├── templates/
-│   │   ├── TODO.md
-│   │   └── task-state.yaml
 │   └── workflow/
-│       ├── pipeline.yaml
-│       └── state-machine.yaml
 ├── requirements.txt
 ├── AGENTS.md
 └── README.md
-```
+~~~
 
-## Installation and discovery
+## Path 1: clone and prepare the environment
 
-The repository is an installable local Plugin and includes:
+Clone the current remote and enter the repository:
 
-- `.codex-plugin/plugin.json`;
-- `.agents/plugins/marketplace.json`;
-- `skills/`.
+~~~bash
+git clone https://github.com/ZhengLi2004/Human-Work-Codex.git
+cd Human-Work-Codex
+~~~
 
-Use `$research-task-router` as the entry point after installation.
+Create an isolated Python environment and install the plotting and notebook-validation dependencies.
 
-For direct repository-scoped Codex discovery without installing the Plugin, create a symlink:
+macOS or Linux:
 
-```bash
-mkdir -p .agents
+~~~bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+~~~
+
+Windows PowerShell:
+
+~~~powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+~~~
+
+MATLAB remains the default production environment for non-plotting computation. Check the installed release and licensed toolboxes separately:
+
+~~~bash
+matlab -batch "disp(version); ver"
+~~~
+
+The TODO and existing project code determine which toolboxes are required. Install MATLAB and its required toolboxes separately from the Python environment.
+
+## Import into Codex
+
+After Path 1, choose Path 2 or Path 3. The Plugin path is recommended because it preserves the packaged interface and makes the Skills available outside this repository.
+
+### Path 2: recommended local Plugin
+
+1. Open the cloned repository as the workspace in Codex desktop.
+2. Restart Codex so it reloads the local marketplace metadata.
+3. Open the Plugins view, select the **Research Task System (Local)** marketplace, and install **Research Task System**.
+4. Start a new task in the repository. A new task is required after Plugin installation so the Plugin Skills and the repository-root AGENTS.md are loaded together.
+
+The equivalent Codex CLI commands, run from the repository root, are:
+
+~~~bash
+codex plugin marketplace add .
+codex plugin add research-task-system@research-task-system-local
+~~~
+
+Use this Plugin path for Codex desktop and Codex CLI. For a Codex IDE extension, use the repo-scoped Skills path below.
+
+### Path 3: repository-scoped Skills without Plugin installation
+
+Codex discovers repository Skills under **.agents/skills**. This repository keeps the canonical files under **skills/**, so create a link rather than copying them.
+
+macOS or Linux:
+
+~~~bash
 ln -s ../skills .agents/skills
-```
+~~~
 
-## Artifacts
+Windows PowerShell:
+
+~~~powershell
+$skillTarget = (Resolve-Path .\skills).Path
+New-Item -ItemType Junction -Path .\.agents\skills -Target $skillTarget
+~~~
+
+Then restart Codex or start a new task in the repository. The repository-root AGENTS.md is discovered automatically from the Git-root instruction chain; the junction adds only the repo-scoped Skills.
+
+### Fallback: repository instructions only
+
+Opening the repository in Codex loads `AGENTS.md` by itself. Install the Plugin or expose the repo-scoped Skills to add the reusable workflows; use the `AGENTS.md`-only setup for inspection.
+
+## Verify the import
+
+In a new Codex task:
+
+1. Run **/skills** and confirm that **research-task-router** is available.
+2. Use this read-only prompt:
+
+   ~~~text
+   Summarize the active repository AGENTS.md instructions and name the Research Task System entry Skill. Do not modify files or external state.
+   ~~~
+
+3. For a Plugin installation, list the local marketplace:
+
+   ~~~bash
+   codex plugin list --marketplace research-task-system-local
+   ~~~
+
+The entry point for broad requests is **$research-task-router**.
+
+Current official references:
+
+- [Codex Plugins](https://developers.openai.com/codex/plugins)
+- [Build skills](https://developers.openai.com/codex/skills)
+- [AGENTS.md guidance](https://developers.openai.com/codex/guides/agents-md)
+- [Plugin packaging](https://developers.openai.com/plugins/build/plugins)
+
+## Artifact responsibilities
 
 | File or directory | Purpose |
 |---|---|
-| `TODO.md` | Complete current-action scientific specification and output path references |
-| `results/{todo_id}/task-state.yaml` | Current lifecycle state, TODO SHA-256 fingerprint, rule evaluation, approvals, revision, authorized change references, and versioned evaluation history |
-| `.research/workflow/state-machine.yaml` | Reusable predicates, states, and transition rules |
-| `SKILL.md` | Reusable workflow, guardrails, and output contract |
-| `AGENTS.md` | Permanent scientific and execution governance |
-| `.research/policy.yaml` | Adjustable resource, storage, and transition policy |
-| `skills/research-figure-production/references/` | Source-linked chart selection, caveat-audit, and Python plotting guidance |
-| `skills/research-figure-production/assets/scientific_plot_patterns.py` | Optional plotting helpers that avoid implicit filtering, aggregation, or uncertainty estimation |
-| `results/{todo_id}/` | State, logs, checkpoints, raw outputs, tables, notebooks, and figures |
+| TODO.md | Complete current-action scientific specification and output path references |
+| results/{todo_id}/task-state.yaml | Current lifecycle state, TODO fingerprint, evaluations, approvals, and immutable transition history |
+| .research/workflow/state-machine.yaml | Reusable predicates, states, and transition rules |
+| .research/policy.yaml | Adjustable resource, storage, validation, and figure policy |
+| aggregation-validation.json | Source, grain, key, coverage, join, calculation, and publication-safety checks for aggregate tables |
+| SKILL.md | Reusable workflow, guardrails, and output contract |
+| AGENTS.md | Permanent scientific and execution governance |
+| results/{todo_id}/ | State, logs, checkpoints, immutable raw outputs, tables, notebooks, and figures |
 
-Governed draft and final charts come from an executed `.ipynb` and use a SciencePlots stack based on `science` (`science` + `no-latex` by default). Standalone `.py` plotting is reserved for disposable diagnostic previews; keep both the script and its images in the platform temporary directory and reproduce any retained design in the notebook.
+## Typical prompts
 
-## Implementation policy
+Create a TODO:
 
-Non-plotting computation defaults to MATLAB. A Python component requires a documented Python-only package/interface or measured MATLAB infeasibility; governed plotting remains Python/Jupyter with SciencePlots.
+~~~text
+Use $research-task-router to create a current-action TODO from [materials].
+Save it as TODO/[name].md.
+~~~
 
-Development follows **"Make it work, make it right, make it fast"**: first run an efficient environment-compatible scaffold, then implement and independently self-check the TODO, and finally profile representative work and optimize with before/after benchmarks plus equivalence tests.
+Initialize state and evaluate without applying:
 
-## Usage
-
-Setup the environment by:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-Write TODOs by:
-```text
-Use @Research Task System to create a TODO from [materials].
-Save it as TODO/[name].md
-```
-
-Initialize research state YAML by:
-```text
+~~~text
 Use $research-task-router for TODO/[name].md.
 Initialize state and evaluate transitions. Do not apply.
-```
+~~~
 
-Confirm research state transition by:
-```text
+Execute the recorded state:
+
+~~~text
+Use $research-task-router for TODO/[name].md.
+Execute only the recorded current state.
+~~~
+
+Confirm and execute an eligible transition:
+
+~~~text
 Approve [rule_id] and execute the target state.
-```
+~~~
 
-Continue the current research state by:
-```text
+Prepare draft figures after the approved transition to work_postprocessing:
+
+~~~text
 Use $research-task-router for TODO/[name].md.
-Execute the recorded current state.
-```
+Curate the validated complete tables and run $research-figure-production in Planning mode.
+~~~
 
-Start table curation and figure planning by:
-```text
-Use @Research Task System to process TODO/[name].md.
-```
+Review drafts after the approved transition to figure_review:
 
-Review draft figures after the approved transition to `figure_review`:
-
-```text
+~~~text
 Use $research-task-router for TODO/[name].md.
-Present every draft figure and its coverage of all applicable data, then wait for my recommendations.
-```
+Present every draft figure and its complete condition coverage, then wait for my recommendations.
+~~~
 
-Produce final figures only after the approved transition to `figure_production`:
+Produce final figures only after the approved transition to figure_production:
 
-```text
+~~~text
 Use $research-task-router for TODO/[name].md.
-Implement my recorded figure recommendations and run the final figure integrity audit.
-```
-
-Infer the outgoing state by:
-```text
-Use $research-task-router for TODO/[name].md.
-Evaluate outgoing rules. Do not apply.
-```
-
-## Communication discipline
-
-The system uses established scientific and engineering terms when available. It describes concrete operations before introducing a necessary local label, ties evaluative terms to explicit criteria, and uses only a small number of examples to clarify fragile rules.
+Implement my recorded figure recommendations and run the final figure and Notebook integrity checks.
+~~~

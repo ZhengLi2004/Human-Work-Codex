@@ -27,6 +27,8 @@ Read `references/test-selection-matrix.md` for risk-to-test mapping.
 12. Run the affected tests and report commands, environment, results, and uncovered risk.
 13. Convert reproducible real defects into regression tests.
 14. For figures, verify that governed outputs come from the executed notebook, temporary `.py` previews remain under the platform temporary directory, and every chart records a SciencePlots stack based on `science`. Reconcile stable keys and planned conditions against the coverage manifest, then inspect every final title, axis, scale, unit, legend, curve, mark, and schematic label.
+15. For aggregation and analysis, confirm the TODO-defined grain and choose only applicable tests for duplicate stable keys, join expansion, denominator changes, average-of-averages, incomplete time windows, timezone boundaries, selection bias, and outlier influence. Record the selection and evidence in `aggregation-validation.json`; do not run unrelated checks mechanically.
+16. For governed notebooks, execute from a clean kernel top to bottom and run `validate_figure_notebook.py`. Test unexecuted cells, error outputs, unresolved placeholders, missing source hashes, an invalid SciencePlots stack, and missing exports when changing the notebook contract or validator.
 
 ## Language-specific tools
 
@@ -62,15 +64,19 @@ When result storage changes, test:
 - no duplicate counting after resume;
 - schema and stable identifiers across partitions;
 - final row-count reconciliation;
+- planned-versus-observed condition and run-status reconciliation;
+- declared-versus-observed join cardinality and protection against unintended many-to-many expansion;
+- numerator, denominator, weighting, time-window, and timezone identities when they affect a reported metric;
 - a benchmark or operation-count check when excessive file I/O is the reported risk.
 
 ## Guardrails
 
-- A zero exit code, non-empty file, or non-NaN value is not a sufficient correctness oracle.
+- A correctness oracle must check more than a zero exit code, non-empty file, or non-NaN value.
 - Do not loosen tolerances merely to pass.
 - Do not delete failing cases to reduce burden.
 - Do not run an entire Pilot or Confirmation as a routine test suite.
 - Do not test unrelated modules to create the appearance of thoroughness.
+- Do not treat every analytical pitfall as applicable; tie each selected check to the current grain, metric, join, time range, or claim.
 - Do not accept a faster path before a runnable scaffold and an independent correctness reference exist.
 - Do not infer that vectorization, MEX, parallel workers, or a GPU is beneficial without representative before/after measurements.
 

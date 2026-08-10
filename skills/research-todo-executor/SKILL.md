@@ -9,8 +9,6 @@ description: Execute the current Codex-owned lifecycle state recorded for a comp
 
 Orchestrate one execution of the current Codex-owned state while preserving the TODO's scientific contract and the task-state YAML's lifecycle control.
 
-This Skill does not create TODOs, choose another state, apply transitions, or create task-specific narrative handoffs.
-
 ## Required inputs
 
 Read:
@@ -75,7 +73,7 @@ Do not copy this contract into another handoff file.
 13. If a path value changed, invoke `$research-state-transition` in Synchronize TODO mode to refresh the fingerprint and revision before the decision boundary.
 14. At the state decision boundary, record execution status, artifact references, and state-relevant predicate results in the task-state YAML.
 15. Set `execution.decision_boundary_reached` to `true`, `current.status` to `awaiting_transition_evaluation`, and `transition_review.status` to `evaluation_required`.
-16. If the current execution was defined to select a hyperparameter, invoke `$human-research-review-gate` for an explicit evidence-backed value selection before transition evaluation. Stop until the researcher responds; Codex does not edit the scientific TODO.
+16. If the current execution was defined to select a hyperparameter, invoke `$human-research-review-gate` for an explicit evidence-backed value selection before transition evaluation. Stop until the researcher responds; Codex must not edit the scientific TODO.
 17. After approval, have Work use `$research-report-to-todos` to rewrite the TODO to the approved fixed value and remaining actions only. Then invoke `$research-state-transition` first in Synchronize TODO mode and subsequently in a separate Evaluate operation.
 18. Otherwise invoke `$research-state-transition` in Evaluate mode directly.
 19. Invoke `$human-research-review-gate` with every eligible rule path and the Codex recommendation.
@@ -125,7 +123,7 @@ During Codex execution, edit only these path values when the corresponding outpu
 
 Do not add implementation summaries, tests, state, decisions, or interpretations to the TODO.
 
-After an authorized Output References path edit, invoke `$research-state-transition` in Synchronize TODO mode before evaluation so the stored fingerprint and revision remain current. The verified-parameter rewrite is not a Codex execution edit: Work performs it only after complete evidence and explicit researcher selection; Codex then synchronizes task state and reevaluates transitions.
+After an authorized Output References path edit, invoke `$research-state-transition` in Synchronize TODO mode before evaluation so the stored fingerprint and revision remain current. Work performs the verified-parameter rewrite only after complete evidence and explicit researcher selection; Codex then synchronizes task state and reevaluates transitions.
 
 ## Long-running jobs
 

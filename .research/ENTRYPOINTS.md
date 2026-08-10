@@ -44,6 +44,8 @@ Use $research-task-router to execute the current state for [TODO path].
 Read current.state from task-state.yaml. Do not infer or replace it. Use the minimum required implementation, testing, batch, and aggregation Skills. At the decision boundary, record predicate evidence, mark transition evaluation as required, evaluate every outgoing rule including self, recommend one eligible rule path, and stop for my decision.
 
 For implementation, use MATLAB for non-plotting computation unless a required Python-only package or measured MATLAB infeasibility is documented. Follow "Make it work, make it right, make it fast": run an efficient scaffold, implement and self-check the TODO faithfully, then profile and optimize with before/after benchmarks and equivalence tests.
+
+Before publishing aggregate tables, resolve the controlling sources in this order: TODO; task-state and frozen task manifest; raw-result index and immutable raw outputs; derived tables. Write aggregation-validation.json with the applicable grain, schema, stable-key, duplicate, missingness, status-count, range, time-coverage, join-cardinality, denominator, weighted-aggregation, coverage, and calculation spot checks. Block on a missing controlling source, incompatible grain, unresolved conflict, or other finding that makes the aggregate unsafe to use.
 ```
 
 Expected route: `$research-todo-executor` + exactly one recorded state Skill + minimum capability Skills + `$research-state-transition` Evaluate + human gate.
@@ -96,7 +98,11 @@ Use $research-task-router for [TODO path].
 
 Confirm current.state is work_postprocessing. Curate the complete Codex tables without changing rows or stable keys. Then use $research-figure-production in Planning mode.
 
-Use complete raw results, complete condition-merged tables, or validated row/key-preserving Work tables. Inspect relevant paper figures when available, choose established graphical methods, map all scientific table information and planned conditions to an efficient draft set, and write the plan and coverage manifests. Generate governed drafts from an executed Jupyter notebook and apply the SciencePlots `science` + `no-latex` style stack. A standalone Python preview and every image it creates belong only in the platform temporary directory and cannot become a draft. Do not call drafts final.
+Use complete raw results, complete condition-merged tables, or validated row/key-preserving Work tables. Inspect relevant paper figures when available, choose established graphical methods, map all scientific table information and planned conditions to an efficient draft set, and write the plan and coverage manifests. Generate governed drafts from an executed Jupyter notebook and apply the SciencePlots `science` + `no-latex` style stack. A standalone Python preview and every image it creates belong only in the platform temporary directory and must not become a draft. Do not call drafts final.
+
+The notebook may validate, sort, pivot, or reshape the complete tables only for figure presentation. It must not become the only production implementation of preprocessing, metrics, statistical tests, model fitting, exclusion rules, or aggregation. If a figure needs a new scientific quantity, return it to the MATLAB result path first. Execute the notebook from a clean kernel, top to bottom, then run:
+
+`python skills/research-figure-production/scripts/validate_figure_notebook.py --notebook [executed notebook] --manifest [draft-figure-manifest.json] --mode planning --output [notebook-validation.json]`
 
 When planning finishes, record the Work predicates, set decision_boundary_reached true and transition_review.status to evaluation_required, return the tables and drafts, and do not recommend or apply a transition.
 ```
@@ -121,7 +127,7 @@ Example researcher output:
 Retain F1. Split F2 by dataset so all conditions remain readable. Exclude F3 because it duplicates F1, but keep its condition coverage in F1. Add a labeled pipeline schematic that is clearly separate from the data figures.
 ```
 
-After the output is referenced, mark the `figure_review` decision boundary and require Codex rule evaluation. The response is not automatically a transition approval.
+After the output is referenced, mark the `figure_review` decision boundary and require Codex rule evaluation. Require a separate explicit human rule-path selection for transition approval.
 
 ## 8. Work: produce and audit final figures
 
@@ -133,6 +139,8 @@ Use $research-task-router for [TODO path].
 Confirm current.state is figure_production. Use $research-figure-production in Final mode. Implement the recorded researcher recommendations faithfully, execute the notebook from a clean kernel, export the final figures with a recorded SciencePlots style stack based on `science`, and write figure_manifest.json and figure_integrity_audit.json.
 
 Audit source and condition coverage, statistical units, aggregation, titles, axes, scales, units, legends, every curve or mark, missingness, failure states, schematic labeling, and recommendation traceability. If any check fails, record revision or misleading-risk predicates and do not make completion eligible.
+
+Run `python skills/research-figure-production/scripts/validate_figure_notebook.py --notebook [executed notebook] --manifest [figure_manifest.json] --mode final --output [figure_integrity_audit.json]`. The command merges its result into the existing JSON audit.
 ```
 
 Expected route: `$research-figure-production` Final mode.

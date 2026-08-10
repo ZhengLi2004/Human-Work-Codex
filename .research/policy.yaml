@@ -1,4 +1,4 @@
-schema_version: 8
+schema_version: 9
 name: research-task-system-policy
 
 routing:
@@ -18,18 +18,21 @@ todo_authoring:
   rejected_candidates_belong_in_technical_evidence: true
   unverified_hyperparameter_cannot_be_fixed_for_downstream_work: true
   candidate_range_allowed_when_selection_is_current_work: true
+
   output_reference_path_update:
     allowed_during_execution: true
     codex_or_work_only: true
     fingerprint_refresh_required: true
     task_state_revision_increment_required: true
     may_be_batched_before_transition_evaluation: true
+
   rejected_unapproved_edit_restoration:
     exact_approved_content_restoration_required: true
     observed_mismatch_fingerprint_recorded: true
     task_state_revision_increment_required: true
     pending_transition_review_invalidated: true
     transition_reevaluation_required: true
+
   verified_parameter_rewrite:
     decision_boundary_required: true
     complete_evidence_required: true
@@ -40,6 +43,7 @@ todo_authoring:
     pending_transition_review_invalidated: true
     transition_reevaluation_required: true
     preserve_prior_evidence_outside_todo: true
+
   other_scientific_revision_requires_new_versioned_todo: true
 
 implementation:
@@ -47,17 +51,21 @@ implementation:
     - make_it_work
     - make_it_right
     - make_it_fast
+
   non_plotting_default_language: matlab
   python_non_plotting_requires_documented_exception: true
+
   python_exception_examples:
     - required_python_only_package_or_interface
     - measured_matlab_infeasibility
+
   plotting_language: python
   plotting_policy_section: work_figures
   reference_implementation_required_before_optimization: true
   profile_representative_work_before_optimization: true
   before_after_benchmark_required_for_material_optimization: true
   numerical_and_scientific_equivalence_required: true
+
   matlab_optimization_methods_to_consider:
     - redundant_computation_elimination
     - algorithmic_complexity
@@ -92,6 +100,7 @@ resources:
     cpu_cores_fraction: 0.50
     system_memory_fraction: 0.50
     gpu_memory_per_device_fraction: 0.50
+
   derive_parallelism_from_measured_single_task_peak: true
   optimization_must_preserve_scientific_semantics: true
 
@@ -112,6 +121,40 @@ experiments:
   aggregate_over_independent_repeats: true
   condition_merged_table_required: true
 
+analysis_validation:
+  controlling_source_order:
+    - todo_scientific_definition
+    - task_state_and_frozen_task_manifest
+    - raw_result_index_and_immutable_raw_outputs
+    - derived_aggregate_tables
+
+  missing_controlling_source_blocks: true
+  source_conflict_blocks_until_resolved: true
+  incompatible_analysis_grain_blocks: true
+  weaker_source_silent_substitution_forbidden: true
+  aggregation_validation_filename: aggregation-validation.json
+
+  pre_aggregation_checks:
+    - intended_analysis_grain
+    - schema_and_types
+    - stable_keys_and_duplicates
+    - missing_planned_keys
+    - run_status_counts
+    - value_ranges
+    - time_coverage_and_timezone_when_applicable
+    - declared_and_observed_join_cardinality
+
+  risk_driven_checks:
+    - join_expansion
+    - denominator_consistency
+    - weighted_aggregation
+    - complete_comparison_windows
+    - selection_bias
+    - outlier_influence
+
+  mechanically_running_irrelevant_checks_forbidden: true
+  blocking_findings_prevent_aggregate_publication: true
+
 io:
   preferred_tabular_format: parquet
   csv_allowed_for_small_interchange_outputs: true
@@ -125,25 +168,96 @@ io:
 
 work_figures:
   notebook_format: ipynb
+  notebook_required_only_when_governed_figures_are_produced: true
   durable_render_source: executed_notebook
+  clean_kernel_top_to_bottom_execution_required: true
+  hidden_state_forbidden: true
+  manually_edited_intermediate_values_forbidden: true
+  unexplained_cached_outputs_forbidden: true
+  unbounded_table_output_forbidden: true
+  notebook_role: complete_table_validation_shaping_and_presentation
+
+  notebook_may:
+    - read_complete_sources
+    - validate_complete_sources
+    - sort_for_presentation
+    - pivot_or_reshape_for_presentation
+    - perform_limited_figure_specific_analysis
+
+  notebook_may_not_be_sole_implementation_of:
+    - production_preprocessing
+    - metric_computation
+    - statistical_testing
+    - model_fitting
+    - exclusion_rules
+    - aggregation
+
+  new_scientific_quantity_requires_matlab_table_first: true
+  notebook_charts_obey_figure_lifecycle: true
+
+  required_notebook_sections:
+    - execution_summary
+    - scope_and_parameters
+    - sources_and_environment
+    - data_quality
+    - figure_contract
+    - rendering
+    - coverage_and_integrity
+    - observed_facts_and_limitations
+
+  notebook_header_fields:
+    - todo_fingerprint
+    - task_state_revision
+    - complete_inputs
+    - stable_keys
+    - statistical_unit
+    - filters
+    - output_directory
+
+  notebook_validator: skills/research-figure-production/scripts/validate_figure_notebook.py
+
+  notebook_validator_modes:
+    - planning
+    - final
+
+  planning_notebook_validation_filename: notebook-validation.json
+  final_notebook_validation_result_belongs_in_figure_integrity_audit: true
+  source_sha256_required: true
+  exported_output_sha256_required: true
+
+  manifest_reproducibility_fields:
+    - git_revision
+    - package_versions
+    - execution_command
+    - execution_started_at_utc
+    - execution_finished_at_utc
+    - data_quality_results
+    - figure_data_sufficiency
+    - notebook_execution_status
+
   temporary_python_plot_probe_allowed: true
   temporary_plot_output_root: system_temp
   temporary_plot_outputs_are_disposable: true
   temporary_plot_outputs_cannot_satisfy_figure_predicates: true
   required_plot_style_package: SciencePlots
   required_plot_style_base: science
+
   default_plot_style_stack:
     - science
     - no-latex
+
   plot_style_stack_manifest_required: true
+
   lifecycle_states:
     planning: work_postprocessing
     researcher_review: figure_review
     final_production: figure_production
+
   allowed_complete_source_classes:
     - raw_computation_results
     - condition_merged_tables
     - validated_work_curated_tables
+
   curated_source_requires_row_and_key_preservation_manifest: true
   all_applicable_conditions_must_be_accounted_for: true
   scientific_table_information_coverage_manifest_required: true
@@ -158,6 +272,7 @@ work_figures:
   generalized_diagrams_must_be_labeled_schematic: true
   generalized_diagrams_cannot_replace_data_figures: true
   final_integrity_audit_required: true
+
   final_integrity_checks:
     - source_and_condition_coverage
     - statistical_unit_and_aggregation
@@ -169,18 +284,22 @@ work_figures:
     - chart_specific_caveats
     - scienceplots_style
     - rendered_legibility
+
   preferred_processing_packages:
     - numpy
     - scipy
     - pandas
+
   preferred_plotting_packages:
     - matplotlib
     - SciencePlots
     - seaborn
+
   preferred_export_formats:
     - pdf
     - svg
     - png
+
   todo_update_field: Work figure directory
   additional_markdown_handoff_forbidden: true
 
@@ -191,6 +310,7 @@ communication:
   evaluative_adjectives_require_explicit_criteria: true
   separate_facts_interpretation_predicates_and_recommendations: true
   concise_direct_style_required: true
+
   examples:
     use_sparingly: true
     maximum_per_fragile_rule_cluster: 2

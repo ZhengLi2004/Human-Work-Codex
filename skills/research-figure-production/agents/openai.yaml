@@ -1,6 +1,7 @@
 interface:
   display_name: "Research Figure Production"
-  short_description: "Select, produce, and audit research figures"
-  default_prompt: "Use $research-figure-production in the mode fixed by current.state to create governed figures from an executed notebook with mandatory SciencePlots styling and complete coverage checks."
+  short_description: "Build and validate reproducible research figures"
+  default_prompt: "Use $research-figure-production in the mode fixed by current.state to create governed figures from complete validated inputs, execute the notebook from a clean kernel with SciencePlots, and run deterministic coverage and notebook checks."
+
 policy:
   allow_implicit_invocation: false

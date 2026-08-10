@@ -9,7 +9,7 @@ description: Route TODO-centered research using the task-state YAML and rule-dri
 
 Use this Skill as the single entry router. Resolve the TODO, task-state YAML, current human instruction, and applicable rules; then select the smallest sufficient Work or Codex Skill set.
 
-The router classifies and validates. It does not implement code, run experiments, curate tables, create figures, evaluate scientific predicates, or approve transitions.
+Classify and validate the request, then delegate the selected operation to the owning Skill.
 
 Read `references/routing-table.md` when two routes overlap, a state-specific handoff is unclear, or the route must be checked against the full matrix.
 Read `references/worked-examples.md` when a concrete route example would clarify a fragile boundary; do not load examples merely to restate an obvious route.
@@ -36,11 +36,11 @@ Locate the control artifacts in this order:
 3. result paths recorded in the TODO;
 4. the applicable `AGENTS.md`, shared state machine, policy, pipeline, selected Skills, repository code, and technical artifacts required by the route.
 
-When located sources conflict, apply the authority order in `AGENTS.md`: current human instruction, TODO scientific meaning, task-state lifecycle facts, `AGENTS.md`, shared state-machine rules, policy, selected Skills, then existing engineering conventions. Treat `.research/workflow/pipeline.yaml` as routing guidance that cannot override a higher-authority source.
+When located sources conflict, apply the authority order in `AGENTS.md`: current human instruction, TODO scientific meaning, task-state lifecycle facts, `AGENTS.md`, shared state-machine rules, policy, selected Skills, then existing engineering conventions. Treat `.research/workflow/pipeline.yaml` as routing guidance that must not override a higher-authority source.
 
-If the TODO cannot be identified, block. Do not guess a task identifier.
+If the TODO remains unresolved, block. Do not guess a task identifier.
 
-If the task-state file is absent and the request concerns execution or lifecycle state, route to `$research-state-transition` in Initialize mode. Initialization creates `todo_ready`; it does not infer the first executable state.
+If the task-state file is absent and the request concerns execution or lifecycle state, route to `$research-state-transition` in Initialize mode. Initialization creates `todo_ready`; it must not infer the first executable state.
 
 ## Classify the request
 
@@ -163,8 +163,8 @@ Check in order:
 3. **State gate:** Does the task-state file exist, match the TODO identifier and SHA-256 fingerprint, and permit this action at its current revision?
 4. **Transition gate:** Is the exact rule path recorded as eligible and explicitly confirmed?
 5. **Scope gate:** Is the work inside the TODO rather than a hidden new scientific question?
-6. **Artifact gate:** Are the implementation inputs or result paths required by the selected Skill available?
-7. **Integrity gate:** Are failed results, complete combinations, independent repeats, and predefined metrics preserved?
+6. **Artifact gate:** Are the implementation inputs or result paths required by the selected Skill available? For Work table or figure routes, does a passing `aggregation-validation.json` trace to the controlling sources and TODO fingerprint?
+7. **Integrity gate:** Are failed results, complete combinations, independent repeats, predefined metrics, analysis grain, stable keys, source hashes, and applicable join or denominator checks preserved?
 8. **I/O gate:** Does execution avoid row-at-a-time scientific result writes?
 9. **Figure-stage gate:** Is the requested action planning, researcher review, or final production, and does it match `current.state`?
 10. **Communication gate:** Are established technical terms used, local labels defined operationally, and evaluative claims tied to explicit evidence?
@@ -202,6 +202,8 @@ Return:
 - Do not route final figure production directly from `work_postprocessing`; `figure_review` and its recorded output are mandatory.
 - Do not treat a generalized schematic as a substitute for complete quantitative figures.
 - Do not route Codex aggregation to Work table curation.
+- Do not route derived tables to Work curation or figure production when controlling sources conflict or `aggregation-validation.json` has a blocking failure.
+- Do not let a figure notebook become the only implementation of production preprocessing, metrics, statistical tests, model fitting, exclusions, or aggregation.
 - Do not allow row-wise CSV updates, repeated DataFrame concatenation in result loops, or per-row MATLAB `writetable` calls.
 - Do not route unexplained TODO edits past the fingerprint gate or reuse a transition review after a TODO rewrite.
 - Do not route a broader approved scientific redesign through Synchronize TODO; create a new versioned TODO and initialize it at `todo_ready`.

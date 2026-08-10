@@ -7,7 +7,7 @@ description: Build or review a resumable scientific batch executor with a frozen
 
 ## Overview
 
-Give every planned experiment unit a stable identity, explicit state, and traceable output so interruption, concurrency, and failures cannot silently omit, duplicate, or overwrite evidence.
+Give every planned experiment unit a stable identity, explicit state, and traceable output. Prevent interruption, concurrency, and failures from silently omitting, duplicating, or overwriting evidence.
 
 Read `references/batch-run-contract.md` and `references/io-throughput-checklist.md` before implementing a formal runner.
 
@@ -20,7 +20,7 @@ Read `references/batch-run-contract.md` and `references/io-throughput-checklist.
 - `.research/policy.yaml` resource and long-run policy;
 - result root, code/data/config versions, and aggregation entry point.
 
-Stop if the complete planned task set cannot be generated before execution.
+Stop unless the complete planned task set is generated before execution.
 
 Implement non-plotting batch orchestration in MATLAB by default through `$research-computing-implementation`. A Python runner requires the same documented Python-only capability or measured MATLAB-infeasibility exception as any other non-plotting component.
 
@@ -32,8 +32,8 @@ Implement non-plotting batch orchestration in MATLAB by default through `$resear
 4. Isolate each task or worker output so concurrent workers do not append to the same scientific result table.
 5. Buffer records in memory or write task/chunk files in bulk; publish completed files atomically.
 6. Mark a task complete only after validating its expected artifacts.
-7. Make the same command resumable and idempotent; valid completed units are not recomputed or recounted by default.
-8. Isolate failures so one task cannot erase other results.
+7. Make the same command resumable and idempotent; reuse valid completed units by default.
+8. Isolate failures and preserve every other task's results.
 9. Report progress, ETA, completed/failed counts, and a timer-driven status line when interactive; degrade to ordinary logs when not interactive.
 10. Write operational logs to terminal and file, separate from bulk result data.
 11. Derive concurrency from measured single-task CPU, memory, GPU memory, runtime, and I/O behavior.

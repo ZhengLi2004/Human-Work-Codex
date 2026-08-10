@@ -7,7 +7,7 @@ description: Execute the recorded Exploration state to resolve project mappings,
 
 ## Objective
 
-Resolve only the uncertainties that prevent faithful implementation or a justified lifecycle decision. Exploration is not Confirmation and should use the smallest evidence that can distinguish the approved possibilities.
+Resolve only the uncertainties that prevent faithful implementation or a justified lifecycle decision. Use the smallest evidence that can distinguish the approved possibilities, and reserve Confirmation claims for the governed Confirmation state.
 
 ## Required inputs
 
@@ -15,7 +15,7 @@ Resolve only the uncertainties that prevent faithful implementation or a justifi
 - task-state YAML with `current.state: exploration`;
 - the requested same-state execution scope;
 - repository modules, data interfaces, prior artifacts, and policies relevant to the uncertainty;
-- explicit bounds on what Exploration may and may not change.
+- explicit bounds on permitted and prohibited Exploration changes.
 
 ## Workflow
 
@@ -49,7 +49,7 @@ Evaluate applicable predicates such as:
 - `continuation_warranted`;
 - `stop_warranted`.
 
-Use `unknown` when the probe does not decide a predicate.
+Use `unknown` when the probe leaves a predicate unresolved.
 
 ## Boundaries
 

@@ -62,6 +62,6 @@ When I/O is material, fix format, buffer size, partitioning, merge placement, or
 - No scientific result write occurs once per result row.
 - No shared CSV/table append occurs from concurrent workers.
 - No growing DataFrame/table is copied on every iteration.
-- Resume does not duplicate valid rows or overwrite immutable chunks.
+- Resume preserves unique valid rows and immutable chunks.
 - The final table reconciles exactly to the planned task manifest.
 - A result row is traceable to one stable task/repeat ID and raw artifact.

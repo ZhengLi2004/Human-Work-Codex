@@ -20,8 +20,9 @@ Resolve:
 - condition-merged table paths;
 - complete `runs` and `aggregate_full` tables when required;
 - stable combination keys and provenance fields.
+- the passing `aggregation-validation.json` and its controlling-source references.
 
-Block and return the issue to Codex if required complete tables, coverage states, or provenance are absent. Work does not repair missing experimental facts.
+Resolve scientific meaning from the TODO, lifecycle and planned work from task-state plus the frozen task manifest, observed facts from the raw-result index plus immutable raw outputs, and derived values from the validated aggregate tables, in that order. Block and return the issue to Codex if sources conflict, the analysis grain differs, `aggregation-validation.json` fails, or required complete tables, coverage states, or provenance are absent. Work must not repair missing experimental facts or substitute a weaker source.
 
 ## Data quality checks
 
@@ -33,6 +34,8 @@ For each logical table:
 - ensure no averaging crosses controls;
 - ensure every row traces to runs and raw outputs;
 - validate file paths, schemas, and manifests.
+- verify source hashes match the passing aggregation validation and its creation revision remains traceable in task-state history;
+- review only the risk-driven checks applicable to the intended table use instead of adding unmotivated transformations or checks.
 
 ## Allowed transformations
 

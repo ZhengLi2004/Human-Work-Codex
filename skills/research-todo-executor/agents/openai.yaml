@@ -2,5 +2,6 @@ interface:
   display_name: "Research TODO Executor"
   short_description: "Execute the recorded Codex state"
   default_prompt: "Use $research-todo-executor to verify the TODO fingerprint and execute the recorded Codex-owned state with MATLAB-first work-right-fast implementation gates."
+
 policy:
   allow_implicit_invocation: false

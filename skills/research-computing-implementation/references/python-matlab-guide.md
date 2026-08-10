@@ -14,18 +14,18 @@ Use this reference after the TODO has fixed the scientific meaning. Language and
 
 ## Selection matrix
 
-This repository deliberately defaults to MATLAB for non-plotting computation. That policy is not a universal performance claim; representative benchmarks still decide whether an optimization is effective.
+This repository deliberately defaults to MATLAB for non-plotting computation. Evaluate every optimization with representative benchmarks.
 
 | Requirement | Repository decision | Required record |
 |---|---|---|
 | Numerical kernels, preprocessing, orchestration, aggregation, or storage | MATLAB | Release, toolboxes, environment, and work/right/fast evidence |
 | TODO-required Python-only package or interface, such as a required PyTorch implementation | Python for the smallest coherent component | Exact dependency, why substitution would change or prevent the method, and boundary tests |
-| MATLAB cannot implement the required component faithfully in the current environment | Python exception | Measured capability or compatibility evidence and human-visible rationale |
+| Faithful implementation requires Python in the current environment | Python exception | Measured capability or compatibility evidence and human-visible rationale |
 | Governed plotting | Python/Jupyter, Matplotlib, and SciencePlots | Executed notebook and exact style stack |
 | Cross-language tabular interchange | Parquet with an explicit schema | Round-trip schema and key test |
 | Cross-language large numeric arrays | MAT v7.3 or HDF5 | Dataset names, shape, dtype, axis order, and round-trip test |
 
-Existing Python code, convenience, familiarity, or syntax length does not by itself satisfy the exception. Avoid a hybrid when conversion, duplicated dependencies, or debugging cost is larger than the isolated benefit.
+Require evidence beyond existing Python code, convenience, familiarity, or syntax length before granting an exception. Avoid a hybrid when conversion, duplicated dependencies, or debugging cost is larger than the isolated benefit.
 
 ## Python implementation guidance
 
@@ -84,7 +84,7 @@ Tolerance must follow the algorithm, dtype, and scientific decision boundary; do
 - Express dense numerical work with matrix multiplication, broadcasting/implicit expansion, logical indexing, reductions, `pagemtimes`, and appropriate toolbox routines.
 - Preallocate numeric arrays, cell arrays, structures, and table variables before loops when output size is known.
 - Use `A\b`, decomposition objects, or iterative solvers instead of `inv(A)*b`.
-- Move invariant work outside loops only after proving the value does not depend on the iteration.
+- Move invariant work outside loops only after proving independence from the loop iteration.
 - Avoid repeated conversion among tables, cells, structures, and numeric arrays inside hot loops. Convert once at a clear boundary.
 - Use MATLAB Profiler to locate bottlenecks and `timeit`/`gputimeit` for representative kernels. Re-profile the complete workload after local changes because the bottleneck can move.
 
@@ -146,10 +146,14 @@ Apply each rung only to a measured bottleneck and preserve the prior correctness
 Use Python, Matplotlib, and SciencePlots for chart rendering in this repository, even when MATLAB produces the numerical source data.
 
 - Governed draft and final research figures come from an executed Jupyter notebook so code, configuration, and cell outputs remain reviewable together.
-- A standalone `.py` file may inspect metadata or render disposable layout, style, legend, scale, or other diagnostic cues. Create the script and all of its images under the platform temporary directory, not the repository, result root, or figure directory.
-- A temporary diagnostic cannot become a draft, final figure, scientific artifact, or predicate reference. Reproduce any retained choice in the executed notebook.
+- Require that notebook only when governed figures are part of the current work. For non-plotting computation, validation, or aggregation, keep the production path in MATLAB unless a documented exception applies.
+- The notebook may read, validate, sort, pivot, or reshape complete existing tables and perform limited figure-specific checks. It must not be the only production implementation of preprocessing, metric computation, statistical testing, model fitting, exclusion rules, or aggregation. Produce any new scientific quantity in MATLAB and add it to the complete input table before plotting.
+- Execute the notebook from a clean kernel from top to bottom. Keep parameters, complete source paths and hashes, stable keys, statistical unit, filters, and output paths visible near the top; avoid hidden state, hand-edited intermediate values, unexplained cached output, and unbounded table dumps.
+- A standalone `.py` file may inspect metadata or render disposable layout, style, legend, scale, or other diagnostic cues. Create the script and all of its images under the platform temporary directory, outside the repository, result root, and figure directory.
+- A temporary diagnostic must not become a draft, final figure, scientific artifact, or predicate reference. Reproduce any retained choice in the executed notebook.
 - Import `scienceplots` before applying styles. Every Python chart uses a stack whose base is `science`; use `science` plus `no-latex` unless a tested environment and output requirement justify another recorded stack.
 - Treat a missing SciencePlots dependency as a blocker. Do not silently substitute Matplotlib defaults, seaborn defaults, or a MATLAB figure.
+- A chart inside a notebook remains a governed figure artifact. It must not skip planning, researcher review, final production, or deterministic notebook validation.
 
 ## Cross-language boundary
 

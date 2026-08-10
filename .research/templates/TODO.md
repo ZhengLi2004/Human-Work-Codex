@@ -104,7 +104,7 @@ Include a row only after the verification experiment is complete and the researc
 - [mechanistic interpretation, expansion, or refactoring outside this TODO]
 - [work that belongs to another TODO or to the human research report]
 
-The excluded list defines current scope; it is not a history of abandoned work. Omit obsolete alternatives and comparisons with earlier designs.
+Use the excluded list only to define current scope. Omit obsolete alternatives, abandoned-work history, and comparisons with earlier designs.
 
 ## 3. Required Outputs and Completion Criteria
 
@@ -113,10 +113,13 @@ The excluded list defines current scope; it is not a history of abandoned work. 
 - [implementation and correctness evidence]
 - [immutable raw results]
 - [complete run-level table, complete aggregate table, and condition-merged table]
+- [`aggregation-validation.json` reconciling planned and observed coverage, analysis grain, schemas, stable keys, status counts, applicable join/time/denominator risks, calculation spot checks, issue impact, and evidence paths]
 - [failure, missingness, anomaly, and limitation records]
 - [code, configuration, version, command, checkpoint, and log information needed for reproduction]
 - [scientific fields, metrics, conditions, and coverage states that the figure set must communicate]
 - [relevant paper figures whose graphical methods should be considered, or `None`]
+
+When governed figures are required, their notebook consumes the complete technical artifacts above for validation, limited reshaping, and presentation. Do not require a notebook when this TODO has no governed plotting deliverable.
 
 ### 3.2 Questions the outputs must answer
 
@@ -130,7 +133,7 @@ The TODO is complete whether the result is positive, negative, or inconclusive w
 - the specification has been implemented faithfully or shown to be infeasible for an auditable reason;
 - required tests and experiments have completed, or every incomplete item has an auditable cause;
 - every planned combination has a `complete`, `incomplete`, `failed`, `missing`, or `invalid` state in the result artifacts;
-- the referenced outputs answer Section 3.2 or establish why the current design cannot answer it;
+- the referenced outputs answer Section 3.2 or establish a governed blocker showing that the current design is insufficient;
 - the human approves completion or termination of the TODO.
 
 ## 4. Output References

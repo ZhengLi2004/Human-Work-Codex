@@ -17,12 +17,12 @@ Use MATLAB by default for every non-plotting computation, including numerical ke
 
 Use Python for a non-plotting component only when:
 
-- the TODO requires a Python-only package or interface, such as a PyTorch model that cannot be substituted without changing the method; or
-- measured environment, compatibility, or capability evidence shows that MATLAB cannot implement the required component faithfully.
+- the TODO requires a Python-only package or interface, such as a PyTorch model whose substitution would change the method; or
+- measured environment, compatibility, or capability evidence shows that faithful implementation requires Python.
 
-Existing Python convenience, familiarity, or a shorter implementation is not an exception. Record the exact exception, its affected component, and why it is required. Keep the rest of the non-plotting pipeline in MATLAB when the boundary remains coherent.
+Every exception requires more than Python convenience, familiarity, or shorter syntax. Record the exact exception, its affected component, and why it is required. Keep the rest of the non-plotting pipeline in MATLAB when the boundary remains coherent.
 
-Use Python, Jupyter, Matplotlib, and SciencePlots for governed plotting. Follow the visualization artifact boundary in the reference even when MATLAB produces the numerical source.
+Use Python, Jupyter, Matplotlib, and SciencePlots for governed plotting. A figure notebook may read, validate, sort, pivot, and reshape complete existing result tables for presentation. It must not become the only implementation of production preprocessing, metrics, statistical tests, model fitting, exclusion rules, or aggregation. If a figure needs a new scientific quantity, implement and publish it through the MATLAB production path first. Do not require a notebook when no governed plotting deliverable exists. Follow the visualization artifact boundary in the reference even when MATLAB produces the numerical source.
 
 Use a hybrid only when the interface is explicit and the serialization cost is justified. Prefer Parquet for tabular interchange and MAT v7.3/HDF5-compatible storage for large multidimensional arrays.
 
@@ -33,7 +33,7 @@ Use a hybrid only when the interface is explicit and the serialization cost is j
 1. Extract numerical invariants, precision requirements, array shapes, and independent task units from the TODO.
 2. Inspect the installed MATLAB release, licenses/toolboxes, compiler and GPU availability, data formats, existing code, and deployment constraints. Check Python only for plotting and documented exceptions.
 3. Build a minimal end-to-end scaffold in the current environment with realistic interfaces, array shapes, one representative task unit, bulk output, logs, and recovery boundaries.
-4. Design allocation, batching, storage, and worker isolation into the scaffold. A placeholder kernel must be labeled as scaffolding and cannot satisfy scientific-correctness predicates.
+4. Design allocation, batching, storage, and worker isolation into the scaffold. Label a placeholder kernel as scaffolding; it must not satisfy scientific-correctness predicates.
 5. Run the scaffold and validate its environment, schema, stable identifiers, and artifact publication.
 
 ### 2. Make it right
@@ -76,7 +76,7 @@ Use a hybrid only when the interface is explicit and the serialization cost is j
 
 ## I/O rules
 
-- Logs may be line-oriented; scientific result tables may not be written row by row.
+- Logs may be line-oriented; scientific result tables must not be written row by row.
 - Prefer one immutable file per independent task or worker, then merge once, or write buffered chunks to a partitioned dataset.
 - Use temporary files and atomic rename/move for completed chunks.
 - Separate checkpoint metadata from bulk numerical arrays.

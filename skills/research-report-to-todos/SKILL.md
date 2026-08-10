@@ -42,7 +42,7 @@ Too vague: "Measure model robustness several times and make a good plot."
 
 Sufficiently concrete: "For every model × noise-level combination, compute balanced accuracy within each independent seed, summarize across five seeds with the TODO-defined interval, retain failed seeds in coverage counts, and test the stated paired contrast."
 
-The example illustrates specificity only. It does not define the metric, repeat count, or test for another TODO.
+The example illustrates specificity only. Do not reuse its metric, repeat count, or test for another TODO.
 
 ## Project-specific computing definition
 

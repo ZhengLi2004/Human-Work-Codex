@@ -18,7 +18,7 @@ Correct route:
 3. Keep `development.self` eligible and normally recommend it while the evidence is completed.
 4. Wait for an exact human rule-path selection before changing state.
 
-The passing smoke test does not supply the missing predicate.
+Keep the missing predicate `unknown`; the passing smoke test supplies only technical evidence.
 
 ## Example 2: figures require three lifecycle states
 
@@ -37,7 +37,7 @@ Correct route:
 
 Incorrect route: curate the table, draw only the clearest two conditions, and transition directly from `work_postprocessing` to `completed`.
 
-A standalone `.py` layout preview is also not a draft. Keep its script and images under the platform temporary directory and reproduce any retained design in the executed notebook.
+A standalone `.py` layout preview must not serve as a draft. Keep its script and images under the platform temporary directory and reproduce any retained design in the executed notebook.
 
 ## Example 3: use standard terms or describe the process
 
@@ -49,7 +49,7 @@ Prefer:
 
 > Validate stable keys, left-join observed runs onto the planned-condition table, and summarize across independent repeats.
 
-The second version names operations that can be checked. It does not introduce a new term whose meaning is unclear.
+The second version names checkable operations with established terms.
 
 ## Example 4: Development preserves phase order
 

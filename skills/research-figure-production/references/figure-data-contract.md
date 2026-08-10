@@ -21,6 +21,8 @@
 
 A logical source may be one file or a partitioned dataset directory. A figure may use any one class or an explicit combination. A curated table is a sufficient source only when it retains the metrics, conditions, coverage fields, and uncertainty fields required by the figure.
 
+Before selecting any source class, require a passing `aggregation-validation.json` for the same TODO fingerprint, analysis grain, and source hashes. Its creation revision may precede the current revision but must remain traceable in task-state history. Stop on a source conflict, changed hash, or failed blocking check.
+
 ## Rendering artifact classes
 
 Distinguish two classes before writing plotting code:
@@ -28,13 +30,15 @@ Distinguish two classes before writing plotting code:
 1. **Governed figure artifacts**: drafts presented in `figure_review`, final figures, and any schematic included in the final set. Generate these from an executed `.ipynb`, preserve its outputs, and keep the notebook, exports, plans, manifests, and audits in the TODO-referenced figure directory.
 2. **Temporary diagnostic previews**: metadata checks or provisional layout, style, legend, scale, density, or other visual cues used only to decide how to implement the notebook. A standalone `.py` script is allowed for this class only. Put the script and every image it creates under the platform temporary directory, such as the path returned by `tempfile.mkdtemp`; do not put them under the repository, result root, or figure directory.
 
-A `.py` helper stored beside the notebook is not a standalone renderer when it only defines reusable functions that notebook cells import and call. The notebook must own the rendering call, configuration, output paths, and manifest record. Launching that helper as a separate process makes its images temporary previews, even if the same file can also be imported.
+Treat a `.py` helper stored beside the notebook as part of the notebook only when it defines reusable functions that notebook cells import and call. The notebook must own the rendering call, configuration, output paths, and manifest record. Treat images from a separately launched helper as temporary previews, even if the same file can also be imported.
 
 Use clearly synthetic non-result values for a metadata-only layout or style probe. Use the complete validated source for a density, overlap, missingness, failure-state, or condition-cardinality probe; do not select a favorable subset after inspection. Retain a visual choice only for intended-size legibility, complete coverage, or an applicable caveat check—not because the preview looks attractive or supports a preferred conclusion. Reproduce means reimplementing the retained encoding and layout in notebook-executed code against the governed source, not copying pixels from the preview.
 
-A temporary preview is disposable and cannot satisfy `draft_figures_complete`, `work_figures_complete`, `figure_source_coverage_complete`, `figure_integrity_audit_passed`, or any other artifact predicate. Do not cite its path in task state or a figure manifest. Reproduce any retained design choice in the executed notebook against the validated complete source.
+A temporary preview is disposable and must not satisfy `draft_figures_complete`, `work_figures_complete`, `figure_source_coverage_complete`, `figure_integrity_audit_passed`, or any other artifact predicate. Do not cite its path in task state or a figure manifest. Reproduce any retained design choice in the executed notebook against the validated complete source.
 
 Every Python chart in both classes imports SciencePlots and uses a style stack based on `science`. Use `science` plus `no-latex` by default. Record the exact stack for governed figures; a named journal, presentation, color-cycle, or language style may extend the stack only when it preserves legibility and the intended encoding. Missing SciencePlots blocks rendering rather than authorizing a fallback style.
+
+The notebook may validate, sort, pivot, melt, facet, or otherwise reshape complete rows for presentation. It must not be the sole implementation of production preprocessing, metric computation, statistical testing, model fitting, exclusion rules, or aggregation. Return any new scientific quantity to the MATLAB production path before plotting.
 
 ## Complete-information rule
 
@@ -58,7 +62,7 @@ During Planning mode, inspect graphical methods in relevant papers identified by
 
 When no relevant paper is available, name the established convention used, such as a scatter plot with uncertainty intervals, a small-multiple line plot, a heatmap, or an empirical cumulative distribution. Explain why the encoding matches the variable types and comparison. Do not invent a label for an ordinary plot type.
 
-Use `chart-selection-guide.md` to classify the input-data roles and analytical task, generate feasible candidates, and record why the selected chart preserves the TODO's statistical unit and complete-information requirements. Data-to-Viz and its linked Python Gallery pages are implementation references, not scientific authorities. A gallery example cannot define task filters, estimators, uncertainty, scales, labels, or claims.
+Use `chart-selection-guide.md` to classify the input-data roles and analytical task, generate feasible candidates, and record why the selected chart preserves the TODO's statistical unit and complete-information requirements. Use Data-to-Viz and its linked Python Gallery pages only as implementation references; derive scientific authority from the TODO and validated evidence. A gallery example must not define task filters, estimators, uncertainty, scales, labels, or claims.
 
 Each figure-plan entry records the data shape, analytical task, candidate charts, selected chart, rejected-candidate reasons, method sources actually inspected, exact Python reference URL when used, SciencePlots style stack, applicable `DTV-Cxx` caveat IDs, and coverage strategy.
 
@@ -72,7 +76,7 @@ The notebook must identify:
 - the estimate and interval or error representation;
 - whether plotted points are raw units, repeats, condition aggregates, or summaries.
 
-Compute the estimate explicitly when seaborn or another high-level plotting function would aggregate at the wrong level.
+Plot the supplied TODO-defined estimate explicitly when seaborn or another high-level plotting function would otherwise aggregate at the wrong level. Disable implicit estimators. If the required estimate or interval is absent, return to the MATLAB production path instead of computing the only production version in the notebook.
 
 ## Researcher review contract
 
@@ -95,6 +99,7 @@ Final mode writes `figure_integrity_audit.json`. Check every final figure for:
 - faithful implementation of the recorded researcher recommendations;
 - clear separation of data figures from schematics;
 - confirmed generation from the executed notebook rather than a temporary script;
+- deterministic validation of clean-kernel, top-to-bottom execution, required sections, placeholders, source and output hashes, and declared exports;
 - a recorded SciencePlots style stack whose base is `science`;
 - visual inspection of each rendered export for clipping, unreadable labels, overlapping marks, and ambiguous color encoding;
 - explicit `pass`, `fail`, or `not_applicable` results with evidence for every applicable chart-specific check from `chart-caveat-checklist.md`.
@@ -115,7 +120,7 @@ For every draft or final figure, its manifest records:
 - graphical-method basis;
 - data shape, analytical task, candidate charts, selection rationale, rejected-candidate reasons, and inspected source URLs;
 - exact Python example or copied helper reference when used;
-- executed notebook path, execution timestamp, Python and plotting-package versions, and a `science`-based SciencePlots style stack;
+- executed notebook path, clean-kernel execution command and times, TODO fingerprint, task-state revision, Git revision, package versions, input and output SHA-256 hashes, data-quality results, figure-data sufficiency, and a `science`-based SciencePlots style stack;
 - applicable caveat IDs and their final audit evidence;
 - applicable researcher recommendation reference;
 - title, axes, units, legend or direct-label specification;

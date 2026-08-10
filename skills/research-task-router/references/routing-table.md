@@ -4,8 +4,8 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 
 | Request or state | Required route | Optional capabilities | Blocking condition |
 |---|---|---|---|
-| Author or split current-action TODOs | `research-report-to-todos` | None | Source meaning or metric definition cannot be resolved |
-| Missing task state | `research-state-transition` Initialize | None | TODO identifier cannot be resolved |
+| Author or split current-action TODOs | `research-report-to-todos` | None | Source meaning or metric definition remains unresolved |
+| Missing task state | `research-state-transition` Initialize | None | TODO identifier remains unresolved |
 | Authorized Output References edit, approved Work parameter rewrite, or exact restoration after a rejected edit | `research-state-transition` Synchronize TODO, then a separate Evaluate at a decision boundary | human gate for parameter selection or semantic-edit decision | Edit scope, restoration, evidence, approval, or TODO fingerprint is inconsistent |
 | `evaluation_required` or `awaiting_transition_evaluation` | `research-state-transition` Evaluate | human gate | Decision boundary, evidence, state revision, or TODO fingerprint is inconsistent |
 | Apply transition | `research-state-transition` Apply | None | Rule path is not eligible, ambiguous, stale, fingerprint-mismatched, or not human-confirmed |
@@ -20,7 +20,7 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 | Figure-review decision boundary | `research-state-transition` Evaluate | human gate | Researcher output absent, ambiguous, out of scope, or unreferenced |
 | `figure_production` ready | `research-figure-production` Final mode | None | Recorded recommendations or approved source coverage absent |
 | Final-figure decision boundary | `research-state-transition` Evaluate | human gate | Integrity audit, traceability, or requested figure artifacts incomplete |
-| `completed` or `stopped` | no execution route | post-report assessment | Human requests work inside a terminal TODO |
+| `completed` or `stopped` | Stop execution; route a next-step assessment to `post-report-assessment` when requested | None | Human requests execution inside a terminal TODO |
 | Aggregate completed runs | `research-evidence-aggregation` | batch when recomputation is needed | Manifest/raw evidence absent |
 | Post-report next-step assessment | `post-report-assessment` | human gate | Human report absent |
 | General explanation or code outside the TODO system | `no_system_route` | None | Not applicable |
@@ -37,7 +37,7 @@ The TODO is the only scientific handoff document. The task-state YAML stores mac
 - `human-research-review-gate` figure-review procedure: interactive researcher feedback during `figure_review`; wait for output.
 - `research-figure-production` Final mode: implement recorded recommendations in an executed notebook and audit the final figures, including the recorded SciencePlots style stack, during `figure_production`.
 
-Standalone `.py` plot scripts are not lifecycle routes. They may create only disposable diagnostic previews under the platform temporary directory; neither the script nor its images can satisfy a figure predicate.
+Route governed figure work through Planning, researcher review, and Final production. Standalone `.py` plot scripts may create only disposable diagnostic previews under the platform temporary directory; neither the script nor its images may satisfy a figure predicate.
 
 ## Transition routing
 

@@ -46,7 +46,7 @@ Use only when `current.state: figure_review` and the planning artifacts are read
 4. Identify which relevant paper figures were inspected, or state plainly that none were available and name the established plot convention used.
 5. Summarize the selected chart, the plausible alternatives that were rejected, the selection reason, and the chart-specific caveats that the final audit will check. Link the exact Data-to-Viz or Python Gallery page only when it was actually inspected.
 6. Ask for concrete recommendations: retain, exclude with reason, revise, split or combine, or add a supplemental generalized diagram.
-7. State that a generalized diagram will be labeled as a schematic and cannot replace complete quantitative figures.
+7. State that a generalized diagram will be labeled as a schematic and must not replace complete quantitative figures.
 8. Flag any requested metric, inclusion-rule, condition-scope, statistical-unit, or scientific-claim change as a semantic change requiring separate approval.
 9. Wait for the researcher's output. Do not infer approval or preferences from silence.
 10. When output arrives, preserve its meaning and provide a concise action list plus an exact conversation reference for predicate evidence. Do not convert a suggestion into transition approval.
@@ -54,7 +54,7 @@ Use only when `current.state: figure_review` and the planning artifacts are read
 
 Example prompt:
 
-> Draft F1 shows every method across all noise levels; F2 shows failure counts for the same condition keys. Please specify which figures to retain, exclude, or revise, and whether you want a supplemental schematic. Excluding a data figure does not permit its conditions to disappear from the final quantitative set.
+> Draft F1 shows every method across all noise levels; F2 shows failure counts for the same condition keys. Please specify which figures to retain, exclude, or revise, and whether you want a supplemental schematic. Keep every excluded figure's conditions accounted for in the final quantitative set.
 
 Example response handling:
 
@@ -76,7 +76,7 @@ Use only when the current TODO predefined the candidate set, metric, feasibility
 2. Summarize every candidate's decision metric, dispersion, coverage/failure state, and relevant resource cost. Do not show only the selected candidate.
 3. State the value produced by the predefined rule, including ties, infeasible candidates, and any unresolved evidence.
 4. Ask the researcher to approve that value, reject it, request an in-scope rerun, or initiate a scientific redesign. Do not treat the rule output alone as approval.
-5. State that approval authorizes Work to rewrite the TODO with the fixed value and remaining actions only; it does not approve a lifecycle transition or execute another state.
+5. State that approval authorizes Work to rewrite the TODO with the fixed value and remaining actions only. Require a separate explicit rule-path selection before applying a lifecycle transition or executing another state.
 6. After the response, preserve an exact conversation reference and route the approved selection plus evidence references to `$research-report-to-todos` for the rewrite, then to `$research-state-transition` in Synchronize TODO mode.
 7. Stop when evidence is incomplete, the rule is ambiguous, or the requested value falls outside the predefined rule; do not negotiate a favorable candidate into the TODO.
 
@@ -94,7 +94,7 @@ Include:
 - progress and log paths;
 - completion and failure criteria.
 
-A long-run launch decision does not itself change lifecycle state.
+A long-run launch decision authorizes only the launch; changing lifecycle state requires the rule-driven transition procedure.
 
 ## Output contract
 

@@ -6,7 +6,7 @@ A task key must include every dimension that can change the scientific output: T
 
 ## Frozen manifest
 
-Generate the complete task manifest before execution. The manifest is a technical artifact under the TODO result directory, not a handoff document. It must not be expanded or pruned after outcomes are observed.
+Generate the complete task manifest before execution and store it as a technical artifact under the TODO result directory. It must not be used as a handoff document or expanded or pruned after outcomes are observed.
 
 Recommended columns:
 

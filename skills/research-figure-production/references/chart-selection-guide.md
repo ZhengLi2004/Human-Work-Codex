@@ -46,7 +46,7 @@ Do not select a chart only because matching code is available. Do not import a g
 
 ## Chart catalog
 
-The categories and links below come from Data-to-Viz. “Conditional” means the chart can be useful only when its perceptual and coverage limitations do not conflict with the TODO. A dash means the inspected Data-to-Viz snapshot did not provide a chart-specific Python Gallery link.
+The categories and links below come from Data-to-Viz. “Conditional” means the chart can be useful only when its perceptual and coverage limitations align with the TODO. A dash records the absence of a chart-specific Python Gallery link in the inspected Data-to-Viz snapshot.
 
 ### Distribution
 
@@ -165,4 +165,4 @@ Example:
 }
 ```
 
-This example illustrates the record shape only. It does not define a metric, interval, threshold, or chart for another TODO.
+This example illustrates the record shape only. Do not reuse its metric, interval, threshold, or chart for another TODO.

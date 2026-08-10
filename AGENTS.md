@@ -29,7 +29,7 @@ Each research task has one authoritative scientific handoff document: its TODO.
 - The task-state YAML is a machine control artifact, normally `results/{todo_id}/task-state.yaml`. It stores only current lifecycle state, execution status, predicate evidence references, evaluated and eligible rule paths, recommendations, rule-set version, revisions, and immutable human-confirmed evaluation history.
 - Do not copy formulas, research background, result prose, tables, scientific interpretation, or TODO sections into the task-state YAML.
 - Do not create task-specific workflow Markdown, evidence ledgers, stage-review Markdown, execution bundles, result packages, or parallel narrative handoffs.
-- Logs, checkpoints, manifests, raw outputs, tables, notebooks, figures, and the task-state YAML are technical artifacts. They do not replace the TODO.
+- Logs, checkpoints, manifests, raw outputs, tables, notebooks, figures, and the task-state YAML are technical artifacts. They must not replace the TODO.
 - Do not use the TODO as a progress log, decision history, rejected-design archive, or comparison with an obsolete design. Preserve those facts in immutable technical evidence or version control.
 - A candidate hyperparameter range may appear only when experimentally selecting it is itself part of the current TODO. Do not present an unverified candidate as a fixed downstream value.
 - Outside the controlled verified-parameter rewrite in Section 3, Codex and Work may edit only path values in the TODO's `Output References` section during execution.
@@ -80,9 +80,11 @@ If the verified value changes the scientific question, metric, data scope, compa
 
 Use `$research-computing-implementation` whenever scientific code is written or materially optimized.
 
-- Use **MATLAB by default for non-plotting computation**. This is a repository policy, not a claim that MATLAB is faster for every workload.
-- Use **Python** for a non-plotting component only when a required capability depends on a Python-only package or interface, such as a TODO-required PyTorch implementation, or when measured, documented constraints make MATLAB infeasible. Existing Python convenience alone is not an exception.
+- Use **MATLAB by default for non-plotting computation**. Treat this as a repository language policy; evaluate performance with representative measurements.
+- Use **Python** for a non-plotting component only when a required capability depends on a Python-only package or interface, such as a TODO-required PyTorch implementation, or when measured, documented constraints require Python for faithful implementation. Document the required capability or constraint for every exception.
 - Use **Python, Jupyter, Matplotlib, and SciencePlots for governed plotting** under Section 8, even when MATLAB produces the numerical data.
+- A figure notebook may read, validate, sort, pivot, or reshape complete existing tables and perform only the limited analysis needed to present them. It must not be the sole implementation of production preprocessing, metric computation, statistical testing, model fitting, exclusion rules, or aggregation. If a figure needs a new scientific quantity, produce that quantity in MATLAB and publish it in a complete table before plotting.
+- Do not require a Jupyter notebook when the current work has no governed plotting deliverable.
 - A hybrid design is acceptable only when the boundary is explicit and the interchange cost is justified. Prefer Parquet for tabular interchange and MAT v7.3/HDF5-compatible files for large multidimensional arrays.
 - Follow **“Make it work, make it right, make it fast”** in that order:
   1. **Work:** build an environment-compatible end-to-end scaffold with realistic interfaces, shapes, bulk I/O, and one representative task path.
@@ -119,7 +121,11 @@ Always:
 - maintain stable identifiers linking aggregate rows to source runs and files;
 - attach evidence references to non-trivial transition predicate values.
 
-Do not treat successful execution as scientific support. Do not present Exploration, smoke-test, Pilot, or single-run evidence as Confirmation.
+Before aggregation, resolve controlling information in this order: the TODO for scientific meaning; the task-state YAML and frozen task manifest for lifecycle state and planned work; the raw-result index and immutable raw outputs for observed execution facts; then derived aggregate tables. Compare overlapping sources by authority, fingerprint or revision, analysis grain, schema, keys, coverage, and freshness. A conflict, missing controlling source, or incompatible grain blocks aggregation; do not silently substitute a weaker source.
+
+Before computing aggregates, check the intended analysis grain, schema, stable keys, duplicate and missing keys, run-status counts, value ranges, time coverage, timezone rules when applicable, and every join's declared and observed cardinality. Select additional tests by risk, including join expansion, denominator changes, average-of-averages, incomplete windows, selection bias, and outlier influence only when the data shape or claim makes them relevant. Write the result to `aggregation-validation.json` with planned-versus-observed coverage, data-quality findings, calculation spot checks, impact on use, and evidence paths. A blocking validation finding prevents publication of the aggregate as usable evidence.
+
+Treat successful execution only as technical evidence. Scientific support requires the TODO-defined experiment and evidence; do not present Exploration, smoke-test, Pilot, or single-run evidence as Confirmation.
 
 ## 8. Work table and figure responsibilities
 
@@ -130,10 +136,14 @@ Work may curate tables and prepare figure drafts only when `current.state: work_
 - A figure may use complete raw results, complete Codex condition-merged tables, or validated Work-curated tables. A curated table is sufficient only when its transformation manifest proves row and stable-key preservation and it retains the fields needed for the figure.
 - Work must not select only favorable seeds, conditions, subjects, sessions, records, files, or table partitions. Operational provenance columns need not be plotted, but omitted scientific fields or conditions must be accounted for in the coverage manifest.
 - Work presents the draft figure set and coverage summary during `figure_review`, then waits for researcher recommendations about inclusion, exclusion, revision, or supplemental generalized diagrams.
-- A generalized diagram is a labeled schematic, not an empirical result. It may supplement but never replace the complete data figures, and it must not imply unsupported mechanisms or measured relationships.
+- A generalized diagram is a labeled schematic. It may supplement but must never replace the complete data figures, resemble an empirical result, or imply unsupported mechanisms or measured relationships.
 - During `figure_production`, Work follows the recorded recommendations and checks the final set for missing conditions, misleading aggregation or scales, unexplained titles, unlabeled curves or marks, ambiguous units, and unsupported claims.
-- Durable draft and final figure generation must be reproducible from an executed Jupyter notebook. A standalone `.py` script may render only disposable metadata, layout, style, legend, scale, or other diagnostic previews; keep the script and every image it creates under the platform temporary directory, never under the result root, figure directory, or repository. A temporary preview is not a draft, final figure, scientific evidence, or predicate evidence and must be reproduced by the notebook before use.
+- A governed figure notebook may consume complete raw results, complete condition-merged tables, or validated curated tables. It may validate and reshape those sources for presentation, but it must not become the only implementation of production preprocessing, metrics, inferential statistics, model fitting, exclusion rules, or aggregation. New scientific quantities return to the MATLAB production path first.
+- Durable draft and final figure generation must be reproducible from an executed Jupyter notebook. A standalone `.py` script may render only disposable metadata, layout, style, legend, scale, or other diagnostic previews; keep the script and every image it creates under the platform temporary directory, never under the result root, figure directory, or repository. A temporary preview must not serve as a draft, final figure, scientific evidence, or predicate evidence and must be reproduced by the notebook before use.
+- Require a notebook only when governed figures are produced. Every chart remains subject to `work_postprocessing → figure_review → figure_production`; a diagnostic chart must pass those states before it can become a governed draft or final figure.
 - Every Python-rendered chart, including a temporary diagnostic preview, must import `scienceplots` and apply a style stack whose base is `science`. Use `science` plus `no-latex` by default; add a named journal or language style only when required and record the exact stack. Missing SciencePlots is a dependency blocker, not permission to fall back silently.
+- Structure each governed notebook for sequential reading and record near the top the TODO fingerprint, task-state revision, complete inputs, stable keys, statistical unit, filters, and output directory. Execute from a clean kernel from top to bottom; prohibit hidden state, hand-edited intermediate values, unexplained cached output, unbounded table dumps, unexecuted code cells, and error outputs.
+- Record source and exported-file SHA-256 hashes, Git revision, package versions, execution command and times, data-quality results, figure-data sufficiency, and notebook execution status in the figure manifest. Run `validate_figure_notebook.py` after execution. Planning keeps its machine-readable validation beside the draft manifest; Final mode merges the result into the existing figure integrity audit. Do not create another Markdown report.
 - Work writes no additional Markdown handoff. It updates only curated-table path values and the figure-directory path in the TODO.
 - Work records machine-readable artifact facts and outgoing-rule predicates in the task-state YAML, marks each Work or human-review decision boundary, and requires later Codex rule evaluation. It must not change `current.state`, evaluate transition rules, recommend a path, or approve a transition.
 - Drafts, the executed notebook, exported figures, coverage and integrity audits, and machine-readable manifests remain inside the referenced figure directory.
@@ -155,14 +165,19 @@ Do not:
 - select or write an experimentally determined hyperparameter into the TODO without complete evidence and explicit researcher approval;
 - synchronize a broader scientific redesign into an active TODO instead of creating a new versioned TODO;
 - use Python for non-plotting computation without a documented repository-policy exception;
+- use a figure notebook as the only implementation of production preprocessing, metrics, statistical tests, model fitting, exclusion rules, or aggregation;
 - optimize a scientific kernel before a runnable scaffold and a correctness reference exist;
 - omit applicable conditions or series from a figure without making the omission and its TODO-defined basis explicit;
-- use a title, legend, axis, scale, or schematic that implies a claim not supported by the plotted data or approved research meaning.
+- use a title, legend, axis, scale, or schematic that implies a claim beyond the plotted data or approved research meaning.
 - promote a temporary `.py` preview or temporary image into a governed draft, final figure, manifest, or lifecycle evidence record;
 - generate a Python chart without the `science` SciencePlots base style.
+- treat a chart as reviewed or final merely because it appears inside a notebook;
+- publish aggregates when `aggregation-validation.json` reports a blocking source, grain, coverage, join, denominator, or calculation failure.
 
 ## 10. Terminology, examples, and communication
 
+- Describe each role or Skill through its positive responsibility and route work to the role that owns it. Omit lists of missing functions or excluded implementation work.
+- Reserve `must not`, `do not`, and `never` for absolute prohibitions. When an action is merely assigned to another role or stage, name that owner or stage instead of presenting the boundary as a prohibition or a missing capability.
 - Prefer established terms from the relevant scientific field, statistics, numerical computing, data engineering, and software testing.
 - Do not coin a sophisticated-sounding noun when a standard term or a short sequence of operations is clearer. If no established term exists, describe the operations first; introduce a local label only when it is necessary, define it once, and do not present it as accepted terminology.
 - Tie evaluative words to explicit criteria. Use terms such as `robust`, `significant`, `optimal`, `complete`, or `generalizable` only when the TODO or recorded evidence defines and supports them.

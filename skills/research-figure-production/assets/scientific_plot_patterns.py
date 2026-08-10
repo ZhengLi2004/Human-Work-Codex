@@ -2,8 +2,8 @@
 
 These functions are original repository helpers informed by the chart-selection
 and caveat references in ``../references``. They accept already validated raw
-or precomputed tables. They do not choose scientific filters, aggregate
-observations, estimate uncertainty, or replace figure coverage checks.
+or precomputed tables. Callers supply scientific filters, aggregates,
+uncertainty estimates, and figure coverage checks before rendering.
 
 Copy this file beside an executed figure notebook when a matching pattern is
 useful, then record the copied path and function name in the figure manifest.
@@ -56,19 +56,42 @@ def activate_scienceplots_style(
     *,
     use_latex: bool = False,
 ) -> tuple[str, ...]:
-    """Activate and return a SciencePlots stack whose base is always ``science``."""
+    """Activate a SciencePlots style stack whose base is ``science``.
+
+    Args:
+        extra_styles: Additional registered style names to insert after ``science``.
+        use_latex: Whether to omit the default ``no-latex`` style.
+
+    Returns:
+        The exact activated style stack.
+
+    Raises:
+        ValueError: If an additional style is empty or duplicates a managed style.
+        RuntimeError: If any requested style is unavailable.
+    """
 
     extras = tuple(str(style).strip() for style in extra_styles)
+
     if any(not style for style in extras):
         raise ValueError("SciencePlots style names must be non-empty")
+
     if SCIENCEPLOTS_BASE_STYLE in extras or "no-latex" in extras:
-        raise ValueError("Pass only additional styles; science and no-latex are managed here")
+        raise ValueError(
+            "Pass only additional styles; science and no-latex are managed here"
+        )
+
     stack = (SCIENCEPLOTS_BASE_STYLE, *extras)
+
     if not use_latex:
         stack = (*stack, "no-latex")
+
     unavailable = [style for style in stack if style not in plt.style.available]
+
     if unavailable:
-        raise RuntimeError(f"Requested SciencePlots styles are unavailable: {unavailable}")
+        raise RuntimeError(
+            f"Requested SciencePlots styles are unavailable: {unavailable}"
+        )
+
     plt.style.use(list(stack))
     global _active_scienceplots_style_stack
     _active_scienceplots_style_stack = stack
@@ -76,16 +99,32 @@ def activate_scienceplots_style(
 
 
 def current_scienceplots_style() -> tuple[str, ...]:
-    """Return the style stack that plotting helpers reapply before rendering."""
+    """Return the style stack that helpers reapply before rendering.
+
+    Returns:
+        The currently active SciencePlots style stack.
+    """
 
     return _active_scienceplots_style_stack
 
 
 def _new_axes(ax: Axes | None, figsize: tuple[float, float]) -> tuple[Figure, Axes]:
+    """Reuse an axes object or create a constrained-layout figure.
+
+    Args:
+        ax: Existing axes to reuse, or ``None`` to create one.
+        figsize: Width and height in inches for a new figure.
+
+    Returns:
+        The owning figure and axes.
+    """
+
     plt.style.use(list(_active_scienceplots_style_stack))
+
     if ax is None:
         fig, created_ax = plt.subplots(figsize=figsize, constrained_layout=True)
         return fig, created_ax
+
     return ax.figure, ax
 
 
@@ -93,18 +132,49 @@ activate_scienceplots_style()
 
 
 def _require_columns(frame: pd.DataFrame, columns: Iterable[str]) -> None:
+    """Require plotting columns in a data frame.
+
+    Args:
+        frame: Input table to inspect.
+        columns: Column names required by a plotting helper.
+
+    Raises:
+        KeyError: If any required column is absent.
+    """
+
     missing = [column for column in columns if column not in frame.columns]
+
     if missing:
         raise KeyError(f"Missing plotting columns: {missing}")
 
 
 def _require_rows(frame: pd.DataFrame) -> None:
+    """Require at least one input row.
+
+    Args:
+        frame: Input table to inspect.
+
+    Raises:
+        ValueError: If the table is empty.
+    """
+
     if frame.empty:
         raise ValueError("Plot input must contain at least one row")
 
 
 def _require_labels(frame: pd.DataFrame, columns: Iterable[str]) -> None:
+    """Require complete labels in grouping and category columns.
+
+    Args:
+        frame: Input table to inspect.
+        columns: Label columns that must contain no missing values.
+
+    Raises:
+        ValueError: If a required label column contains missing values.
+    """
+
     missing = [column for column in columns if frame[column].isna().any()]
+
     if missing:
         raise ValueError(
             f"Grouping or category columns contain missing labels: {missing}. "
@@ -113,13 +183,33 @@ def _require_labels(frame: pd.DataFrame, columns: Iterable[str]) -> None:
 
 
 def _require_colors(colors: Sequence[str]) -> None:
+    """Require a nonempty color sequence.
+
+    Args:
+        colors: Color specifications available to a plotting helper.
+
+    Raises:
+        ValueError: If the sequence is empty.
+    """
+
     if not colors:
         raise ValueError("At least one color is required")
 
 
 def _require_finite(frame: pd.DataFrame, columns: Iterable[str]) -> None:
+    """Require finite numeric values in selected columns.
+
+    Args:
+        frame: Input table to inspect.
+        columns: Numeric columns that must contain finite values.
+
+    Raises:
+        ValueError: If conversion produces a missing or non-finite value.
+    """
+
     for column in columns:
         values = pd.to_numeric(frame[column], errors="coerce").to_numpy(dtype=float)
+
         if not np.isfinite(values).all():
             raise ValueError(
                 f"{column!r} contains missing or non-finite values. Handle failures and "
@@ -128,16 +218,32 @@ def _require_finite(frame: pd.DataFrame, columns: Iterable[str]) -> None:
 
 
 def _levels(series: pd.Series, requested: Sequence[Any] | None) -> list[Any]:
+    """Resolve an explicit level order against observed values.
+
+    Args:
+        series: Series containing observed category or group values.
+        requested: Requested order, or ``None`` to preserve observed order.
+
+    Returns:
+        The validated level order.
+
+    Raises:
+        ValueError: If requested and observed levels differ.
+    """
     observed = list(pd.unique(series))
+
     if requested is None:
         return observed
+
     levels = list(requested)
     missing = [value for value in observed if value not in levels]
     unknown = [value for value in levels if value not in observed]
+
     if missing or unknown:
         raise ValueError(
             f"Requested order does not match observed levels; missing={missing}, unknown={unknown}"
         )
+
     return levels
 
 
@@ -148,24 +254,45 @@ def save_figure(
     formats: Sequence[str] = ("pdf", "svg", "png"),
     raster_dpi: int = 300,
 ) -> list[Path]:
-    """Atomically save one figure to vector and raster formats using one stem."""
+    """Atomically save one figure in each requested format.
+
+    Args:
+        fig: Matplotlib figure to save.
+        output_stem: Output path without a format suffix.
+        formats: Vector or raster suffixes to publish.
+        raster_dpi: Resolution for raster outputs.
+
+    Returns:
+        Published output paths in the requested order.
+
+    Raises:
+        ValueError: If formats are empty, malformed, or use an invalid raster DPI.
+    """
 
     plt.style.use(list(_active_scienceplots_style_stack))
     stem = Path(output_stem)
     stem.parent.mkdir(parents=True, exist_ok=True)
+
     if not formats:
         raise ValueError("At least one output format is required")
+
     if raster_dpi <= 0:
         raise ValueError("raster_dpi must be positive")
+
     written: list[Path] = []
+
     for format_name in formats:
         normalized = format_name.lower().lstrip(".")
+
         if not normalized or "/" in normalized or "\\" in normalized:
             raise ValueError(f"Invalid output format: {format_name!r}")
+
         target = stem.parent / f"{stem.name}.{normalized}"
         kwargs: dict[str, Any] = {"bbox_inches": "tight"}
+
         if normalized in {"png", "jpg", "jpeg", "tif", "tiff"}:
             kwargs["dpi"] = raster_dpi
+
         with tempfile.NamedTemporaryFile(
             dir=target.parent,
             prefix=f".{target.name}.",
@@ -173,13 +300,16 @@ def save_figure(
             delete=False,
         ) as handle:
             temporary = Path(handle.name)
+
         try:
             fig.savefig(temporary, format=normalized, **kwargs)
             os.replace(temporary, target)
         except Exception:
             temporary.unlink(missing_ok=True)
             raise
+
         written.append(target)
+
     return written
 
 
@@ -188,18 +318,35 @@ def bubble_areas(
     *,
     max_area: float = 360.0,
 ) -> np.ndarray:
-    """Map nonnegative values proportionally to marker *area* for ``scatter(s=...)``."""
+    """Map nonnegative values proportionally to Matplotlib marker area.
+
+    Args:
+        values: Finite, nonnegative values to encode by area.
+        max_area: Marker area assigned to the largest value.
+
+    Returns:
+        Marker areas suitable for ``scatter(s=...)``.
+
+    Raises:
+        ValueError: If values or ``max_area`` violate the finite nonnegative contract.
+    """
 
     data = np.asarray(values, dtype=float)
+
     if not np.isfinite(data).all() or (data < 0).any():
         raise ValueError("Bubble values must be finite and nonnegative")
+
     if not np.isfinite(max_area) or max_area <= 0:
         raise ValueError("max_area must be finite and positive")
+
     if data.size == 0:
         return data
+
     value_max = float(data.max())
+
     if value_max == 0:
         return np.zeros_like(data)
+
     return data / value_max * max_area
 
 
@@ -217,27 +364,53 @@ def plot_interval_estimates(
     colors: Sequence[str] = DEFAULT_COLORS,
     ax: Axes | None = None,
 ) -> tuple[Figure, Axes]:
-    """Plot caller-supplied estimates and intervals without computing either."""
+    """Plot caller-supplied estimates and intervals without recomputation.
+
+    Args:
+        frame: Complete table containing one row per category and optional group.
+        category: Category column mapped to the discrete axis.
+        estimate: Precomputed estimate column.
+        lower: Precomputed lower-bound column.
+        upper: Precomputed upper-bound column.
+        group: Optional grouping column.
+        category_order: Complete requested category order.
+        group_order: Complete requested group order.
+        orientation: ``horizontal`` or ``vertical`` interval orientation.
+        colors: Colors cycled across groups.
+        ax: Existing axes to reuse, or ``None`` to create one.
+
+    Returns:
+        The figure and axes containing the interval plot.
+
+    Raises:
+        KeyError: If a required column is missing.
+        ValueError: If rows, labels, values, orders, intervals, or coverage are invalid.
+    """
 
     columns = [category, estimate, lower, upper] + ([group] if group else [])
     _require_columns(frame, columns)
     _require_rows(frame)
     _require_labels(frame, [category] + ([group] if group else []))
     _require_finite(frame, [estimate, lower, upper])
+
     if orientation not in {"horizontal", "vertical"}:
         raise ValueError("orientation must be 'horizontal' or 'vertical'")
-    _require_colors(colors)
 
+    _require_colors(colors)
     data = frame.loc[:, columns].copy()
+
     if (data[lower] > data[estimate]).any() or (data[estimate] > data[upper]).any():
         raise ValueError("Each interval must satisfy lower <= estimate <= upper")
 
     categories = _levels(data[category], category_order)
     groups = [None] if group is None else _levels(data[group], group_order)
     key_columns = [category] + ([group] if group else [])
+
     if data.duplicated(key_columns).any():
         raise ValueError(f"Interval input has duplicate rows for keys {key_columns}")
+
     expected_rows = len(categories) * len(groups)
+
     if len(data) != expected_rows:
         raise ValueError(
             "Interval input is not a complete category/group grid. Represent missing or "
@@ -257,6 +430,7 @@ def plot_interval_estimates(
         positions = base + offsets[index]
         label = None if level is None else str(level)
         color = colors[index % len(colors)]
+
         if orientation == "horizontal":
             ax.errorbar(
                 estimates,
@@ -283,8 +457,10 @@ def plot_interval_estimates(
         ax.invert_yaxis()
     else:
         ax.set_xticks(base, [str(value) for value in categories])
+
     if group is not None:
         ax.legend(title=group, frameon=False)
+
     return fig, ax
 
 
@@ -298,7 +474,24 @@ def plot_histogram(
     colors: Sequence[str] = DEFAULT_COLORS,
     ax: Axes | None = None,
 ) -> tuple[Figure, Axes, np.ndarray]:
-    """Plot complete distributions with shared, explicit bin edges."""
+    """Plot complete distributions with shared explicit bin edges.
+
+    Args:
+        frame: Complete table containing values and optional group labels.
+        value: Numeric value column.
+        bins: Explicit edge sequence or supported NumPy bin specification.
+        group: Optional grouping column.
+        density: Whether to normalize each histogram to density.
+        colors: Colors cycled across groups.
+        ax: Existing axes to reuse, or ``None`` to create one.
+
+    Returns:
+        The figure, axes, and resolved bin edges.
+
+    Raises:
+        KeyError: If a required column is missing.
+        ValueError: If rows, labels, values, colors, or bins are invalid.
+    """
 
     columns = [value] + ([group] if group else [])
     _require_columns(frame, columns)
@@ -310,8 +503,10 @@ def plot_histogram(
     edges = np.histogram_bin_edges(values, bins=bins)
     fig, ax = _new_axes(ax, (6.4, 4.2))
     groups = [None] if group is None else list(pd.unique(frame[group]))
+
     for index, level in enumerate(groups):
         subset = frame if group is None else frame.loc[frame[group] == level]
+
         ax.hist(
             subset[value].to_numpy(dtype=float),
             bins=edges,
@@ -321,8 +516,10 @@ def plot_histogram(
             color=colors[index % len(colors)],
             label=None if level is None else str(level),
         )
+
     if group is not None:
         ax.legend(title=group, frameon=False)
+
     return fig, ax, edges
 
 
@@ -334,7 +531,22 @@ def plot_ecdf(
     colors: Sequence[str] = DEFAULT_COLORS,
     ax: Axes | None = None,
 ) -> tuple[Figure, Axes]:
-    """Plot empirical cumulative distributions without smoothing."""
+    """Plot empirical cumulative distributions without smoothing.
+
+    Args:
+        frame: Complete table containing values and optional group labels.
+        value: Numeric value column.
+        group: Optional grouping column.
+        colors: Colors cycled across groups.
+        ax: Existing axes to reuse, or ``None`` to create one.
+
+    Returns:
+        The figure and axes containing the empirical distributions.
+
+    Raises:
+        KeyError: If a required column is missing.
+        ValueError: If rows, labels, values, or colors are invalid.
+    """
 
     columns = [value] + ([group] if group else [])
     _require_columns(frame, columns)
@@ -344,10 +556,12 @@ def plot_ecdf(
     _require_colors(colors)
     fig, ax = _new_axes(ax, (6.4, 4.2))
     groups = [None] if group is None else list(pd.unique(frame[group]))
+
     for index, level in enumerate(groups):
         subset = frame if group is None else frame.loc[frame[group] == level]
         x = np.sort(subset[value].to_numpy(dtype=float))
         y = np.arange(1, len(x) + 1, dtype=float) / len(x)
+
         ax.step(
             x,
             y,
@@ -355,9 +569,12 @@ def plot_ecdf(
             color=colors[index % len(colors)],
             label=None if level is None else str(level),
         )
+
     ax.set_ylim(0.0, 1.0)
+
     if group is not None:
         ax.legend(title=group, frameon=False)
+
     return fig, ax
 
 
@@ -372,7 +589,25 @@ def plot_scatter(
     colors: Sequence[str] = DEFAULT_COLORS,
     ax: Axes | None = None,
 ) -> tuple[Figure, Axes]:
-    """Plot all supplied points; use ``plot_hexbin`` when overlap remains severe."""
+    """Plot every supplied point with optional group encoding.
+
+    Args:
+        frame: Complete table containing x, y, and optional group values.
+        x: Numeric x-axis column.
+        y: Numeric y-axis column.
+        group: Optional grouping column.
+        alpha: Marker opacity in the interval ``(0, 1]``.
+        marker_area: Positive marker area.
+        colors: Colors cycled across groups.
+        ax: Existing axes to reuse, or ``None`` to create one.
+
+    Returns:
+        The figure and axes containing the scatter plot.
+
+    Raises:
+        KeyError: If a required column is missing.
+        ValueError: If rows, labels, values, colors, opacity, or area are invalid.
+    """
 
     columns = [x, y] + ([group] if group else [])
     _require_columns(frame, columns)
@@ -380,12 +615,16 @@ def plot_scatter(
     _require_labels(frame, [group] if group else [])
     _require_finite(frame, [x, y])
     _require_colors(colors)
+
     if not 0 < alpha <= 1 or marker_area <= 0:
         raise ValueError("Require 0 < alpha <= 1 and marker_area > 0")
+
     fig, ax = _new_axes(ax, (6.4, 4.8))
     groups = [None] if group is None else list(pd.unique(frame[group]))
+
     for index, level in enumerate(groups):
         subset = frame if group is None else frame.loc[frame[group] == level]
+
         ax.scatter(
             subset[x],
             subset[y],
@@ -396,8 +635,10 @@ def plot_scatter(
             rasterized=len(subset) > 5000,
             label=None if level is None else str(level),
         )
+
     if group is not None:
         ax.legend(title=group, frameon=False)
+
     return fig, ax
 
 
@@ -411,14 +652,36 @@ def plot_hexbin(
     min_count: int = 1,
     ax: Axes | None = None,
 ) -> tuple[Figure, Axes]:
-    """Plot counts for all supplied points on an explicit hexagonal grid."""
+    """Plot counts for every supplied point on an explicit hexagonal grid.
+
+    Args:
+        frame: Complete table containing x and y values.
+        x: Numeric x-axis column.
+        y: Numeric y-axis column.
+        gridsize: Number of hexagons along the horizontal direction.
+        cmap: Matplotlib color-map name.
+        min_count: Minimum visible cell count; governed figures require one.
+        ax: Existing axes to reuse, or ``None`` to create one.
+
+    Returns:
+        The figure and axes containing the hexbin plot.
+
+    Raises:
+        KeyError: If a required column is missing.
+        ValueError: If rows, values, grid size, or minimum count are invalid.
+    """
 
     _require_columns(frame, [x, y])
     _require_rows(frame)
     _require_finite(frame, [x, y])
+
     if gridsize <= 1 or min_count != 1:
-        raise ValueError("Require gridsize > 1 and min_count == 1 so low-count cells remain visible")
+        raise ValueError(
+            "Require gridsize > 1 and min_count == 1 so low-count cells remain visible"
+        )
+
     fig, ax = _new_axes(ax, (6.4, 4.8))
+
     collection = ax.hexbin(
         frame[x].to_numpy(dtype=float),
         frame[y].to_numpy(dtype=float),
@@ -426,6 +689,7 @@ def plot_hexbin(
         mincnt=min_count,
         cmap=cmap,
     )
+
     colorbar = fig.colorbar(collection, ax=ax)
     colorbar.set_label("Observation count")
     return fig, ax
@@ -443,10 +707,30 @@ def plot_series(
     colors: Sequence[str] = DEFAULT_COLORS,
     ax: Axes | None = None,
 ) -> tuple[Figure, Axes]:
-    """Plot ordered series and optional caller-supplied uncertainty bands."""
+    """Plot ordered series and optional caller-supplied uncertainty bands.
+
+    Args:
+        frame: Complete table containing ordered observations.
+        x: Ordered x-axis column.
+        y: Numeric y-axis column.
+        group: Optional series grouping column.
+        lower: Optional precomputed lower-bound column.
+        upper: Optional precomputed upper-bound column.
+        group_order: Complete requested group order.
+        colors: Colors cycled across groups.
+        ax: Existing axes to reuse, or ``None`` to create one.
+
+    Returns:
+        The figure and axes containing the ordered series.
+
+    Raises:
+        KeyError: If a required column is missing.
+        ValueError: If bounds, rows, labels, values, colors, keys, or coverage are invalid.
+    """
 
     if (lower is None) != (upper is None):
         raise ValueError("Provide both lower and upper, or neither")
+
     columns = [x, y] + ([group] if group else []) + ([lower, upper] if lower else [])
     _require_columns(frame, columns)
     _require_rows(frame)
@@ -454,21 +738,25 @@ def plot_series(
     _require_finite(frame, [x, y] + ([lower, upper] if lower else []))
     _require_colors(colors)
     key_columns = [x] + ([group] if group else [])
+
     if frame.duplicated(key_columns).any():
         raise ValueError(
             f"Series input has duplicate rows for {key_columns}; aggregate explicitly at the TODO-defined unit"
         )
+
     if lower and ((frame[lower] > frame[y]).any() or (frame[y] > frame[upper]).any()):
         raise ValueError("Each uncertainty band must satisfy lower <= y <= upper")
 
     fig, ax = _new_axes(ax, (6.4, 4.2))
     groups = [None] if group is None else _levels(frame[group], group_order)
+
     for index, level in enumerate(groups):
         subset = frame if group is None else frame.loc[frame[group] == level]
         subset = subset.sort_values(x)
         color = colors[index % len(colors)]
         label = None if level is None else str(level)
         ax.plot(subset[x], subset[y], marker="o", color=color, label=label)
+
         if lower:
             ax.fill_between(
                 subset[x],
@@ -478,8 +766,10 @@ def plot_series(
                 alpha=0.18,
                 linewidth=0,
             )
+
     if group is not None:
         ax.legend(title=group, frameon=False)
+
     return fig, ax
 
 
@@ -495,19 +785,42 @@ def plot_heatmap(
     value_format: str = ".2g",
     ax: Axes | None = None,
 ) -> tuple[Figure, Axes]:
-    """Plot a labeled numeric matrix with explicit color limits and missing cells."""
+    """Plot a labeled numeric matrix with explicit limits and missing cells.
+
+    Args:
+        matrix: Labeled matrix whose nonmissing values must be numeric.
+        vmin: Finite lower color limit.
+        vmax: Finite upper color limit greater than ``vmin``.
+        cmap: Matplotlib color-map name.
+        colorbar_label: Label for the color scale.
+        missing_color: Color assigned to missing cells.
+        annotate: Whether to write each cell value or ``NA``.
+        value_format: Format specification for finite annotations.
+        ax: Existing axes to reuse, or ``None`` to create one.
+
+    Returns:
+        The figure and axes containing the heatmap.
+
+    Raises:
+        ValueError: If the matrix, color limits, or nonmissing values are invalid.
+    """
 
     if not isinstance(matrix, pd.DataFrame) or matrix.empty:
         raise ValueError("matrix must be a non-empty pandas DataFrame")
+
     if not np.isfinite([vmin, vmax]).all() or vmax <= vmin:
         raise ValueError("Require finite color limits with vmax > vmin")
+
     numeric_frame = matrix.apply(pd.to_numeric, errors="coerce")
     invalid = matrix.notna() & numeric_frame.isna()
+
     if invalid.to_numpy().any():
         locations = list(zip(*np.where(invalid.to_numpy())))
+
         raise ValueError(
             f"Heatmap contains nonnumeric values at row/column offsets {locations[:8]}"
         )
+
     numeric = numeric_frame.to_numpy(dtype=float)
     masked = np.ma.masked_invalid(numeric)
     palette = plt.get_cmap(cmap).copy()
@@ -518,12 +831,14 @@ def plot_heatmap(
     ax.set_yticks(np.arange(matrix.shape[0]), [str(value) for value in matrix.index])
     colorbar = fig.colorbar(image, ax=ax)
     colorbar.set_label(colorbar_label)
+
     if annotate:
         for row in range(matrix.shape[0]):
             for column in range(matrix.shape[1]):
                 value = numeric[row, column]
                 label = "NA" if not np.isfinite(value) else format(value, value_format)
                 ax.text(column, row, label, ha="center", va="center", fontsize=8)
+
     return fig, ax
 
 

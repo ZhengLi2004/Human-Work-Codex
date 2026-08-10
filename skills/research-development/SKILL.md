@@ -21,7 +21,7 @@ Convert the TODO's scientific specification into a credible executable vertical 
 
 1. Map every scientific input, transformation, control, metric, and output to concrete code and data objects; inspect the existing implementation and environment before editing.
 2. Invoke `$research-computing-implementation`. Use MATLAB for non-plotting computation unless its documented exception test is satisfied; keep governed plotting in Python/Jupyter.
-3. **Make it work:** build and run a minimal current-environment scaffold with realistic interfaces, shapes, efficient bulk I/O, logs, recovery boundaries, and one representative task path. Label placeholder kernels; they are not correctness evidence.
+3. **Make it work:** build and run a minimal current-environment scaffold with realistic interfaces, shapes, efficient bulk I/O, logs, recovery boundaries, and one representative task path. Label placeholder kernels; correctness evidence requires the implemented algorithm and its checks.
 4. **Make it right:** implement a clear small-case reference and then the TODO's exact algorithm. Self-check formulas, data contracts, controls, units, randomness, metrics, and outputs against the strongest available oracle.
 5. Use `$research-agile-testing` for invariants, leakage, indexing, numerical equivalence, and regression risk. Complete one representative combination and one independent repeat end to end.
 6. **Make it fast:** profile the representative workload, then consider redundant-work removal, algorithmic changes, memory layout/preallocation, measured vectorization and JIT-friendly MATLAB, optimized built-ins, MEX or generated code, parallel computing, GPU acceleration, and I/O/task partitioning in that order of escalating cost.
@@ -71,7 +71,7 @@ Evaluate applicable predicates such as:
 - Do not change the TODO's mathematics, metrics, data scope, controls, or independent unit.
 - Do not perform an unapproved Pilot or Confirmation run.
 - Do not treat a smoke-test metric as research evidence.
-- Do not introduce a general framework that this TODO does not require.
+- Do not introduce a general framework beyond the TODO requirements.
 - Do not optimize a scientific kernel before the runnable scaffold and correctness reference exist.
 - Do not replace MATLAB with Python for implementation convenience; record the required package/interface or measured infeasibility that justifies any non-plotting Python component.
 - Do not choose or apply a next state.

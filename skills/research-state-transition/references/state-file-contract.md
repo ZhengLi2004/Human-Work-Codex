@@ -32,7 +32,7 @@ The path is derived from the TODO identifier and result root. Do not add a task-
 - The task-state file is authoritative for the current machine lifecycle state and confirmed transition history.
 - The current human instruction is authoritative for approval.
 
-A state file never overrides the TODO.
+A state file must never override the TODO.
 
 ## Rule-set version
 
@@ -59,7 +59,7 @@ Every evaluation stores the same digest in `transition_review.based_on_todo_fing
 
 Every authorized edit changes the complete-file digest. Codex increments state revision, refreshes the fingerprint, and records machine metadata for either an Output References path update or a verified-parameter rewrite. Path changes may be batched before transition evaluation and do not require scientific approval. A verified-parameter rewrite requires complete evidence, explicit researcher selection, and Work authorship at a decision boundary.
 
-An unexplained mismatch is not an authorized edit. If it is rejected, restore the exact approved TODO bytes from version control or another researcher-verified source; the stored hash alone cannot reconstruct content. Then increment revision and append a `rejected_unapproved_edit_restoration` event with the observed mismatching digest. This makes the old review stale even though the restored digest equals the stored approved digest. If exact restoration is unavailable, remain blocked. Any approved scientific change outside the predefined verified-parameter rule starts a new versioned TODO and a new task-state file at `todo_ready`.
+Treat an unexplained mismatch as an unauthorized edit. If it is rejected, restore the exact approved TODO bytes from version control or another researcher-verified source; the stored hash supplies identity only, so restoration requires the exact approved bytes. Then increment revision and append a `rejected_unapproved_edit_restoration` event with the observed mismatching digest. This makes the old review stale even though the restored digest equals the stored approved digest. If exact restoration is unavailable, remain blocked. Any approved scientific change outside the predefined verified-parameter rule starts a new versioned TODO and a new task-state file at `todo_ready`.
 
 ```yaml
 todo_change_events:

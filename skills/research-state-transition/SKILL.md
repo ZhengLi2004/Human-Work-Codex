@@ -47,9 +47,9 @@ Do not combine Evaluate and Apply unless the human's current instruction explici
 
 Use this mode only for one of three governed cases:
 
-- **Output References path update:** Codex or Work changed only existing path values allowed by governance. Verify the Markdown diff is limited to those values and reference the created artifacts. This change does not require scientific approval.
+- **Output References path update:** Codex or Work changed only existing path values allowed by governance. Verify the Markdown diff is limited to those values, reference the created artifacts, and synchronize the authorized path change.
 - **Verified hyperparameter selection:** at a lifecycle decision boundary, complete candidate, failure, selection-rule, and result evidence exists; the researcher explicitly approved the selected value; and Work rewrote the scientific TODO.
-- **Rejected unapproved edit restoration:** an unexplained fingerprint mismatch was detected, the edit was rejected, and the exact previously approved TODO bytes were restored from version control or another researcher-verified source. A hash cannot reconstruct the file. Record the observed mismatching digest and the rejection/restoration evidence; do not adopt the unapproved digest.
+- **Rejected unapproved edit restoration:** an unexplained fingerprint mismatch was detected, the edit was rejected, and the exact previously approved TODO bytes were restored from version control or another researcher-verified source. A hash supplies identity only; restoration requires the exact approved bytes. Record the observed mismatching digest and the rejection/restoration evidence; do not adopt the unapproved digest.
 
 For a verified-parameter rewrite, verify that the TODO fixes the approved value, contains only remaining actions, and omits completed selection instructions, rejected candidates, obsolete designs, progress prose, and old-versus-new comparisons. Reject the mode if the change exceeds the predefined selection rule or changes another scientific definition; route that case to the semantic-change procedure.
 
@@ -149,9 +149,9 @@ Return:
 
 - Evaluation never changes `current.state`.
 - Every state evaluation includes an eligible self-transition.
-- A recommendation is not approval.
+- Require explicit human approval after making a recommendation.
 - Only an explicit human decision applies a transition.
-- A pending evaluation cannot be applied after its rule-set version, state revision, or TODO fingerprint changes; it must be evaluated again.
+- A pending evaluation must not be applied after its rule-set version, state revision, or TODO fingerprint changes; evaluate it again.
 - Never synchronize an unexplained TODO edit as an authorized path update or approved verified-parameter rewrite; only a verified exact restoration may record and invalidate it.
 - Never synchronize a broader approved scientific redesign into the active task; initialize a new versioned TODO at `todo_ready`.
 - Do not execute a newly approved state unless execution is also explicitly authorized.

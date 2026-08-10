@@ -1,4 +1,4 @@
 interface:
   display_name: "Research Task System"
-  short_description: "Run MATLAB-first, rule-driven research workflows"
-  default_prompt: "Use $research-task-router to resolve the current-action TODO, verify its task-state fingerprint, invoke the minimum required Skills, and communicate with established technical terms and direct evidence."
+  short_description: "Run validated MATLAB-first research workflows"
+  default_prompt: "Use $research-task-router to resolve the current-action TODO, verify its task-state fingerprint, validate controlling evidence sources, invoke the minimum required Skills, and communicate with established technical terms and direct evidence."

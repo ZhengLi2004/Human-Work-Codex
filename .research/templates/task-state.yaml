@@ -40,6 +40,7 @@ transition_review:
   eligible_transitions: []
   eligible_targets: []
   blockers: []
+
   recommendation:
     target: null
     rule_id: null

@@ -17,6 +17,15 @@ import pandas as pd
 
 @dataclass
 class ParquetResultBuffer:
+    """Buffer scientific records into immutable Parquet chunks.
+
+    Attributes:
+        output_dir: Directory that receives immutable chunk files.
+        schema_columns: Ordered columns required in every record.
+        flush_rows: Maximum buffered row count before an automatic flush.
+        prefix: File-name prefix for chunk files.
+    """
+
     output_dir: Path
     schema_columns: tuple[str, ...]
     flush_rows: int = 10_000
@@ -25,29 +34,59 @@ class ParquetResultBuffer:
     _part_index: int = field(default=0, init=False)
 
     def __post_init__(self) -> None:
+        """Create the output directory and resume after existing chunks.
+
+        Raises:
+            ValueError: If the flush threshold or schema is invalid.
+        """
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
         if self.flush_rows < 1:
             raise ValueError("flush_rows must be positive")
+
         if not self.schema_columns:
             raise ValueError("schema_columns must not be empty")
 
         # A task-level resume layer must skip records already completed. Starting
         # after existing immutable parts prevents accidental overwrite here.
         existing = sorted(self.output_dir.glob(f"{self.prefix}-*.parquet"))
+
         if existing:
             indices = [int(path.stem.rsplit("-", 1)[1]) for path in existing]
             self._part_index = max(indices) + 1
 
     def add(self, record: Mapping[str, Any]) -> None:
+        """Validate and buffer one result record.
+
+        Args:
+            record: Mapping whose keys exactly match ``schema_columns``.
+
+        Raises:
+            ValueError: If the record keys differ from the declared schema.
+        """
         missing = set(self.schema_columns) - set(record)
         extra = set(record) - set(self.schema_columns)
+
         if missing or extra:
-            raise ValueError(f"Schema mismatch: missing={sorted(missing)}, extra={sorted(extra)}")
+            raise ValueError(
+                f"Schema mismatch: missing={sorted(missing)}, extra={sorted(extra)}"
+            )
+
         self._records.append(dict(record))
+
         if len(self._records) >= self.flush_rows:
             self.flush()
 
     def flush(self) -> Path | None:
+        """Publish the buffered rows as one validated immutable chunk.
+
+        Returns:
+            The published Parquet path, or ``None`` when the buffer is empty.
+
+        Raises:
+            FileExistsError: If the target immutable chunk already exists.
+            RuntimeError: If the temporary chunk fails row-count validation.
+        """
         if not self._records:
             return None
 
@@ -56,33 +95,47 @@ class ParquetResultBuffer:
         temp_path = final_path.with_suffix(".parquet.tmp")
 
         if final_path.exists():
-            raise FileExistsError(f"Refusing to overwrite immutable result part: {final_path}")
+            raise FileExistsError(
+                f"Refusing to overwrite immutable result part: {final_path}"
+            )
 
         # Use one bulk serialization. The temporary file is on the same filesystem.
         frame.to_parquet(temp_path, index=False, engine="pyarrow")
-        if len(pd.read_parquet(temp_path, columns=[self.schema_columns[0]])) != len(frame):
+
+        if len(pd.read_parquet(temp_path, columns=[self.schema_columns[0]])) != len(
+            frame
+        ):
             temp_path.unlink(missing_ok=True)
             raise RuntimeError(f"Row-count validation failed for {temp_path}")
-        os.replace(temp_path, final_path)
 
+        os.replace(temp_path, final_path)
         self._records.clear()
         self._part_index += 1
         return final_path
 
     def close(self) -> None:
+        """Flush any remaining records."""
         self.flush()
 
 
 def run_tasks(tasks: Iterable[Mapping[str, Any]], output_dir: Path) -> None:
+    """Run task mappings and publish immutable result chunks plus a manifest.
+
+    Args:
+        tasks: Task mappings that supply identifiers, conditions, repeats, and values.
+        output_dir: Directory that receives Parquet chunks and ``manifest.json``.
+    """
     columns = ("task_id", "condition", "repeat", "metric", "state", "error")
     buffer = ParquetResultBuffer(output_dir=output_dir, schema_columns=columns)
 
     try:
         for task in tasks:
             task_id = str(task["task_id"])
+
             try:
                 # Replace with the TODO-defined computation.
                 metric = float(task["value"])
+
                 record = {
                     "task_id": task_id,
                     "condition": task["condition"],
@@ -91,7 +144,9 @@ def run_tasks(tasks: Iterable[Mapping[str, Any]], output_dir: Path) -> None:
                     "state": "complete",
                     "error": None,
                 }
-            except Exception as exc:  # preserve failure evidence
+            except Exception as exc:
+                # preserve failure evidence
+
                 record = {
                     "task_id": task_id,
                     "condition": task.get("condition"),
@@ -100,6 +155,7 @@ def run_tasks(tasks: Iterable[Mapping[str, Any]], output_dir: Path) -> None:
                     "state": "failed",
                     "error": repr(exc),
                 }
+
             buffer.add(record)
     finally:
         buffer.close()
@@ -110,6 +166,7 @@ def run_tasks(tasks: Iterable[Mapping[str, Any]], output_dir: Path) -> None:
         "schema_columns": list(columns),
         "parts": sorted(path.name for path in output_dir.glob("part-*.parquet")),
     }
+
     manifest_path = output_dir / "manifest.json.tmp"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     os.replace(manifest_path, output_dir / "manifest.json")

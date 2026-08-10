@@ -15,13 +15,7 @@
 
 Use `../assets/scientific_plot_patterns.py` as optional notebook boilerplate after chart selection. The helpers require SciencePlots, activate `science` plus `no-latex` on import, use pandas, NumPy, and Matplotlib, plot every supplied valid row, require explicit bins, intervals, color limits, or grid sizes where defaults can alter interpretation, and publish exported figures atomically.
 
-They do not:
-
-- choose TODO inclusion or exclusion rules;
-- aggregate observations or calculate uncertainty;
-- drop missing or failed rows;
-- choose a chart on the basis of appearance;
-- write coverage, planning, or integrity manifests.
+Resolve TODO inclusion and exclusion rules, aggregation, uncertainty, missing or failed-row handling, and chart selection before calling a helper. Have the notebook write the required coverage, planning, and integrity manifests around the rendering call.
 
 Copy the helper beside the task notebook when used. Record its path, function, arguments that affect interpretation, and repository revision in the figure manifest. Adapt titles, labels, units, scales, palettes, and output paths to the TODO.
 
@@ -59,7 +53,7 @@ def render_layout_probe(preview_frame):
     return output
 ```
 
-Inspect the temporary image, then remove the probe directory when it is no longer needed. The script and image are not research artifacts or evidence. If the choice is retained, reimplement the encoding and layout in the executed notebook against the governed source, then record the notebook export and style stack; do not copy the preview image or require pixel identity.
+Inspect the temporary image, then remove the probe directory when it is no longer needed. The script and image must not serve as research artifacts or evidence. If the choice is retained, reimplement the encoding and layout in the executed notebook against the governed source, then record the notebook export and style stack; do not copy the preview image or require pixel identity.
 
 ## Precomputed point and interval estimates
 
@@ -137,7 +131,7 @@ The hexbin view encodes counts, not individual identity. Keep stable-key coverag
 
 ## Ordered series and small multiples
 
-The helper rejects duplicate x/group rows so that aggregation cannot occur implicitly. When many series form a spaghetti plot, create panels under a complete, predefined facet variable.
+The helper rejects duplicate x/group rows before plotting and thereby prevents implicit aggregation. When many series form a spaghetti plot, create panels under a complete, predefined facet variable.
 
 ```python
 from scientific_plot_patterns import plot_series

@@ -1,6 +1,6 @@
 # Chart Caveat Checklist
 
-This checklist converts the [Data-to-Viz caveat collection](https://www.data-to-viz.com/caveats.html) into explicit planning and final-audit checks for this repository. The `DTV-Cxx` values are local stable identifiers for manifests; they are not names of new visualization concepts.
+This checklist converts the [Data-to-Viz caveat collection](https://www.data-to-viz.com/caveats.html) into explicit planning and final-audit checks for this repository. Use the `DTV-Cxx` values only as local stable identifiers for manifests, and use established terms for the underlying visualization concepts.
 
 ## Contents
 
@@ -24,7 +24,7 @@ During Final mode:
 
 1. Re-evaluate triggers against the rendered final figure, not only the plotting code.
 2. Record `pass`, `fail`, or `not_applicable`, with evidence and a short reason.
-3. Record `fail` when a triggered check was not performed or has no evidence; `unknown`, `pending`, and an empty evidence field cannot pass a final audit.
+3. Record `fail` when a triggered check was not performed or has no evidence; a final audit must fail for `unknown`, `pending`, or an empty evidence field.
 4. Treat an integrity failure as `figure_integrity_audit_passed: false`.
 5. Treat a readability failure as revision-required unless the intended-size inspection demonstrates that the design remains unambiguous.
 6. Preserve applicable data. A decluttering technique must not become an unapproved filter.
@@ -45,7 +45,7 @@ During Final mode:
 |---|---|---|---|---|
 | DTV-C02 | Bar, area, line, or other magnitude comparison with a nonzero or truncated axis | Bars and filled magnitudes normally require a zero baseline. For lines, disclose truncation and choose limits that show variation without exaggerating it. Keep comparable panels on comparable scales unless the difference is explicit. | Integrity | [Y-axis baseline](https://www.data-to-viz.com/caveat/cut_y_axis.html) |
 | DTV-C12 | Reversed axes, unusual direction, unfamiliar symbol meaning, or semantic colors | Follow field conventions unless the TODO or data require an exception; label the exception directly. | Integrity | [Counter-intuitive encodings](https://www.data-to-viz.com/caveat/counter_intuitive.html) |
-| DTV-C13 | Two quantitative y-scales share one panel | Replace dual axes with aligned panels, indexing, normalization defined by the TODO, or separate plots. If unavoidable, record why scale choices cannot manufacture the apparent relationship. | Integrity | [Dual axes](https://www.datawrapper.de/blog/dualaxis) |
+| DTV-C13 | Two quantitative y-scales share one panel | Replace dual axes with aligned panels, indexing, normalization defined by the TODO, or separate plots. If unavoidable, record a sensitivity check showing how the apparent relationship changes across defensible scale choices. | Integrity | [Dual axes](https://www.datawrapper.de/blog/dualaxis) |
 | DTV-C15 | Bars use polar or radial coordinates | Prefer Cartesian bars or dots. Radial distance and differing inner/outer widths must not distort magnitude. | Integrity | [Radial bars](https://www.data-to-viz.com/caveat/circular_barplot_accordeon.html) |
 | DTV-C18 | Marker size encodes a quantitative value | Make marker area proportional to the value, reject negative inputs, and show a size legend with reference values. | Integrity | [Bubble area](https://www.data-to-viz.com/caveat/radius_or_area.html) |
 | DTV-C20 | Circular bars are retained | Use a sufficiently large inner radius, repeat readable reference ticks, and verify that bar geometry still supports comparison. Prefer Cartesian alternatives. | Integrity | [Circular-bar distortion](https://www.data-to-viz.com/caveat/circular_bar_yaxis.html) |

@@ -45,4 +45,4 @@ Any scientific table write per result row is a blocking defect unless the artifa
 
 ## Pass criteria
 
-The runner resumes without duplicate scientific rows, does not overwrite valid historical chunks, reconciles every planned task state, and does not perform row-at-a-time table I/O.
+The runner resumes with unique scientific rows, preserves valid historical chunks, reconciles every planned task state, and uses batched table I/O.

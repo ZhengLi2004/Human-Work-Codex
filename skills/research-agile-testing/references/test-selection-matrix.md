@@ -21,7 +21,7 @@
 | MATLAB function/type/shape refactor | reference comparison + representative `timeit` benchmark | warm function calls at production-relevant shapes |
 | Hand-written or generated MEX | MATLAB-reference differential test + clean-build/fallback test + benchmark | supported platform and representative hot-kernel inputs |
 | Cross-language interchange | round-trip schema, dtype, shape, key, and index test | one representative artifact |
-| Aggregation | synthetic complete/incomplete grids | every status class |
+| Aggregation | synthetic complete/incomplete grids plus grain, key, join, status-count, denominator, and weighting contracts selected by risk | every status class and every applicable high-impact identity |
 | Buffered/partitioned I/O | interruption, duplicate, schema, row-count, and atomic-publish tests | two chunks and one damaged chunk |
 | Parallel scheduling | serial/parallel equivalence + duplicate/missing task reconciliation | small complete manifest |
 | Parallel or GPU transfer overhead | end-to-end benchmark including pool/startup or host/device transfer | representative task batch and memory-relevant shape |
@@ -29,6 +29,7 @@
 | Chart selection rationale | variable-role/task classification plus candidate-to-plan comparison | every planned figure |
 | Chart-specific caveat | trigger-to-audit status and rendered-evidence check | every applicable `DTV-Cxx` ID |
 | Figure execution artifact | executed-notebook-to-export and manifest trace; reject temporary-script promotion | every governed draft and final figure |
+| Figure notebook reproducibility | clean-kernel execution plus deterministic section, cell-status, placeholder, source-hash, style-stack, and export checks | every governed planning and final notebook |
 | Figure style | import/style-stack assertion plus rendered inspection | every Python chart, including temporary diagnostics |
 | Figure title, axes, legend, or unexplained series | manifest-to-render audit plus visual inspection | every final figure |
 | Researcher figure recommendation | recommendation-to-manifest trace check | every requested include, exclude, revision, or schematic |
@@ -48,4 +49,4 @@
 - Python: `pytest`, `numpy.testing`, `pandas.testing`, `scipy` reference routines, and `torch.testing` when applicable.
 - MATLAB: `matlab.unittest`, numerical constraints, deterministic fixtures, and CPU/GPU or loop/vectorized differential tests.
 
-A performance improvement is not accepted merely because one kernel is faster. It must preserve the TODO-defined numerical behavior and result population, improve the representative end-to-end workload enough to justify its cost, and retain the independent correctness reference.
+Accept a performance improvement only when it preserves the TODO-defined numerical behavior and result population, improves the representative end-to-end workload enough to justify its cost, and retains the independent correctness reference.
