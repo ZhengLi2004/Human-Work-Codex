@@ -17,10 +17,10 @@ import pandas as pd
 
 @dataclass
 class ParquetResultBuffer:
-    """Buffer scientific records into immutable Parquet chunks.
+    """Buffer scientific records into validated Parquet chunks.
 
     Attributes:
-        output_dir: Directory that receives immutable chunk files.
+        output_dir: Directory that receives validated chunk files.
         schema_columns: Ordered columns required in every record.
         flush_rows: Maximum buffered row count before an automatic flush.
         prefix: File-name prefix for chunk files.
@@ -48,7 +48,7 @@ class ParquetResultBuffer:
             raise ValueError("schema_columns must not be empty")
 
         # A task-level resume layer must skip records already completed. Starting
-        # after existing immutable parts prevents accidental overwrite here.
+        # after existing validated parts prevents accidental overwrite here.
         existing = sorted(self.output_dir.glob(f"{self.prefix}-*.parquet"))
 
         if existing:
@@ -78,13 +78,13 @@ class ParquetResultBuffer:
             self.flush()
 
     def flush(self) -> Path | None:
-        """Publish the buffered rows as one validated immutable chunk.
+        """Publish the buffered rows as one validated chunk.
 
         Returns:
             The published Parquet path, or ``None`` when the buffer is empty.
 
         Raises:
-            FileExistsError: If the target immutable chunk already exists.
+            FileExistsError: If the target validated chunk already exists.
             RuntimeError: If the temporary chunk fails row-count validation.
         """
         if not self._records:
@@ -96,7 +96,7 @@ class ParquetResultBuffer:
 
         if final_path.exists():
             raise FileExistsError(
-                f"Refusing to overwrite immutable result part: {final_path}"
+                f"Refusing to overwrite validated result part: {final_path}"
             )
 
         # Use one bulk serialization. The temporary file is on the same filesystem.
@@ -119,7 +119,7 @@ class ParquetResultBuffer:
 
 
 def run_tasks(tasks: Iterable[Mapping[str, Any]], output_dir: Path) -> None:
-    """Run task mappings and publish immutable result chunks plus a manifest.
+    """Run task mappings and publish validated result chunks plus a manifest.
 
     Args:
         tasks: Task mappings that supply identifiers, conditions, repeats, and values.

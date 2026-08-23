@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Agile Testing"
   short_description: "Design risk-driven scientific tests"
-  default_prompt: "Use $research-agile-testing to protect scaffold contracts, scientific correctness, and equivalence of measured MATLAB or justified Python optimizations with the minimum sufficient tests."
+  default_prompt: "Use $research-agile-testing to select and run the minimum risk-driven tests for this change."
 
 policy:
   allow_implicit_invocation: false

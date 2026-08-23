@@ -1,7 +1,7 @@
 interface:
   display_name: "Research State Transition"
-  short_description: "Synchronize and evaluate lifecycle state"
-  default_prompt: "Use $research-state-transition to initialize state, synchronize an authorized TODO edit or exact restoration after a rejected edit, evaluate all outgoing rules including self, or apply one human-confirmed eligible path after fingerprint checks."
+  short_description: "Prepare and execute lifecycle decisions"
+  default_prompt: "Use $research-state-transition to initialize, synchronize, prepare, or execute a lifecycle decision."
 
 policy:
   allow_implicit_invocation: false

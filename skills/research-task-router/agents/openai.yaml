@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Task Router"
   short_description: "Route TODO and lifecycle state workflows"
-  default_prompt: "Use $research-task-router to resolve the current-action TODO, verify its task-state fingerprint and current state, require validated controlling sources for derived tables, and select the minimum required Skills using direct technical language."
+  default_prompt: "Use $research-task-router to resolve the TODO and state, then route only the required Skills."
 
 policy:
   allow_implicit_invocation: true

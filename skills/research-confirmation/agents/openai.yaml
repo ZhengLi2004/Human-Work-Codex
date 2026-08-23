@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Confirmation"
   short_description: "Run the frozen formal state"
-  default_prompt: "Use $research-confirmation when task-state current.state is confirmation and every experimentally selected hyperparameter is approved, fixed in the fingerprint-matched TODO, and frozen."
+  default_prompt: "Use $research-confirmation to execute the frozen Confirmation manifest."
 
 policy:
   allow_implicit_invocation: false

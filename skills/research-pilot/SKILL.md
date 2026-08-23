@@ -1,86 +1,32 @@
 ---
 name: research-pilot
-description: Execute the recorded Pilot state over the complete approved condition grid and independent repeats to evaluate behavior, stability, predefined hyperparameter selection, failures, and cost. Use only when task-state current.state is pilot. Preserve every candidate, require human approval before a selected value enters the TODO, and do not choose the next state directly.
+description: Execute the approved Pilot manifest, parameter selection, and sensitivity plan when `current.state` is `pilot`.
 ---
 
 # Research Pilot
 
-## Objective
-
-Run the smallest controlled experiment that is complete enough to judge method behavior and whether the TODO should continue, return for rework, enter bounded Diagnosis, freeze Confirmation, or hand results to Work under the shared rules.
-
-## Required inputs
-
-- complete TODO;
-- task-state YAML with `current.state: pilot`;
-- reviewed Development implementation or equivalent existing evidence;
-- complete Pilot combination set;
-- repeat rules, metrics, controls, allowed flexibility, and resource policy.
-- for any experimental hyperparameter selection, the complete candidate range, metric, tie rule, feasibility constraints, and selection rule defined before results are inspected.
+Produce enough controlled preliminary evidence to decide whether to revise implementation, diagnose a bounded issue, freeze Confirmation, proceed to figures, or stop.
 
 ## Workflow
 
-1. Complete one combination and one repeat end to end.
-2. Verify parameter enumeration, independent-repeat generation, metric meaning, storage, and aggregation.
-3. Test interruption and resume on a small set when batch execution is applicable.
-4. Freeze the Pilot task manifest before inspecting result trends.
-5. Use `$research-computing-implementation` for language-specific performance and storage choices.
-6. Use `$research-batch-execution` for multiple recoverable units, material I/O, concurrency, or long runtime.
-7. Execute all approved combinations under the same repeat rule and preserve immutable raw outputs.
-8. Use `$research-evidence-aggregation` to produce complete `runs`, `aggregate_full`, and condition-merged tables.
-9. Reconcile every planned combination, including failed, missing, invalid, insufficient-repeat, and incomparable states.
-10. Report quality, dispersion, coverage, runtime, memory, GPU memory, I/O behavior, and parameter marginal value.
-11. When the TODO defines a hyperparameter-selection decision, apply its fixed rule to the complete evidence, record the selected candidate and tie/feasibility outcome in a technical artifact, and invoke `$human-research-review-gate` for explicit researcher selection. Do not alter the candidate evidence or TODO.
-12. After approval, require Work to rewrite the TODO with the fixed value and only remaining actions, then require Codex to synchronize the TODO fingerprint and reevaluate transitions. Rejected candidates remain in immutable Pilot artifacts.
-13. Record execution status, artifact references, and applicable predicate results in task state.
-14. Return control to `$research-todo-executor` for rule evaluation.
+1. Complete one combination/repeat end to end and verify enumeration, metrics, storage, aggregation, and recovery.
+2. Freeze the approved Pilot task manifest before inspecting trends.
+3. Execute every approved combination under one repeat rule, using `$research-batch-execution` when needed.
+4. Use `$research-evidence-aggregation` to reconcile all states and produce complete tables.
+5. Report dispersion, coverage, failures, and material compute/I/O cost.
+6. Apply each TODO-defined parameter selection and sensitivity rule without dropping candidates or failures.
+7. Ask the researcher to approve a selected value; before figure presentation, update the TODO in place and synchronize its fingerprint.
+8. Record artifacts and predicates, then prepare every outgoing rule.
 
-## Parameter evidence
+## Debugging
 
-Report the complete approved range rather than only an optimum:
-
-- central estimate and dispersion for every combination;
-- `n_planned`, `n_valid`, and coverage state;
-- quality-cost relationship;
-- marginal gains, plateau regions, and failure regions;
-- all incomplete and incomparable combinations.
-
-## I/O requirements
-
-- Do not append one CSV row per repeat or condition.
-- Prefer immutable per-task files plus one bulk merge, or buffered Parquet/array chunks.
-- Keep progress/log writes separate from numerical result writes.
-- If I/O dominates preflight, change chunk or task granularity before the full Pilot while preserving the planned combination set.
-
-## Predicate evidence
-
-Evaluate applicable predicates such as:
-
-- `current_scope_executed`;
-- `required_artifacts_complete`;
-- `pilot_grid_complete`;
-- `pilot_evidence_supports_confirmation`;
-- `verified_hyperparameters_recorded`;
-- `confirmation_spec_frozen`;
-- `implementation_rework_needed`;
-- `bounded_diagnosis_needed`;
-- `diagnostic_scope_ready`;
-- `no_critical_correctness_risk`;
-- `no_scope_change_required`;
-- `same_state_work_remaining`;
-- `todo_completion_evidence_satisfied`;
-- `codex_outputs_ready_for_work`;
-- `continuation_warranted`;
-- `stop_warranted`.
-
-## Boundaries
-
-- Do not expand or remove combinations after seeing results.
-- Do not call a parameter value “best” unless the TODO defines that decision rule.
-- Do not present Pilot results as Confirmation.
-- Do not choose or apply a next state.
-- Codex must not update the TODO beyond allowed output paths. The only scientific rewrite is performed by Work after complete evidence and explicit researcher approval, then synchronized through task state.
+Debug in place. Record the defect and stable IDs before replacing invalid artifacts, regenerate dependent indexes and tables, and preserve valid outcomes and the approved combination set.
 
 ## Output contract
 
-Return the frozen Pilot manifest, commands, raw-result path, complete table paths, coverage reconciliation, performance/I/O measurements, failures, limiting evidence, and predicate results with evidence references.
+Return the manifest, commands, data/table paths, reconciliation, cost evidence, parameter and sensitivity evidence, invalidations, and predicates.
+
+## Absolute rules
+
+- Never add or remove combinations after inspecting results.
+- Pilot evidence is not Confirmation evidence.

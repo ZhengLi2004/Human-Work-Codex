@@ -28,9 +28,9 @@
 | Figure source completeness | stable-key/coverage comparison against logical source | one figure specification |
 | Chart selection rationale | variable-role/task classification plus candidate-to-plan comparison | every planned figure |
 | Chart-specific caveat | trigger-to-audit status and rendered-evidence check | every applicable `DTV-Cxx` ID |
-| Figure execution artifact | executed-notebook-to-export and manifest trace; reject temporary-script promotion | every governed draft and final figure |
-| Figure notebook reproducibility | clean-kernel execution plus deterministic section, cell-status, placeholder, source-hash, style-stack, and export checks | every governed planning and final notebook |
-| Figure style | import/style-stack assertion plus rendered inspection | every Python chart, including temporary diagnostics |
+| Figure execution artifact | plotting-script-to-export and manifest trace | every governed draft and final figure |
+| Figure script reproducibility | syntax, placeholder, script/source/output hash, command, style-stack, and export checks | every governed planning and final script |
+| Figure style | import/style-stack assertion plus rendered inspection | every Python chart |
 | Figure title, axes, legend, or unexplained series | manifest-to-render audit plus visual inspection | every final figure |
 | Researcher figure recommendation | recommendation-to-manifest trace check | every requested include, exclude, revision, or schematic |
 | Generalized diagram mistaken for data | kind/label/source audit | every schematic |

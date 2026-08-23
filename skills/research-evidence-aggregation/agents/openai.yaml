@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Evidence Aggregation"
   short_description: "Build and validate complete result tables"
-  default_prompt: "Use $research-evidence-aggregation to reconcile controlling sources, generate complete runs, aggregate_full and condition-merged tables, and write aggregation-validation.json before publishing them."
+  default_prompt: "Use $research-evidence-aggregation to build and validate complete evidence tables."
 
 policy:
   allow_implicit_invocation: false

@@ -1,137 +1,49 @@
 # Figure Data Contract
 
-## Contents
+## Sources
 
-- [Logical source classes](#logical-source-classes)
-- [Rendering artifact classes](#rendering-artifact-classes)
-- [Complete-information rule](#complete-information-rule)
-- [Graphical-method basis](#graphical-method-basis)
-- [Statistical-unit rule](#statistical-unit-rule)
-- [Researcher review contract](#researcher-review-contract)
-- [Final integrity audit](#final-integrity-audit)
-- [Traceability](#traceability)
-- [Two worked examples](#two-worked-examples)
-- [Outputs](#outputs)
+A figure may use complete valid raw results, complete condition-merged tables, validated row/key-preserving curated tables, or an explicit combination. Require a passing `aggregation-validation.json` for the same TODO fingerprint, analysis grain, and source hashes.
 
-## Logical source classes
+Record each source path, hash, stable key, selected columns, predefined filters, statistical unit, coverage counts, and display-only reshaping.
 
-1. **Raw computation results**: immutable per-run or per-task numerical outputs and their index.
-2. **Condition-merged tables**: Codex-produced tables that align metrics and controls across complete condition keys.
-3. **Validated curated tables**: Work-produced presentation tables whose transformation manifest proves row-count and stable-key preservation.
+## Plotting-script boundary
 
-A logical source may be one file or a partitioned dataset directory. A figure may use any one class or an explicit combination. A curated table is a sufficient source only when it retains the metrics, conditions, coverage fields, and uncertainty fields required by the figure.
+The durable rendering source is an executed `.py` script under `TODO_###/exp/figures/`. Keep it separate from MATLAB computation code; store rendered artifacts under `TODO_###/data/figures/`.
 
-Before selecting any source class, require a passing `aggregation-validation.json` for the same TODO fingerprint, analysis grain, and source hashes. Its creation revision may precede the current revision but must remain traceable in task-state history. Stop on a source conflict, changed hash, or failed blocking check.
+The plotting script may validate, order, pivot, melt, facet, or reshape complete rows for presentation. It may not be the only production source for preprocessing, TODO metrics, inferential statistics, model fitting, exclusions, or aggregation. Produce any new scientific quantity in MATLAB and publish it in a complete table before plotting.
 
-## Rendering artifact classes
+Every script imports `scienceplots` and uses `science` as the base style. Record the exact stack, script hash, execution command and times, Git revision, package versions, input/output hashes, data-quality result, and figure-data sufficiency.
 
-Distinguish two classes before writing plotting code:
+## Complete information
 
-1. **Governed figure artifacts**: drafts presented in `figure_review`, final figures, and any schematic included in the final set. Generate these from an executed `.ipynb`, preserve its outputs, and keep the notebook, exports, plans, manifests, and audits in the TODO-referenced figure directory.
-2. **Temporary diagnostic previews**: metadata checks or provisional layout, style, legend, scale, density, or other visual cues used only to decide how to implement the notebook. A standalone `.py` script is allowed for this class only. Put the script and every image it creates under the platform temporary directory, such as the path returned by `tempfile.mkdtemp`; do not put them under the repository, result root, or figure directory.
+Map every scientific field, metric, planned condition, coverage state, missing or failed state, and applicable nonstandard-parameter sensitivity to a figure/panel or an explicit coverage entry. Use facets, small multiples, separate figures, or a coverage panel when one chart would obscure information.
 
-Treat a `.py` helper stored beside the notebook as part of the notebook only when it defines reusable functions that notebook cells import and call. The notebook must own the rendering call, configuration, output paths, and manifest record. Treat images from a separately launched helper as temporary previews, even if the same file can also be imported.
+Operational provenance can remain in the manifest. Scientific omissions require the TODO-defined basis and researcher feedback.
 
-Use clearly synthetic non-result values for a metadata-only layout or style probe. Use the complete validated source for a density, overlap, missingness, failure-state, or condition-cardinality probe; do not select a favorable subset after inspection. Retain a visual choice only for intended-size legibility, complete coverage, or an applicable caveat check—not because the preview looks attractive or supports a preferred conclusion. Reproduce means reimplementing the retained encoding and layout in notebook-executed code against the governed source, not copying pixels from the preview.
+## Planning and researcher feedback
 
-A temporary preview is disposable and must not satisfy `draft_figures_complete`, `work_figures_complete`, `figure_source_coverage_complete`, `figure_integrity_audit_passed`, or any other artifact predicate. Do not cite its path in task state or a figure manifest. Reproduce any retained design choice in the executed notebook against the validated complete source.
+Within `figure_review`, create the curated tables, plan, coverage manifest, plotting script, and complete drafts. Present all drafts with their source, statistical unit, method basis, style, and coverage. Record researcher requests to retain, exclude, revise, split, combine, or add a labeled schematic.
 
-Every Python chart in both classes imports SciencePlots and uses a style stack based on `science`. Use `science` plus `no-latex` by default. Record the exact stack for governed figures; a named journal, presentation, color-cycle, or language style may extend the stack only when it preserves legibility and the intended encoding. Missing SciencePlots blocks rendering rather than authorizing a fallback style.
+The first presentation sets `milestones.governed_figures_presented_at`. A later scientific TODO revision uses a versioned TODO derived from the current implementation.
 
-The notebook may validate, sort, pivot, melt, facet, or otherwise reshape complete rows for presentation. It must not be the sole implementation of production preprocessing, metric computation, statistical testing, model fitting, exclusion rules, or aggregation. Return any new scientific quantity to the MATLAB production path before plotting.
+## Final integrity
 
-## Complete-information rule
+Check every final figure for:
 
-Across the planned figure set, account for every scientifically relevant table field, TODO metric, planned condition, failure or missingness state, and comparability or coverage field. Operational fields such as hashes or worker paths may remain only in the manifest when they do not encode scientific information.
+- source, stable-key, condition, metric, coverage, and sensitivity completeness;
+- correct grouping, statistical unit, estimate, and uncertainty;
+- supported titles, axes, units, scales, and reference marks;
+- labels for every curve, color, marker, band, and panel;
+- visible or documented missing, failed, invalid, and incomparable conditions;
+- faithful researcher-feedback implementation;
+- separation of quantitative figures and labeled schematics;
+- script, input, output, style, and environment traceability;
+- intended-size readability.
 
-For each data figure, use all applicable records from its selected logical source under TODO-defined inclusion and exclusion rules. Do not select a favorable file, partition, seed, subject, session, condition, metric, or range merely for presentation. When one plot would be unreadable, use facets, small multiples, linked panels, separate figures, or a coverage panel instead of dropping information.
+Write `pass`, `fail`, or `not_applicable` with evidence for each applicable chart caveat. A blocking failure prevents completion.
 
-Write a machine-readable coverage manifest that maps:
+## Manifest fields
 
-- source paths and source class;
-- stable keys and planned-condition skeleton;
-- scientific columns and TODO metrics;
-- each condition, coverage state, failure state, and missingness state;
-- the figure and panel where each item appears, or the explicit reason it remains table-only.
+For each figure record its identifier, stage, kind, files, question, source class and hash, stable key, conditions, filters, display shaping, statistical unit, coverage, method basis, chart choice, caveats, plotting script and hash, command and times, TODO fingerprint, task-state revision, Git revision, packages, style stack, exported hashes, researcher feedback, and labels.
 
-Display-only operations such as ordering, jitter, label shortening, and transparent axis limits must not change the measured population. Any scientific filter must already be defined by the TODO.
-
-## Graphical-method basis
-
-During Planning mode, inspect graphical methods in relevant papers identified by the TODO or research material when they are available. Record the paper, exact figure or section, and the graphical method adopted or rejected. Do not claim to have inspected a paper that was unavailable.
-
-When no relevant paper is available, name the established convention used, such as a scatter plot with uncertainty intervals, a small-multiple line plot, a heatmap, or an empirical cumulative distribution. Explain why the encoding matches the variable types and comparison. Do not invent a label for an ordinary plot type.
-
-Use `chart-selection-guide.md` to classify the input-data roles and analytical task, generate feasible candidates, and record why the selected chart preserves the TODO's statistical unit and complete-information requirements. Use Data-to-Viz and its linked Python Gallery pages only as implementation references; derive scientific authority from the TODO and validated evidence. A gallery example must not define task filters, estimators, uncertainty, scales, labels, or claims.
-
-Each figure-plan entry records the data shape, analytical task, candidate charts, selected chart, rejected-candidate reasons, method sources actually inspected, exact Python reference URL when used, SciencePlots style stack, applicable `DTV-Cxx` caveat IDs, and coverage strategy.
-
-## Statistical-unit rule
-
-The notebook must identify:
-
-- the basic observation unit;
-- the independent uncertainty or inference unit;
-- grouping and pairing keys;
-- the estimate and interval or error representation;
-- whether plotted points are raw units, repeats, condition aggregates, or summaries.
-
-Plot the supplied TODO-defined estimate explicitly when seaborn or another high-level plotting function would otherwise aggregate at the wrong level. Disable implicit estimators. If the required estimate or interval is absent, return to the MATLAB production path instead of computing the only production version in the notebook.
-
-## Researcher review contract
-
-Planning mode produces drafts, not final figures. Present the drafts together with the coverage summary and method basis in the separate `figure_review` state. Ask the researcher which figures to include, exclude, revise, or supplement with a generalized diagram, then wait for the output.
-
-A request to change metrics, inclusion rules, condition scope, statistical units, or scientific claims is a semantic-change request rather than a presentation instruction.
-
-A generalized diagram must be marked `figure_kind: schematic`, visibly labeled as a schematic, and traced to the researcher's request and supported concepts. It must not resemble an empirical plot, imply a measured relationship, or replace the quantitative figures required for complete data coverage.
-
-## Final integrity audit
-
-Final mode writes `figure_integrity_audit.json`. Check every final figure for:
-
-- complete applicable source, stable-key, condition, metric, and coverage representation;
-- correct statistical unit, grouping, pairing, estimate, and uncertainty;
-- titles that describe the displayed quantities and conditions without unsupported conclusions;
-- axis labels, units, scale type, disclosed truncation, and comparable limits where comparison requires them;
-- a legend or direct label for every curve, color, marker, band, panel, and reference line;
-- visible or explicitly documented missing, failed, invalid, or incomparable conditions;
-- faithful implementation of the recorded researcher recommendations;
-- clear separation of data figures from schematics;
-- confirmed generation from the executed notebook rather than a temporary script;
-- deterministic validation of clean-kernel, top-to-bottom execution, required sections, placeholders, source and output hashes, and declared exports;
-- a recorded SciencePlots style stack whose base is `science`;
-- visual inspection of each rendered export for clipping, unreadable labels, overlapping marks, and ambiguous color encoding;
-- explicit `pass`, `fail`, or `not_applicable` results with evidence for every applicable chart-specific check from `chart-caveat-checklist.md`.
-
-Set `figure_integrity_audit_passed: true` only when every check passes. Otherwise identify affected figure IDs, set the relevant revision or risk predicates, and do not evaluate completion as eligible.
-
-## Traceability
-
-For every draft or final figure, its manifest records:
-
-- figure identifier, stage, kind, and files;
-- scientific question or TODO metric;
-- source path, logical source class, source file list or dataset fingerprint;
-- stable key, selected columns, and complete condition counts;
-- predefined filters and display-only operations;
-- transformation or aggregation function and statistical unit;
-- sample, failure, missingness, and coverage counts;
-- graphical-method basis;
-- data shape, analytical task, candidate charts, selection rationale, rejected-candidate reasons, and inspected source URLs;
-- exact Python example or copied helper reference when used;
-- executed notebook path, clean-kernel execution command and times, TODO fingerprint, task-state revision, Git revision, package versions, input and output SHA-256 hashes, data-quality results, figure-data sufficiency, and a `science`-based SciencePlots style stack;
-- applicable caveat IDs and their final audit evidence;
-- applicable researcher recommendation reference;
-- title, axes, units, legend or direct-label specification;
-- execution timestamp.
-
-## Two worked examples
-
-**Factorial result table:** A table contains method, noise level, repeat, accuracy, interval, and failure count. Use small multiples or a heatmap plus coverage panel so every method and noise level remains visible. A line plot containing only low-noise conditions is incomplete even if its trend is clearer.
-
-**Requested generalized diagram:** The researcher asks for a pipeline overview after reviewing the data plots. Add a visibly labeled schematic and record `figure_kind: schematic`. Keep the full quantitative condition plots; do not draw a smooth curve in the schematic that could be mistaken for a measured trend.
-
-## Outputs
-
-Keep planning and final notebooks, drafts, final exports, coverage manifests, figure manifests, and integrity audits inside the single directory recorded in the TODO as `Work figure directory`. Do not add a Markdown figure report.
+Keep plotting scripts in `exp/figures/` and drafts, final exports, plans, coverage manifests, and audits in `data/figures/`. Create no Markdown result handoff.

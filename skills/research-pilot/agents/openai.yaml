@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Pilot"
   short_description: "Run complete controlled Pilot evidence"
-  default_prompt: "Use $research-pilot when task-state current.state is pilot, preserving every candidate and gating any verified parameter selection on explicit researcher approval and a Work TODO rewrite."
+  default_prompt: "Use $research-pilot to execute the approved Pilot manifest and sensitivity plan."
 
 policy:
   allow_implicit_invocation: false

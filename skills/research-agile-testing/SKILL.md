@@ -1,85 +1,30 @@
 ---
 name: research-agile-testing
-description: Design and run the minimum risk-driven tests needed to protect scientific semantics in Python or MATLAB code, data pipelines, controls, metrics, randomness, storage, and recovery. Do not treat experimental outcomes as implementation tests.
+description: Select and run the minimum risk-driven tests needed to protect scientific semantics, data contracts, recovery, and numerical equivalence.
 ---
 
 # Research Agile Testing
 
-## Overview
-
-Find the defects most likely to produce an incorrect research conclusion with the fastest discriminating tests. Optimize for scientific risk reduction rather than test count or nominal coverage.
-
-Read `references/test-selection-matrix.md` for risk-to-test mapping.
+Test the defects most likely to change a research conclusion, not nominal coverage. Consult `references/test-selection-matrix.md` when the appropriate oracle or test type is unclear.
 
 ## Workflow
 
-1. Identify one to three highest-risk failure modes in the current change.
-2. Extract the scientific invariants that must hold.
-3. Select the strongest available oracle: analytic result, independent reference, invariant, metamorphic relation, or manually audited tiny case.
-4. Preserve a minimal failing example or baseline before the fix.
-5. Implement fast unit or contract tests first, then add only the integration tests needed at risky boundaries.
-6. Keep a small real end-to-end smoke test for the full chain.
-7. For random code, use fixed seeds to test implementation determinism; estimate research uncertainty with independent repeats, not repeated unit tests.
-8. For parallel and resume logic, inject interruption, duplicate launch, corruption, and partial-output cases.
-9. For optimized Python/MATLAB code, compare against the correctness reference within scientifically justified tolerances.
-10. Keep Development gate evidence distinct: test scaffold interfaces and storage for **work**, scientific behavior and the independent oracle for **right**, then before/after performance plus equivalence for **fast**.
-11. For MATLAB optimizations, compare loop/vectorized, serial/parallel, CPU/GPU, and MATLAB-reference/MEX paths only when each path exists. Include representative memory and transfer cost, not kernel time alone.
-12. Run the affected tests and report commands, environment, results, and uncovered risk.
-13. Convert reproducible real defects into regression tests.
-14. For figures, verify that governed outputs come from the executed notebook, temporary `.py` previews remain under the platform temporary directory, and every chart records a SciencePlots stack based on `science`. Reconcile stable keys and planned conditions against the coverage manifest, then inspect every final title, axis, scale, unit, legend, curve, mark, and schematic label.
-15. For aggregation and analysis, confirm the TODO-defined grain and choose only applicable tests for duplicate stable keys, join expansion, denominator changes, average-of-averages, incomplete time windows, timezone boundaries, selection bias, and outlier influence. Record the selection and evidence in `aggregation-validation.json`; do not run unrelated checks mechanically.
-16. For governed notebooks, execute from a clean kernel top to bottom and run `validate_figure_notebook.py`. Test unexecuted cells, error outputs, unresolved placeholders, missing source hashes, an invalid SciencePlots stack, and missing exports when changing the notebook contract or validator.
-
-## Language-specific tools
-
-### Python
-
-Use as appropriate:
-
-- `pytest` and parametrization;
-- `numpy.testing` for arrays and tolerances;
-- `pandas.testing` for tables and indexes;
-- `scipy` reference computations;
-- `torch.testing` and small deterministic model/data cases;
-- temporary directories for atomic-write and resume tests.
-
-### MATLAB
-
-Use as appropriate:
-
-- `matlab.unittest.TestCase`;
-- `verifyEqual`, `verifyThat`, and explicit tolerances;
-- function-based tests for small numerical units;
-- temporary folders for MAT/Parquet/checkpoint tests;
-- serial-versus-`parfor` and CPU-versus-`gpuArray` equivalence checks;
-- MATLAB-reference-versus-MEX or generated-MEX comparisons, compiler/build smoke tests, and fallback-path tests when compiled code is used;
-- `timeit`/`gputimeit` benchmarks on representative shapes after warm-up, with end-to-end profiling for material changes.
-
-## I/O test requirements
-
-When result storage changes, test:
-
-- buffered/chunked write behavior rather than per-row mutation;
-- atomic publication and recovery from an interrupted temporary file;
-- no duplicate counting after resume;
-- schema and stable identifiers across partitions;
-- final row-count reconciliation;
-- planned-versus-observed condition and run-status reconciliation;
-- declared-versus-observed join cardinality and protection against unintended many-to-many expansion;
-- numerator, denominator, weighting, time-window, and timezone identities when they affect a reported metric;
-- a benchmark or operation-count check when excessive file I/O is the reported risk.
+1. Identify one to three material failure modes and the invariants they threaten.
+2. Choose the strongest practical oracle: analytic value, independent reference, invariant, metamorphic relation, or audited tiny case.
+3. Preserve a minimal failing case or baseline; add the smallest focused tests before boundary integration and one real smoke path.
+4. Use fixed seeds for implementation determinism and independent repeats for scientific uncertainty.
+5. Test interruption, duplicate launch, corruption, and partial output only when recovery or parallel behavior changes.
+6. Compare every optimized path with the retained reference at scientifically justified tolerances.
+7. For changed aggregates or figures, run their contract checks and provided validators.
+8. Run affected tests, convert reproduced defects into regressions, and report remaining risk.
 
 ## Guardrails
 
-- A correctness oracle must check more than a zero exit code, non-empty file, or non-NaN value.
-- Do not loosen tolerances merely to pass.
-- Do not delete failing cases to reduce burden.
-- Do not run an entire Pilot or Confirmation as a routine test suite.
-- Do not test unrelated modules to create the appearance of thoroughness.
-- Do not treat every analytical pitfall as applicable; tie each selected check to the current grain, metric, join, time range, or claim.
-- Do not accept a faster path before a runnable scaffold and an independent correctness reference exist.
-- Do not infer that vectorization, MEX, parallel workers, or a GPU is beneficial without representative before/after measurements.
+- A zero exit code, non-empty file, or non-NaN value is not a correctness oracle.
+- Never loosen tolerances or remove failing cases to obtain a pass.
+- Pilot and Confirmation are scientific stages, not test suites.
+- Accept a performance change only with end-to-end benefit and equivalence evidence.
 
-## Output contract
+## Output
 
-Return the risk list, selected tests and oracles, files changed, commands and results, skipped or unrun tests, uncovered risks, and whether the evidence is sufficient for the current implementation slice.
+Return risks, oracles, tests, commands and results, uncovered risks, and evidence sufficiency.

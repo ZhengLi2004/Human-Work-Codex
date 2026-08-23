@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Computing Implementation"
   short_description: "Implement MATLAB-first scientific computation"
-  default_prompt: "Use $research-computing-implementation to make MATLAB-first production computation work, right, and fast; keep Jupyter limited to reproducible governed figures over complete existing results and document any required Python exception."
+  default_prompt: "Use $research-computing-implementation for MATLAB-first Work-Right-Fast implementation."
 
 policy:
   allow_implicit_invocation: false

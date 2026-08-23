@@ -13,7 +13,7 @@ This pattern wastes compute through file-open overhead, serialization, metadata 
 3. Flush one chunk in a typed bulk format.
 4. Write to a temporary path on the destination filesystem.
 5. Validate the chunk schema, row count, stable IDs, and required fields.
-6. Atomically rename/move it to its final immutable path.
+6. Atomically rename/move it to its final validated path.
 7. Record completion in small checkpoint metadata only after the artifact is valid.
 8. Merge or scan partitioned chunks after task execution, not inside every task.
 
@@ -62,6 +62,6 @@ When I/O is material, fix format, buffer size, partitioning, merge placement, or
 - No scientific result write occurs once per result row.
 - No shared CSV/table append occurs from concurrent workers.
 - No growing DataFrame/table is copied on every iteration.
-- Resume preserves unique valid rows and immutable chunks.
+- Resume preserves unique valid rows and validated chunks; a recorded debug invalidation may remove and regenerate a defective chunk.
 - The final table reconciles exactly to the planned task manifest.
 - A result row is traceable to one stable task/repeat ID and raw artifact.

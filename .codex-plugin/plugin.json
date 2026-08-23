@@ -1,7 +1,7 @@
 {
   "name": "research-task-system",
-  "version": "7.0.0+codex.20260810095245",
-  "description": "Current-action TODO research workflows with MATLAB-first computation, source-validated aggregation, fingerprinted YAML state, exact human-approved rule paths, and reproducible researcher-reviewed figures.",
+  "version": "7.0.0+codex.20260823025343",
+  "description": "Shared-context research workflows with MATLAB-first computation, fingerprinted lifecycle state, validated evidence, and researcher-reviewed SciencePlots figures.",
   "author": {
     "name": "Zheng Li"
   },
@@ -9,7 +9,6 @@
     "research",
     "todo",
     "codex",
-    "work",
     "python",
     "matlab",
     "experiments",
@@ -24,7 +23,7 @@
   "interface": {
     "displayName": "Research Task System",
     "shortDescription": "Run validated MATLAB-first research workflows",
-    "longDescription": "Author a current-action research TODO, maintain a fingerprinted YAML lifecycle with explicit self-transitions and human-confirmed rule paths, execute MATLAB-first production computation through work/right/fast gates, validate controlling sources and aggregate evidence, govern verified parameter rewrites, and produce clean-kernel researcher-reviewed figures without parallel scientific handoffs.",
+    "longDescription": "Author and revise current-action TODOs, execute MATLAB-first work/right/fast stages in one shared context, validate aggregate evidence, prepare resumable long-run scripts, and produce researcher-reviewed figures from separate SciencePlots Python scripts.",
     "developerName": "Research Task System",
     "category": "Productivity",
     "capabilities": [
@@ -33,8 +32,8 @@
     ],
     "defaultPrompt": [
       "Use Research Task System to author current-action-only TODO specifications from this research material.",
-      "Use Research Task System to initialize or inspect task state, evaluate all outgoing rules including self, and wait for human confirmation of one rule path.",
-      "Use Research Task System to execute the recorded state with MATLAB-first computation and make-it-work, make-it-right, make-it-fast gates, validate aggregate sources and calculations, and keep clean-kernel figure planning, researcher review, and final QA separate."
+      "Use Research Task System to initialize todo_ready, resolve bounded project and data questions, and present every eligible rule including self.",
+      "Use Research Task System to execute the recorded state with MATLAB-first computation, representative performance benchmarks, validated aggregates, and separate SciencePlots Python figure scripts."
     ]
   }
 }

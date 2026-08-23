@@ -6,7 +6,7 @@ A task key must include every dimension that can change the scientific output: T
 
 ## Frozen manifest
 
-Generate the complete task manifest before execution and store it as a technical artifact under the TODO result directory. It must not be used as a handoff document or expanded or pruned after outcomes are observed.
+Generate the complete task manifest before execution and store it under `TODO_###/data/`. Keep its runner under `TODO_###/exp/`. The manifest is not a handoff document and is never expanded or pruned after outcomes are observed.
 
 Recommended columns:
 
@@ -25,7 +25,7 @@ Use explicit states such as `pending`, `running`, `complete`, `failed`, `missing
 
 ## Storage
 
-- Use immutable per-task or per-chunk outputs with stable schema.
+- Use independently valid per-task or per-chunk outputs with stable schema.
 - Prefer partitioned Parquet for large run-level tables and HDF5/MAT v7.3 for compatible numerical arrays.
 - Never update a scientific CSV/table one row at a time.
 - Never have multiple workers append to one shared result table.
@@ -40,13 +40,17 @@ The same command must be idempotent. On resume:
 2. validate existing completed outputs;
 3. skip only valid completed units;
 4. rerun failed/incomplete units according to the recorded retry policy;
-5. never overwrite historical attempts silently;
+5. record a debug invalidation before deleting or replacing a proven invalid attempt;
 6. reconcile final task counts.
 
 ## Progress and logging
 
 Progress is based on stable task units, not internal loop iterations. Report completed, failed, invalid, and remaining counts plus ETA when meaningful. Timer-driven live status must degrade safely to ordinary logs in non-interactive environments.
 
+## Preflight
+
+Measure records and bytes per flush, serialization/write time, file count, peak buffered memory, compute/I/O ratio, and throughput at one and proposed worker counts. Test interruption during compute and publication, valid and corrupt resume, duplicate launch, and schema/configuration mismatch.
+
 ## Long-run boundary
 
-At or above the policy threshold, Codex prepares and validates the command, checkpoint/resume behavior, resource profile, and result paths, then stops for a human launch decision.
+When estimated minimum runtime exceeds one hour, Codex prepares and validates the resumable script or command, batching, checkpoints, progress, logs, resource profile, and result paths, then hands it to the researcher for execution.

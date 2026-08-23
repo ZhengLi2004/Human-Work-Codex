@@ -1,50 +1,77 @@
-schema_version: 9
+schema_version: 11
 name: research-task-system-policy
 
 routing:
   implicit_entry_skill: research-task-router
-  internal_skills_require_explicit_selection: true
   task_source_of_truth: todo
   active_state_source: task_state_yaml
-  task_state_path_pattern: results/{todo_id}/task-state.yaml
+  todo_id_pattern: ^TODO_[0-9]{3}$
+  todo_path_pattern: "{todo_id}/TODO.md"
+  task_state_path_pattern: "{todo_id}/task-state.yaml"
   state_machine: .research/workflow/state-machine.yaml
   initialize_missing_state_as: todo_ready
+  initialize_and_prepare_initial_decision_together: true
+  todo_ready_includes_bounded_mapping_semantics_and_feasibility: true
+  one_shared_codex_context_for_all_agent_stages: true
   separate_scientific_handoff_documents_forbidden: true
+
+task_layout:
+  root_pattern: "{todo_id}"
+
+  root_files:
+    todo: TODO.md
+    task_state: task-state.yaml
+
+  directories:
+    code:
+      required: false
+      role: reusable_method_or_framework_code
+      google_style_python_docstrings: true
+      matlab_function_help_comments: true
+      code_smells_avoided: true
+
+    exp:
+      required: true
+      role: experiment_and_measurement_code
+      prescribed_architecture_or_documentation_style: false
+      must_complete_required_experiment: true
+
+    data:
+      required: true
+      role: experimental_inputs_outputs_and_artifacts
+
+      conventional_subdirectories:
+        - raw
+        - tables
+        - checkpoints
+        - logs
+        - figures
 
 todo_authoring:
   current_action_only: true
-  progress_or_status_narrative_forbidden: true
-  obsolete_design_narrative_forbidden: true
-  rejected_candidates_belong_in_technical_evidence: true
-  unverified_hyperparameter_cannot_be_fixed_for_downstream_work: true
+  valid_markdown_required: true
+  math_delimiter: inline_single_dollar_same_line
+  speculative_requirements_forbidden: true
+  quality_checks_require_scientific_risk_or_evidence_basis: true
+  progress_or_obsolete_design_narrative_forbidden: true
   candidate_range_allowed_when_selection_is_current_work: true
+  unverified_parameter_cannot_be_fixed_downstream: true
 
-  output_reference_path_update:
-    allowed_during_execution: true
-    codex_or_work_only: true
+  revision:
+    explicit_human_approval_for_scientific_change: true
+    in_place_allowed_until_governed_figures_presented: true
+    versioned_todo_required_after_governed_figures_presented: true
+    versioned_todo_reuses_current_code_data_and_artifacts: true
+    path_updates_remain_in_place: true
     fingerprint_refresh_required: true
     task_state_revision_increment_required: true
-    may_be_batched_before_transition_evaluation: true
-
-  rejected_unapproved_edit_restoration:
-    exact_approved_content_restoration_required: true
-    observed_mismatch_fingerprint_recorded: true
-    task_state_revision_increment_required: true
-    pending_transition_review_invalidated: true
-    transition_reevaluation_required: true
+    pending_decision_invalidated: true
 
   verified_parameter_rewrite:
-    decision_boundary_required: true
     complete_evidence_required: true
     explicit_human_selection_required: true
-    work_rewrites_todo: true
-    codex_refreshes_sha256_fingerprint: true
-    task_state_revision_increment_required: true
-    pending_transition_review_invalidated: true
-    transition_reevaluation_required: true
-    preserve_prior_evidence_outside_todo: true
-
-  other_scientific_revision_requires_new_versioned_todo: true
+    in_place_before_figure_presentation: true
+    preserve_candidate_and_sensitivity_evidence_outside_todo: true
 
 implementation:
   principle:
@@ -54,17 +81,17 @@ implementation:
 
   non_plotting_default_language: matlab
   python_non_plotting_requires_documented_exception: true
-
-  python_exception_examples:
-    - required_python_only_package_or_interface
-    - measured_matlab_infeasibility
-
   plotting_language: python
-  plotting_policy_section: work_figures
+  plotting_artifact: py_script
+  computation_and_plotting_files_separate: true
   reference_implementation_required_before_optimization: true
-  profile_representative_work_before_optimization: true
-  before_after_benchmark_required_for_material_optimization: true
   numerical_and_scientific_equivalence_required: true
+
+  fast_benchmark:
+    scale: representative_medium
+    fixed_setup_warmup_serialization_and_io_must_not_dominate: true
+    dataset_size_and_fixed_costs_recorded: true
+    larger_scale_check_when_batch_scaling_can_change_conclusion: true
 
   matlab_optimization_methods_to_consider:
     - redundant_computation_elimination
@@ -77,23 +104,30 @@ implementation:
     - gpu_acceleration
     - bulk_io_and_partitioning
 
+debugging:
+  in_place_code_and_data_updates_allowed_in:
+    - development
+    - pilot
+    - confirmation
+
+  separate_debug_directories_required: false
+  invalid_artifact_deletion_requires_reason_and_stable_ids: true
+  dependent_derived_artifacts_regenerated: true
+  valid_observations_preserved: true
+  result_direction_never_justifies_deletion: true
+
 transitions:
-  evaluate_after_every_executable_state: true
-  work_marks_evaluation_required_for_codex: true
+  prepare_decision_at_each_stage_boundary: true
+  separate_evaluate_stage: false
   self_transition_required_for_every_state: true
   explicit_human_confirmation_required: true
-  recommendation_does_not_apply_transition: true
+  confirmation_authorizes_target_execution: true
   selected_rule_path_must_be_eligible: true
   target_only_confirmation_requires_unique_rule: true
   atomic_state_write_required: true
-  revision_match_required: true
-  rule_set_version_match_required: true
-  todo_fingerprint_match_required: true
-  todo_change_invalidates_pending_review: true
-  preserve_evaluation_snapshot_in_history: true
-  approve_and_execute_requires_explicit_wording: true
-  figure_planning_review_and_production_are_separate_states: true
-  researcher_figure_review_required: true
+  revision_rule_set_and_todo_fingerprint_match_required: true
+  preserve_decision_snapshot_in_history: true
+  combined_figure_review_state: true
 
 resources:
   default_limits:
@@ -105,40 +139,40 @@ resources:
   optimization_must_preserve_scientific_semantics: true
 
 long_running_jobs:
-  threshold_minutes: 30
-  human_launch_required: true
-  require_one_combination_one_repeat_preflight: true
+  user_handoff_when_estimated_minimum_runtime_exceeds_minutes: 60
+  codex_launch_forbidden_after_handoff_threshold: true
+  require_representative_preflight: true
+  require_batching_when_multiple_units: true
   require_checkpoint: true
-  require_file_logging: true
   require_progress_reporting: true
+  require_file_logging: true
+  require_reproducible_script_or_command: true
 
 experiments:
   default_repeats_when_random_and_unspecified: 3
-  preserve_failed_runs: true
-  preserve_missing_combinations: true
-  preserve_incomplete_combinations: true
-  immutable_raw_data: true
+  preserve_failed_missing_and_incomplete_runs: true
   aggregate_over_independent_repeats: true
   condition_merged_table_required: true
+
+  nonstandard_parameters:
+    measurable_selection_criterion_required: true
+    sensitivity_exploration_required: true
+    sensitivity_figure_required: true
 
 analysis_validation:
   controlling_source_order:
     - todo_scientific_definition
     - task_state_and_frozen_task_manifest
-    - raw_result_index_and_immutable_raw_outputs
+    - raw_result_index_and_valid_raw_outputs
     - derived_aggregate_tables
 
-  missing_controlling_source_blocks: true
-  source_conflict_blocks_until_resolved: true
-  incompatible_analysis_grain_blocks: true
-  weaker_source_silent_substitution_forbidden: true
+  source_conflict_or_incompatible_grain_blocks: true
   aggregation_validation_filename: aggregation-validation.json
 
-  pre_aggregation_checks:
+  core_checks:
     - intended_analysis_grain
     - schema_and_types
-    - stable_keys_and_duplicates
-    - missing_planned_keys
+    - stable_keys_duplicates_and_missing_keys
     - run_status_counts
     - value_ranges
     - time_coverage_and_timezone_when_applicable
@@ -147,98 +181,30 @@ analysis_validation:
   risk_driven_checks:
     - join_expansion
     - denominator_consistency
-    - weighted_aggregation
-    - complete_comparison_windows
+    - average_of_averages
+    - incomplete_comparison_windows
     - selection_bias
     - outlier_influence
 
   mechanically_running_irrelevant_checks_forbidden: true
-  blocking_findings_prevent_aggregate_publication: true
+  blocking_findings_prevent_publication: true
 
 io:
   preferred_tabular_format: parquet
-  csv_allowed_for_small_interchange_outputs: true
-  row_wise_csv_updates_forbidden: true
-  dataframe_concat_inside_result_loop_forbidden: true
-  matlab_writetable_inside_result_loop_forbidden: true
+  row_wise_result_table_updates_forbidden: true
   buffered_or_chunked_result_writes_required: true
   per_worker_output_isolation_preferred: true
   atomic_publish_required: true
   preflight_io_measurement_when_material: true
 
-work_figures:
-  notebook_format: ipynb
-  notebook_required_only_when_governed_figures_are_produced: true
-  durable_render_source: executed_notebook
-  clean_kernel_top_to_bottom_execution_required: true
-  hidden_state_forbidden: true
-  manually_edited_intermediate_values_forbidden: true
-  unexplained_cached_outputs_forbidden: true
-  unbounded_table_output_forbidden: true
-  notebook_role: complete_table_validation_shaping_and_presentation
-
-  notebook_may:
-    - read_complete_sources
-    - validate_complete_sources
-    - sort_for_presentation
-    - pivot_or_reshape_for_presentation
-    - perform_limited_figure_specific_analysis
-
-  notebook_may_not_be_sole_implementation_of:
-    - production_preprocessing
-    - metric_computation
-    - statistical_testing
-    - model_fitting
-    - exclusion_rules
-    - aggregation
-
-  new_scientific_quantity_requires_matlab_table_first: true
-  notebook_charts_obey_figure_lifecycle: true
-
-  required_notebook_sections:
-    - execution_summary
-    - scope_and_parameters
-    - sources_and_environment
-    - data_quality
-    - figure_contract
-    - rendering
-    - coverage_and_integrity
-    - observed_facts_and_limitations
-
-  notebook_header_fields:
-    - todo_fingerprint
-    - task_state_revision
-    - complete_inputs
-    - stable_keys
-    - statistical_unit
-    - filters
-    - output_directory
-
-  notebook_validator: skills/research-figure-production/scripts/validate_figure_notebook.py
-
-  notebook_validator_modes:
-    - planning
-    - final
-
-  planning_notebook_validation_filename: notebook-validation.json
-  final_notebook_validation_result_belongs_in_figure_integrity_audit: true
-  source_sha256_required: true
-  exported_output_sha256_required: true
-
-  manifest_reproducibility_fields:
-    - git_revision
-    - package_versions
-    - execution_command
-    - execution_started_at_utc
-    - execution_finished_at_utc
-    - data_quality_results
-    - figure_data_sufficiency
-    - notebook_execution_status
-
-  temporary_python_plot_probe_allowed: true
-  temporary_plot_output_root: system_temp
-  temporary_plot_outputs_are_disposable: true
-  temporary_plot_outputs_cannot_satisfy_figure_predicates: true
+figures:
+  planning_and_researcher_feedback_state: figure_review
+  final_production_state: figure_production
+  durable_render_source: executed_python_script
+  plotting_script_separate_from_computation: true
+  figure_script_validator: skills/research-figure-production/scripts/validate_figure_script.py
+  planning_script_validation_filename: plot-script-validation.json
+  final_script_validation_belongs_in_integrity_audit: true
   required_plot_style_package: SciencePlots
   required_plot_style_base: science
 
@@ -246,86 +212,60 @@ work_figures:
     - science
     - no-latex
 
-  plot_style_stack_manifest_required: true
+  script_may:
+    - read_complete_sources
+    - validate_complete_sources
+    - sort_for_presentation
+    - pivot_or_reshape_for_presentation
 
-  lifecycle_states:
-    planning: work_postprocessing
-    researcher_review: figure_review
-    final_production: figure_production
+  script_may_not_be_sole_implementation_of:
+    - production_preprocessing
+    - metric_computation
+    - statistical_testing
+    - model_fitting
+    - exclusion_rules
+    - aggregation
+
+  required_manifest_fields:
+    - plotting_script_sha256
+    - input_sha256
+    - output_sha256
+    - todo_fingerprint
+    - task_state_revision
+    - git_revision
+    - package_versions
+    - execution_command
+    - execution_started_at_utc
+    - execution_finished_at_utc
+    - data_quality_results
+    - figure_data_sufficiency
+    - style_stack
 
   allowed_complete_source_classes:
     - raw_computation_results
     - condition_merged_tables
-    - validated_work_curated_tables
+    - validated_curated_tables
 
-  curated_source_requires_row_and_key_preservation_manifest: true
-  all_applicable_conditions_must_be_accounted_for: true
-  scientific_table_information_coverage_manifest_required: true
-  inspected_paper_or_established_convention_basis_required: true
-  chart_selection_record_required: true
-  chart_selection_reference: skills/research-figure-production/references/chart-selection-guide.md
-  chart_caveat_reference: skills/research-figure-production/references/chart-caveat-checklist.md
-  gallery_examples_cannot_define_scientific_semantics: true
-  applicable_chart_caveat_status_and_evidence_required: true
-  draft_figure_set_required_before_researcher_review: true
-  researcher_may_recommend_include_exclude_revise_or_schematic: true
-  generalized_diagrams_must_be_labeled_schematic: true
+  all_applicable_conditions_accounted_for: true
+  applicable_sensitivity_results_plotted: true
+  paper_or_established_convention_basis_required: true
+  researcher_feedback_required_before_final_production: true
+  generalized_diagrams_labeled_schematic: true
   generalized_diagrams_cannot_replace_data_figures: true
   final_integrity_audit_required: true
-
-  final_integrity_checks:
-    - source_and_condition_coverage
-    - statistical_unit_and_aggregation
-    - title_claim_support
-    - axis_scale_and_units
-    - legend_and_series_explanation
-    - missingness_and_failure_visibility
-    - researcher_recommendation_traceability
-    - chart_specific_caveats
-    - scienceplots_style
-    - rendered_legibility
-
-  preferred_processing_packages:
-    - numpy
-    - scipy
-    - pandas
-
-  preferred_plotting_packages:
-    - matplotlib
-    - SciencePlots
-    - seaborn
-
-  preferred_export_formats:
-    - pdf
-    - svg
-    - png
-
-  todo_update_field: Work figure directory
+  plotting_script_directory_pattern: "{todo_id}/exp/figures"
+  figure_artifact_directory_pattern: "{todo_id}/data/figures"
   additional_markdown_handoff_forbidden: true
 
 communication:
   prefer_established_technical_terms: true
-  coined_terms_require_operational_definition: true
-  describe_process_before_local_label: true
   evaluative_adjectives_require_explicit_criteria: true
   separate_facts_interpretation_predicates_and_recommendations: true
   concise_direct_style_required: true
-
-  examples:
-    use_sparingly: true
-    maximum_per_fragile_rule_cluster: 2
-    illustrative_only: true
-    may_not_supply_task_semantics_or_data: true
+  examples_used_sparingly: true
 
 artifacts:
   todo_template: .research/templates/TODO.md
   task_state_template: .research/templates/task-state.yaml
   pipeline: .research/workflow/pipeline.yaml
   state_machine: .research/workflow/state-machine.yaml
-  default_result_root_pattern: results/{todo_id}
-  task_state_filename: task-state.yaml
-  raw_subdirectory: raw
-  tables_subdirectory: tables
-  checkpoints_subdirectory: checkpoints
-  logs_subdirectory: logs
-  figures_subdirectory: figures

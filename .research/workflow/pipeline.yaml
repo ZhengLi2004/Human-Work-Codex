@@ -1,393 +1,152 @@
-schema_version: 8
+schema_version: 10
 name: research-task-system
 
 purpose: >-
-  Route a TODO-defined research task through reusable Work and Codex Skills,
-  maintain a rule-driven machine lifecycle state, and preserve the TODO as the
-  only scientific handoff document.
+  Run one TODO-defined research task in a shared Codex context, preserve
+  machine lifecycle evidence, and obtain explicit researcher decisions.
+
+roles:
+  human_researcher:
+    owns:
+      - scientific_question_hypothesis_and_design
+      - scientific_semantic_changes
+      - experimentally_supported_parameter_selection
+      - lifecycle_rule_path_confirmation
+      - scripts_with_estimated_minimum_runtime_over_one_hour
+      - figure_feedback_and_scientific_interpretation
+      - completion_stop_redesign_or_new_todo_decision
+
+  codex:
+    shared_context: true
+
+    owns:
+      - todo_authoring_and_governed_revision
+      - task_state_and_lifecycle_decisions
+      - implementation_testing_and_short_execution
+      - aggregation_and_table_curation
+      - draft_figure_planning_rendering_and_presentation
+      - final_figure_production_and_integrity_audit
+      - technical_evidence_and_output_path_updates
 
 artifacts:
   todo:
     template: .research/templates/TODO.md
-
-    owns:
-      - complete_current_action_research_definition
-      - mathematical_and_algorithmic_specification
-      - variables_controls_metrics_and_statistics
-      - required_outputs_and_completion_criteria
-      - output_path_references
-
-    execution_edits_limited_to:
-      - output_path_values
-
-    controlled_verified_parameter_rewrite:
-      requires:
-        - lifecycle_decision_boundary
-        - complete_verification_evidence
-        - explicit_human_selection
-
-      performed_by: work
-      state_sync_performed_by: codex
-
-      removes:
-        - completed_selection_instructions
-        - rejected_candidate_lists
-        - obsolete_designs
-        - status_and_comparison_narrative
-
-      preserves_prior_evidence_outside_todo: true
+    path_pattern: "{todo_id}/TODO.md"
+    role: only_scientific_handoff
+    math_format: one_line_single_dollar_delimiters
+    current_actions_only: true
 
   task_state:
     template: .research/templates/task-state.yaml
-    state_machine: .research/workflow/state-machine.yaml
-    default_path_pattern: results/{todo_id}/task-state.yaml
+    default_path_pattern: "{todo_id}/task-state.yaml"
+    role: machine_control
 
-    owns:
-      - current_lifecycle_state
-      - current_execution_status
-      - state_machine_rule_set_version
-      - todo_sha256_fingerprint
-      - todo_change_event_references
-      - evaluated_transition_rules
-      - eligible_transition_rule_paths
-      - codex_transition_recommendation
-      - explicit_human_transition_history
-      - immutable_transition_evaluation_snapshots
+  task_directory:
+    pattern: ^TODO_[0-9]{3}$
 
-    prohibited_from_storing:
-      - duplicated_todo_content
-      - mathematical_definitions
-      - scientific_result_narrative
-      - formal_interpretation
+    directories:
+      code: optional_reusable_method_or_framework_code
+      exp: required_experiment_and_measurement_code
+      data: required_experimental_inputs_outputs_and_artifacts
 
-    is_scientific_handoff: false
+todo_change_control:
+  before_governed_figures_presented:
+    approved_scientific_change: edit_current_todo_in_place
+    synchronize_fingerprint_and_revision: true
 
-  technical_outputs:
-    default_root: results/{todo_id}
+  after_governed_figures_presented:
+    approved_scientific_change: create_versioned_todo
+    reuse_current_code_data_and_artifacts: true
 
-    may_include:
-      - task_state
-      - raw_outputs
-      - task_manifests
-      - checkpoints
-      - logs
-      - run_level_tables
-      - aggregate_tables
-      - condition_merged_tables
-      - aggregation_validation
-      - notebooks
-      - figures
-      - figure_plans
-      - figure_coverage_manifests
-      - figure_integrity_audits
+  output_path_change:
+    edit_current_todo_in_place: true
 
-    do_not_replace_todo_as_handoff: true
-
-roles:
-  human:
-    owns:
-      - scientific_question_hypothesis_and_design
-      - todo_approval
-      - transition_rule_path_confirmation
-      - semantic_change_approval
-      - experimentally_supported_hyperparameter_selection
-      - long_running_job_launch
-      - figure_selection_and_revision_feedback
-      - scientific_interpretation_and_report
-      - todo_completion_or_stop_decision
-      - next_todo_decision
-
-  work:
-    owns:
-      - complete_todo_authoring
-      - verified_parameter_current_action_todo_rewrite
-      - post_codex_table_curation
-      - complete_data_figure_planning_and_drafts
-      - final_figure_production_after_researcher_review
-      - work_output_path_updates_in_todo
-      - post_report_information_gain_assessment
-
-  codex:
-    owns:
-      - task_state_initialization
-      - todo_fingerprint_synchronization
-      - implementation_within_todo_scope
-      - risk_driven_testing
-      - experiment_preflight_and_execution_code
-      - immutable_raw_results
-      - complete_aggregation_and_condition_merge
-      - codex_result_path_updates_in_todo
-      - transition_rule_evaluation
-      - transition_recommendation
-      - confirmed_transition_application
+  debug_in_development_pilot_confirmation:
+    update_code_and_data_in_current_task_directory: true
+    remove_proven_invalid_artifacts_with_recorded_reason_and_ids: true
+    regenerate_dependent_outputs: true
 
 routing:
-  implicit_entry_skill: skills/research-task-router/SKILL.md
-  internal_skills_require_explicit_selection: true
-  task_creation: skills/research-report-to-todos/SKILL.md
-  task_execution: skills/research-todo-executor/SKILL.md
-  state_transition: skills/research-state-transition/SKILL.md
-  post_codex_table_curation: skills/publication-table-curation/SKILL.md
-  post_codex_figure_planning: skills/research-figure-production/SKILL.md
-  researcher_figure_review: skills/human-research-review-gate/SKILL.md
-  final_figure_production: skills/research-figure-production/SKILL.md
-  post_report_assessment: skills/post-report-assessment/SKILL.md
+  entry: skills/research-task-router/SKILL.md
+  todo_authoring: skills/research-report-to-todos/SKILL.md
+  lifecycle: skills/research-state-transition/SKILL.md
+  figures: skills/research-figure-production/SKILL.md
+  human_gate: skills/human-research-review-gate/SKILL.md
+  post_report: skills/post-report-assessment/SKILL.md
 
-  current_state_rule: >-
-    Resolve the active lifecycle state from the task-state YAML. If the file is
-    absent, initialize it at todo_ready. Do not infer the active state from
-    result-directory contents or from a stage name in old conversation text.
+  initial_rule: >-
+    Initialize todo_ready, resolve bounded mapping, semantic, and feasibility
+    questions, then prepare every eligible initial rule including self.
 
-  transition_rule: >-
-    After a state reaches a decision boundary, evaluate every outgoing rule,
-    include the self-transition, write eligible rule paths and one Codex
-    recommendation, and wait for explicit human confirmation before changing
-    current.state.
+  boundary_rule: >-
+    Stage execution records predicate evidence and prepares all outgoing rules
+    before asking the researcher to select one.
 
-  selection_rule: >-
-    Select one primary workflow Skill, the Skill for the current state when it
-    is executable, the state-transition Skill at decision boundaries, and only
-    the capability Skills required by the TODO and requested action.
-
-skill_catalog:
-  workflows:
-    task_router: skills/research-task-router/SKILL.md
-    todo_executor: skills/research-todo-executor/SKILL.md
-    state_transition: skills/research-state-transition/SKILL.md
-
-  codex_states:
-    exploration: skills/research-exploration/SKILL.md
-    development: skills/research-development/SKILL.md
-    pilot: skills/research-pilot/SKILL.md
-    confirmation: skills/research-confirmation/SKILL.md
-    ablation_diagnosis: skills/research-ablation-diagnosis/SKILL.md
-
-  work_state:
-    work_postprocessing:
-      - skills/publication-table-curation/SKILL.md
-      - skills/research-figure-production/SKILL.md
-
-    figure_review:
-      - skills/human-research-review-gate/SKILL.md
-
-    figure_production:
-      - skills/research-figure-production/SKILL.md
-
-  capabilities:
-    computing_implementation: skills/research-computing-implementation/SKILL.md
-    agile_testing: skills/research-agile-testing/SKILL.md
-    batch_execution: skills/research-batch-execution/SKILL.md
-    evidence_aggregation: skills/research-evidence-aggregation/SKILL.md
-    human_review_gate: skills/human-research-review-gate/SKILL.md
+  confirmation_rule: >-
+    A confirmed eligible transition is applied atomically and its target begins
+    immediately; terminal targets only update state.
 
 state_definitions:
   todo_ready:
-    purpose: Hold a complete TODO until the human confirms an eligible initial state.
-
-  exploration:
-    purpose: Verify project mappings, data semantics, existing capabilities, and assumptions with the smallest decisive probes.
-
-    default_capabilities:
-      - skills/research-agile-testing/SKILL.md
-      - skills/human-research-review-gate/SKILL.md
+    purpose: Validate the TODO, resolve bounded project and data questions, and present eligible stages.
 
   development:
-    purpose: Build an efficient runnable scaffold, make the TODO implementation correct and self-checked, then optimize measured bottlenecks without changing numerical meaning.
-
-    default_capabilities:
-      - skills/research-computing-implementation/SKILL.md
-      - skills/research-agile-testing/SKILL.md
-      - skills/human-research-review-gate/SKILL.md
+    skill: skills/research-development/SKILL.md
+    purpose: Make the implementation work, right, and fast using representative benchmarks.
 
   pilot:
-    purpose: Run a controlled, complete Pilot grid with independent repeats, performance evidence, full result preservation, and evidence for any TODO-defined parameter-selection rule.
-
-    default_capabilities:
-      - skills/research-computing-implementation/SKILL.md
-      - skills/research-agile-testing/SKILL.md
-      - skills/research-evidence-aggregation/SKILL.md
-      - skills/human-research-review-gate/SKILL.md
-
-    conditional_capabilities:
-      - skill: skills/research-batch-execution/SKILL.md
-        when: multiple recoverable units, heavy I/O, or runtime require it
+    skill: skills/research-pilot/SKILL.md
+    purpose: Run the complete approved preliminary scope and parameter sensitivities.
 
   confirmation:
-    purpose: Execute the frozen confirmatory specification and preserve complete formal evidence.
-
-    default_capabilities:
-      - skills/research-computing-implementation/SKILL.md
-      - skills/research-agile-testing/SKILL.md
-      - skills/research-batch-execution/SKILL.md
-      - skills/research-evidence-aggregation/SKILL.md
-      - skills/human-research-review-gate/SKILL.md
+    skill: skills/research-confirmation/SKILL.md
+    purpose: Execute the frozen confirmatory specification and preserve complete evidence.
 
   ablation_diagnosis:
-    purpose: Distinguish a bounded set of approved component contributions, candidate explanations, or failure causes.
-
-    default_capabilities:
-      - skills/research-computing-implementation/SKILL.md
-      - skills/research-agile-testing/SKILL.md
-      - skills/human-research-review-gate/SKILL.md
-
-    conditional_capabilities:
-      - skill: skills/research-batch-execution/SKILL.md
-        when: multiple recoverable units, heavy I/O, or runtime require it
-
-      - skill: skills/research-evidence-aggregation/SKILL.md
-        when: repeated research metrics are produced
-
-  work_postprocessing:
-    purpose: Curate complete tables, map all scientific table information to an efficient figure set, and prepare drafts covering all applicable data for researcher review.
-
-    ordered_capabilities:
-      - skills/publication-table-curation/SKILL.md
-      - skills/research-figure-production/SKILL.md
-
-    figure_skill_mode: planning
+    skill: skills/research-ablation-diagnosis/SKILL.md
+    purpose: Resolve a bounded component contribution or failure cause.
 
   figure_review:
-    purpose: Present draft figures and their coverage record, then wait for explicit researcher recommendations.
+    purpose: Curate tables, render complete drafts from Python scripts, present them, and record researcher feedback.
 
-    ordered_capabilities:
+    ordered_skills:
+      - skills/research-figure-production/SKILL.md
       - skills/human-research-review-gate/SKILL.md
 
   figure_production:
-    purpose: Produce the final figure set from the approved recommendations and pass the figure integrity and traceability audit.
-
-    ordered_capabilities:
-      - skills/research-figure-production/SKILL.md
-
-    figure_skill_mode: final
+    skill: skills/research-figure-production/SKILL.md
+    purpose: Implement researcher feedback and pass the final figure audit.
 
   completed:
-    purpose: Preserve a human-confirmed terminal completion state.
+    purpose: Preserve a human-confirmed completed task.
 
   stopped:
-    purpose: Preserve a human-confirmed terminal stop state.
+    purpose: Preserve a human-confirmed stop decision.
 
-state_protocol:
-  initialize:
-    - Derive todo_id and result root from the TODO and policy.
-    - Create task-state YAML at todo_ready when it does not exist.
-    - Compute and store the TODO SHA-256 fingerprint.
-    - Evaluate initial outgoing rules before applying a human-selected state.
+execution_protocol:
+  - Resolve TODO, task state, fingerprint, current state, and human instruction.
+  - Execute only the recorded state using the minimum relevant Skills.
+  - Keep method code in code, experiment and measurement code in exp, and experimental data in data.
+  - Keep TODO requirements proportional to the question and observed risks.
+  - Use MATLAB-first non-plotting computation and separate SciencePlots Python scripts for figures.
+  - Use representative medium data for Fast benchmarks and check a larger scale when scaling can alter the conclusion.
+  - For a nonstandard parameter, record its measurable selection criterion, sensitivity exploration, and later sensitivity figure.
+  - Hand scripts whose estimated minimum runtime exceeds one hour to the researcher after preflight.
+  - At the decision boundary, record evidence, prepare every rule including self, and recommend one.
+  - On researcher confirmation, apply the rule and begin its target immediately.
 
-  before_execution:
-    - Read the TODO, task-state YAML, policy, pipeline, and state machine.
-    - Verify that the stored TODO SHA-256 fingerprint matches the current TODO; synchronize an authorized Output References path edit or verified-parameter rewrite before continuing.
-    - For a rejected unexplained edit, restore the exact approved TODO and record review invalidation through Synchronize TODO; for an approved broader scientific change, create a new versioned TODO at todo_ready.
-    - Refuse execution when a transition review is awaiting a human decision.
-    - Execute only current.state unless the human explicitly approves and applies another eligible rule path.
-
-  after_codex_state:
-    - Before publishing aggregate or condition-merged tables, reconcile the TODO, task-state and frozen task manifest, raw-result index, immutable raw outputs, and derived tables in that controlling order.
-    - Write aggregation-validation.json with grain, schema, stable-key, duplicate, missingness, status-count, range, time-coverage, join-cardinality, coverage, and calculation spot-check results selected for the current risks; a blocking conflict prevents publication.
-    - Record execution status, artifact references, and predicate evidence in task-state YAML.
-    - Set execution.decision_boundary_reached to true, current.status to awaiting_transition_evaluation, and transition_review.status to evaluation_required.
-    - If the state selected a hyperparameter under a predefined rule, complete after_verified_parameter_selection before transition evaluation.
-    - Otherwise invoke research-state-transition in Evaluate mode directly.
-    - Keep current.state unchanged.
-    - Present all eligible rule paths, including self, and one Codex recommendation.
-    - Stop for human confirmation.
-
-  after_verified_parameter_selection:
-    - Preserve the complete candidate grid, selection rule, failures, and result artifacts outside the TODO.
-    - Require an explicit researcher selection supported by the verification evidence.
-    - Have Work rewrite the TODO to fix the approved value and describe only remaining actions.
-    - Remove completed selection work, rejected candidates, obsolete designs, and comparison or status prose from the active TODO without deleting technical evidence.
-    - Have Codex compute the new TODO fingerprint, increment task-state revision, append a change event containing approval and evidence references, and invalidate any pending transition review.
-    - Re-evaluate every outgoing rule against the rewritten TODO before a transition can be applied.
-
-  after_work_planning_state:
-    - Update only Work output path values in the TODO.
-    - Require Codex to synchronize the authorized path edits, refresh the TODO fingerprint, and increment task-state revision before transition evaluation.
-    - Record curated-table, figure-plan, draft, coverage, and source-basis facts in task-state YAML.
-    - Set execution.decision_boundary_reached to true, current.status to awaiting_transition_evaluation, and transition_review.status to evaluation_required.
-    - Return tables and draft figures without treating them as final.
-    - Require Codex to evaluate the path to figure_review, self, rework, or stop before any later lifecycle action.
-
-  during_figure_review:
-    - Present every draft figure, its source and condition coverage, and the graphical-method basis.
-    - Ask the researcher which figures to include, exclude, revise, or supplement with a labeled schematic.
-    - Wait for the researcher's output; do not infer preferences from silence.
-    - Treat any requested change to metrics, data scope, inclusion rules, or scientific claims as a semantic-change request.
-    - Record figure-review predicate evidence by conversation or artifact reference, mark the decision boundary, and require Codex rule evaluation.
-
-  after_final_figure_state:
-    - Follow the recorded researcher recommendations without changing TODO-defined scientific meaning.
-    - Audit complete condition coverage, statistical units, aggregation, titles, axes, units, legends, series labels, missingness, claim support, and rendered legibility.
-    - Save the clean-kernel executed notebook, final figures, figure manifest, coverage manifest, and integrity audit inside the figure directory.
-    - Validate the executed notebook and manifest deterministically; include the validation result in figure_integrity_audit.json.
-    - Record final figure predicates, mark the decision boundary, and require Codex to evaluate completion, revision, rework, or stop.
-
-  apply_transition:
-    - Require an eligible rule path explicitly selected by the human.
-    - Resolve a target-only selection only when exactly one eligible rule reaches that target.
-    - Require the rule ID and target to match the recorded evaluation and current revision.
-    - Verify state revision, evaluated rule-set version, and evaluated TODO fingerprint.
-    - Append immutable transition history with the complete evaluation snapshot and atomically update current.state.
-    - Do not execute the target state unless execution is also explicitly authorized.
-
-invariants:
-  - The TODO is the only scientific task handoff document.
-  - The task-state YAML is machine lifecycle control and never duplicates the TODO.
-  - Outside an evidence-backed, human-approved verified-parameter rewrite by Work at a decision boundary, Codex and Work edit only Output References path values in the TODO during execution.
-  - The active TODO contains current actions and fixed current decisions, not progress history, rejected candidates, obsolete designs, or old-versus-new comparisons.
-  - Experimentally selected hyperparameters enter the active TODO only after complete verification evidence and explicit researcher approval.
-  - Complete candidate and negative evidence remains immutable outside the rewritten TODO.
-  - A scientific change outside the predefined verified-parameter rule requires a new versioned TODO with a new stable identifier; it is never synchronized into the active task.
-  - Every state evaluation includes an eligible transition to itself.
-  - Rule evaluation does not change current.state.
-  - A pending review is invalid when its state revision, rule-set version, or evaluated TODO fingerprint no longer matches.
-  - Only an explicit human confirmation applies a transition.
-  - A human may select any eligible rule path, including the self-transition, not only the Codex recommendation.
-  - A rule path outside the eligible set requires new evidence, a rule-set change, or a TODO/scientific-scope decision before transition.
-  - Every reported metric is computed at the TODO-defined independent-repeat level before aggregation unless another estimator is explicitly defined.
-  - Every planned combination remains represented, including failed, missing, invalid, or incomplete combinations.
-  - Aggregation resolves controlling sources in the order TODO, task-state and frozen task manifest, raw-result index and immutable raw outputs, then derived tables; conflicts, missing controlling sources, and incompatible grain block publication instead of triggering a weaker substitute.
-  - Every published aggregate has aggregation-validation.json with planned-versus-observed coverage, applicable risk-driven checks, calculation spot checks, issue impact, and evidence paths.
-  - Bulk numerical results are never written one CSV row at a time.
-  - Non-plotting computation defaults to MATLAB unless a documented Python-only capability or measured MATLAB infeasibility requires an exception.
-  - Scientific implementation follows make it work, make it right, make it fast; material optimization follows a representative profile and is accepted only with before/after measurements and equivalence evidence.
-  - A job at or above the runtime threshold is launched by the human after preflight.
-  - Work starts table curation and figure planning only in work_postprocessing and after Codex result paths are present in the TODO.
-  - Final figure production occurs only in figure_production after a separate figure_review state records researcher recommendations.
-  - A validated Work-curated table may be a complete figure source when its manifest proves row and stable-key preservation.
-  - Every scientifically relevant table field, planned condition, coverage state, and TODO metric is mapped to the draft figure set or explicitly accounted for in the coverage manifest.
-  - A generalized diagram is labeled as a schematic, cannot replace quantitative data figures, and cannot imply unsupported mechanisms.
-  - Every governed draft and final figure is reproduced by an executed Jupyter notebook; standalone Python diagnostic previews and their images remain disposable under the platform temporary directory and cannot satisfy artifact predicates.
-  - A figure notebook may validate, sort, pivot, or reshape complete inputs for presentation but is never the sole implementation of production preprocessing, metrics, statistical tests, model fitting, exclusion rules, or aggregation; a new scientific quantity is produced by MATLAB first.
-  - A notebook is not required when no governed plotting deliverable exists, and a diagnostic chart inside a notebook cannot bypass work_postprocessing, figure_review, or figure_production.
-  - Governed notebooks execute from a clean kernel from top to bottom, expose sources and parameters near the top, keep outputs bounded, and record source/output hashes, Git revision, package versions, execution command and times, data-quality results, and figure-data sufficiency.
-  - Every Python chart imports SciencePlots, uses a style stack based on science, and records the exact governed-figure stack in its manifest.
-  - Completion requires a final audit for omitted conditions, misleading aggregation or scales, unsupported titles, and unexplained marks or series.
-  - Work creates no additional Markdown handoff and records only curated-table paths and the figure-directory path in the TODO.
-  - Established technical terms are preferred; local labels are defined operationally and evaluative adjectives require explicit criteria.
-  - Examples clarify procedure but never supply task data, scientific definitions, thresholds, or approval.
-  - No new scientific question is hidden inside an existing TODO.
-
-figure_lifecycle_protocol:
-  - Resolve Codex result paths from the TODO.
-  - Confirm current.state is work_postprocessing.
-  - Curate complete tables without changing row count or stable combination keys.
-  - Inspect graphical methods in relevant papers when available and record the exact source; otherwise name the established convention used without inventing an attribution.
-  - Classify variable roles and the analytical task, compare feasible chart candidates, and record the selected chart, rejected alternatives, inspected links, Python example or copied-helper reference when used, and applicable caveat IDs.
-  - Map all scientific table information and conditions to an efficient set of data figures; use multiple panels or figures when one plot would obscure the data.
-  - Create drafts covering all applicable data and machine-readable plan and coverage manifests in a clean-kernel, top-to-bottom executed ipynb using raw results, condition-merged tables, validated curated tables, or an explicit combination.
-  - Keep production preprocessing, metric computation, statistical testing, model fitting, exclusion rules, and aggregation in the MATLAB result path; use the notebook only to validate and shape complete existing tables for figures.
-  - Use SciencePlots with the science base style for every Python chart and record the exact style stack; use science plus no-latex by default.
-  - Allow standalone Python plot scripts only for disposable diagnostic previews under the platform temporary directory; never promote their images to governed figure artifacts or predicate evidence.
-  - Update only the Work curated table paths and Work figure directory path in the TODO.
-  - Mark the work_postprocessing decision boundary and require Codex evaluation before figure_review.
-  - In figure_review, present drafts and coverage interactively, request researcher recommendations, and wait.
-  - Mark the figure_review decision boundary after the output is available and require Codex evaluation before figure_production.
-  - In figure_production, implement the recorded recommendations in an executed notebook, run validate_figure_notebook.py, and include its result in the final figure integrity and traceability audit together with the SciencePlots style stack and pass, fail, or not-applicable evidence for every triggered chart caveat.
-  - Mark the figure_production decision boundary and require Codex evaluation before completion or rework.
+figure_protocol:
+  - Enter figure_review when validated complete results are ready.
+  - Curate presentation tables without changing rows or stable keys.
+  - Map every applicable metric, condition, coverage state, and parameter sensitivity to the draft set.
+  - Render drafts from a dedicated Python script under exp/figures, separate from computation code.
+  - Use SciencePlots with science plus no-latex by default and record script, input, and output hashes.
+  - Present every draft and coverage summary and wait for researcher feedback in the same state.
+  - Record when governed figures were first presented; later scientific TODO changes use a versioned TODO based on the current implementation.
+  - Store figure exports and audits under data/figures; enter figure_production after the researcher confirms its rule path.
 
 communication_contract:
-  - Use established scientific and engineering terminology when it exists.
-  - Describe concrete operations before introducing a local label; never present an invented label as established terminology.
-  - Tie robust, significant, optimal, complete, and generalizable to TODO-defined or recorded criteria.
+  - Use established technical terms and direct sentences.
   - Separate facts, interpretation, predicate judgments, and recommendations.
-  - Prefer one concise worked example for a fragile rule and add a second only when it demonstrates a materially different boundary case.
+  - Tie evaluative claims to TODO-defined criteria and evidence.
+  - Use examples only when they clarify a fragile boundary.

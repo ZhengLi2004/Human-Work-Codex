@@ -2,12 +2,12 @@ function run_buffered_results(taskTable, outputDir, tasksPerChunk)
     %RUN_BUFFERED_RESULTS Template for chunked, worker-isolated result writes.
     %
     % Adapt COMPUTE_ONE_TASK and the result schema to the TODO. Each PARFOR
-    % iteration computes a meaningful chunk and publishes one immutable Parquet
+    % iteration computes a meaningful chunk and publishes one validated Parquet
     % file. Do not call WRITETABLE once per result row.
     %
     % Inputs:
     %   taskTable     Table containing task_id, condition, repeat, and value.
-    %   outputDir     Destination directory for immutable Parquet chunks.
+    %   outputDir     Destination directory for validated Parquet chunks.
     %   tasksPerChunk Positive integer number of tasks assigned to each chunk.
 
     arguments
@@ -34,14 +34,14 @@ function run_buffered_results(taskTable, outputDir, tasksPerChunk)
         finalPath = fullfile(outputDir, sprintf("part-%06d.parquet", chunkId));
         expectedTaskIds = string(taskTable.task_id(rows));
 
-        % Resume only after the existing immutable chunk matches the task slice.
+        % Resume only after the existing validated chunk matches the task slice.
 
         if isfile(finalPath)
             existing = parquetread(finalPath, ...
                 "SelectedVariableNames", "task_id");
 
             assert(isequal(string(existing.task_id), expectedTaskIds), ...
-                "Existing immutable chunk does not match expected tasks: %s", finalPath);
+                "Existing validated chunk does not match expected tasks: %s", finalPath);
 
             continue
         end

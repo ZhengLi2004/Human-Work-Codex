@@ -5,7 +5,7 @@ and caveat references in ``../references``. They accept already validated raw
 or precomputed tables. Callers supply scientific filters, aggregates,
 uncertainty estimates, and figure coverage checks before rendering.
 
-Copy this file beside an executed figure notebook when a matching pattern is
+Copy this file beside a governed plotting script when a matching pattern is
 useful, then record the copied path and function name in the figure manifest.
 Importing this module activates the required SciencePlots ``science`` and
 ``no-latex`` style stack.

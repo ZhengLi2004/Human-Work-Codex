@@ -1,8 +1,8 @@
-schema_version: 2
-todo_id: TODO-000
-todo_path: TODO/TODO-000.md
+schema_version: 4
+todo_id: TODO_001
+todo_path: TODO_001/TODO.md
 state_machine: .research/workflow/state-machine.yaml
-state_machine_rule_set_version: 4
+state_machine_rule_set_version: 6
 revision: 0
 
 todo_fingerprint:
@@ -11,6 +11,10 @@ todo_fingerprint:
   synchronized_at: null
 
 todo_change_events: []
+
+milestones:
+  governed_figures_presented_at: null
+  governed_figures_presentation_ref: null
 
 current:
   state: todo_ready
@@ -30,7 +34,7 @@ execution:
   predicate_results: {}
 
 transition_review:
-  status: not_evaluated
+  status: not_prepared
   based_on_revision: 0
   based_on_rule_set_version: null
   based_on_todo_fingerprint: null

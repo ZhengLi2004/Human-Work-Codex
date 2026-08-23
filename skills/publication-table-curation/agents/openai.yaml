@@ -1,7 +1,0 @@
-interface:
-  display_name: "Publication Table Curation"
-  short_description: "Curate validated, complete result tables"
-  default_prompt: "Use $publication-table-curation during work_postprocessing to verify aggregation-validation.json and create row- and key-preserving Work tables for figure planning that covers all applicable data."
-
-policy:
-  allow_implicit_invocation: false

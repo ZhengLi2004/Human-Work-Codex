@@ -1,12 +1,12 @@
 # Evidence Artifact Contract
 
-All artifacts live below the result directory referenced by the TODO. They are technical evidence, not additional handoff documents.
+Aggregation artifacts live under `TODO_###/data/`, normally in `data/raw/` or `data/tables/`. Aggregation code lives in `TODO_###/exp/`. These artifacts are technical evidence, not additional handoff documents.
 
 ## Required logical artifacts
 
 ### Raw-output index
 
-Maps every stable task/repeat ID to immutable raw artifacts, input identifiers, configuration/code/data fingerprints, state, and failure information.
+Maps every stable task/repeat ID to valid raw artifacts, input identifiers, configuration/code/data fingerprints, state, failure information, and any recorded debug invalidation.
 
 ### Complete run-level table
 
@@ -25,7 +25,7 @@ Aggregates only across the independent repeat unit defined in the TODO. Every co
 
 ### Condition-merged table
 
-Joins all condition-level metrics and controls needed for downstream Work curation and figures. It must:
+Joins all condition-level metrics and controls needed for downstream curation and figures. It must:
 
 - preserve the complete condition skeleton;
 - use explicit validated join keys and cardinality;
@@ -56,14 +56,14 @@ Reconcile:
 - metric validity and coverage fields;
 - joins against the TODO-defined controls.
 
-Do not interpret scientific meaning during aggregation. Preserve enough information for Work to curate tables and produce figures without rereading operational logs.
+Do not interpret scientific meaning during aggregation. Preserve enough information for later table curation and figures without rereading operational logs.
 
 ## `aggregation-validation.json`
 
-Write this file beside the aggregation manifest. It is the fixed machine-readable validation output; do not replace it with prose or a notebook. Include:
+Write this file beside the aggregation manifest. It is the fixed machine-readable validation output; do not replace it with prose. Include:
 
 - `schema_version`, `todo_fingerprint`, `task_state_revision`, and `generated_at_utc`;
-- `controlling_sources` in the order TODO, task-state and frozen task manifest, raw-result index and immutable raw outputs, then derived tables, with path, SHA-256, revision when available, expected grain, and resolution status;
+- `controlling_sources` in the order TODO, task-state and frozen task manifest, raw-result index and valid raw outputs, then derived tables, with path, SHA-256, revision when available, expected grain, and resolution status;
 - `analysis_grain`, stable condition keys, stable run keys, statistical unit, time range, timezone, and declared filters;
 - `planned_coverage` and `observed_coverage`, including planned runs, observed runs, every run status, planned conditions, aggregate conditions, and missing keys;
 - `checks`, each with a stable check ID, `status: pass|fail|not_applicable`, concrete observed values, expected rule, impact on use, and evidence paths;
@@ -72,4 +72,4 @@ Write this file beside the aggregation manifest. It is the fixed machine-readabl
 
 At minimum, record checks for source availability and agreement, intended grain, schema, stable-key uniqueness, missing planned keys, status-count reconciliation, range validity, time coverage when time is used, declared-versus-observed join cardinality, aggregate row count, and traceability. Record denominator, weighted-average, period-alignment, timezone, selection-bias, and outlier-influence checks only when the metric or design makes them applicable; use `not_applicable` with a short reason when the applicability decision itself matters.
 
-Set `passed: false` when any finding means the aggregate is unsafe for the TODO-defined use. Keep the derived files for diagnosis, but do not advertise them as validated evidence and do not let Work use them as a complete figure source.
+Set `passed: false` when any finding means the aggregate is unsafe for the TODO-defined use. Keep the derived files for diagnosis, but do not advertise them as validated evidence or use them as a complete figure source.
