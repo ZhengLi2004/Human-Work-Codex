@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Ablation and Diagnosis"
   short_description: "Distinguish bounded candidate explanations"
-  default_prompt: "Use $research-ablation-diagnosis when task-state current.state is ablation_diagnosis."
+  default_prompt: "Use $research-ablation-diagnosis to resolve the approved diagnostic question with a discriminating intervention and complete evidence."
 
 policy:
   allow_implicit_invocation: false

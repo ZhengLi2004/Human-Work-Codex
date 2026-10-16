@@ -22,6 +22,8 @@
 | Hand-written or generated MEX | MATLAB-reference differential test + clean-build/fallback test + benchmark | supported platform and representative hot-kernel inputs |
 | Cross-language interchange | round-trip schema, dtype, shape, key, and index test | one representative artifact |
 | Aggregation | synthetic complete/incomplete grids plus grain, key, join, status-count, denominator, and weighting contracts selected by risk | every status class and every applicable high-impact identity |
+| Statistical unit or dependence | audited paired/nested example against the approved estimator | the grouping or resampling boundary that could inflate n |
+| Inference or interval calculation | independent analytic/reference result plus relevant undefined case | affected contrast, interval, or multiplicity family |
 | Buffered/partitioned I/O | interruption, duplicate, schema, row-count, and atomic-publish tests | two chunks and one damaged chunk |
 | Parallel scheduling | serial/parallel equivalence + duplicate/missing task reconciliation | small complete manifest |
 | Parallel or GPU transfer overhead | end-to-end benchmark including pool/startup or host/device transfer | representative task batch and memory-relevant shape |
@@ -30,8 +32,8 @@
 | Chart-specific caveat | trigger-to-audit status and rendered-evidence check | every applicable `DTV-Cxx` ID |
 | Figure execution artifact | plotting-script-to-export and manifest trace | every governed draft and final figure |
 | Figure script reproducibility | syntax, placeholder, script/source/output hash, command, style-stack, and export checks | every governed planning and final script |
-| Figure style | import/style-stack assertion plus rendered inspection | every Python chart |
-| Figure title, axes, legend, or unexplained series | manifest-to-render audit plus visual inspection | every final figure |
+| Figure style | import/style-stack and renderer checks; thumbnail inspection if needed | every Python chart |
+| Figure title, axes, legend, or unexplained series | manifest-to-render audit; thumbnail inspection if needed | every final figure |
 | Researcher figure recommendation | recommendation-to-manifest trace check | every requested include, exclude, revision, or schematic |
 | Generalized diagram mistaken for data | kind/label/source audit | every schematic |
 

@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Report to TODOs"
   short_description: "Author current-action research TODOs"
-  default_prompt: "Use $research-report-to-todos to author or revise a concise executable research TODO."
+  default_prompt: "Use $research-report-to-todos to turn the supplied material into an executable scientific TODO with unresolved decisions made explicit."
 
 policy:
   allow_implicit_invocation: false

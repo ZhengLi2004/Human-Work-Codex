@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Development"
   short_description: "Run work-right-fast scientific development"
-  default_prompt: "Use $research-development to complete Work-Right-Fast in `development`."
+  default_prompt: "Use $research-development to deliver the approved implementation with correctness and representative performance evidence."
 
 policy:
   allow_implicit_invocation: false

@@ -7,18 +7,17 @@ description: Build, verify, debug, and profile the TODO implementation in `devel
 
 Require `current.state: development`. Use `$research-computing-implementation` for code and performance choices and `$research-agile-testing` for material risks.
 
-## Workflow
+## Stage outcome
 
-1. Use `$research-computing-implementation` to complete Work, Right, and Fast in the task directories.
-2. Use `$research-agile-testing` for the identified scientific and engineering risks.
-3. Add `$research-batch-execution` only when execution shape requires batching or recovery.
-4. Record artifacts and predicates, then use `$research-state-transition` to prepare every outgoing rule.
+Produce an implementation faithful to the TODO with a runnable path, correctness evidence, and representative performance measurements. Use the computing and testing Skills for those dependencies; add `$research-batch-execution` when batching or recovery is needed. Choose the implementation structure and iteration sequence within those boundaries. Prioritize a minimal implementation of the model and its derivation over patches or parameter search; empirical framework validation belongs to the approved experimental stage. Technical speedups preserve this distinction.
+
+Reuse valid evidence from earlier passes and resolve the remaining gaps. At the stage boundary, record artifacts and predicates and use `$research-state-transition` to prepare every outgoing rule.
 
 Debug in place. Record affected stable IDs before replacing invalid `data/` artifacts, regenerate dependent outputs, and preserve valid observations. Synchronize approved TODO revisions before continuing.
 
 ## Output
 
-Return changed files, commands and tests, correctness evidence, profiles and benchmarks, recovery design, invalidations, limitations, and predicate evidence.
+Link the implementation and supporting evidence; explain material changes, validation, limitations, and the prepared decision.
 
 ## Guardrails
 

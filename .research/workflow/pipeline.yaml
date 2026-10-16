@@ -1,4 +1,4 @@
-schema_version: 10
+schema_version: 12
 name: research-task-system
 
 purpose: >-
@@ -12,7 +12,7 @@ roles:
       - scientific_semantic_changes
       - experimentally_supported_parameter_selection
       - lifecycle_rule_path_confirmation
-      - scripts_with_estimated_minimum_runtime_over_one_hour
+      - scripts_with_estimated_minimum_runtime_over_three_hours
       - figure_feedback_and_scientific_interpretation
       - completion_stop_redesign_or_new_todo_decision
 
@@ -71,6 +71,7 @@ routing:
   todo_authoring: skills/research-report-to-todos/SKILL.md
   lifecycle: skills/research-state-transition/SKILL.md
   figures: skills/research-figure-production/SKILL.md
+  statistics: skills/research-statistical-analysis/SKILL.md
   human_gate: skills/human-research-review-gate/SKILL.md
   post_report: skills/post-report-assessment/SKILL.md
 
@@ -96,7 +97,7 @@ state_definitions:
 
   pilot:
     skill: skills/research-pilot/SKILL.md
-    purpose: Run the complete approved preliminary scope and parameter sensitivities.
+    purpose: Validate the framework on primary criteria before refinement; account for the complete approved scope and sensitivities.
 
   confirmation:
     skill: skills/research-confirmation/SKILL.md
@@ -124,16 +125,11 @@ state_definitions:
     purpose: Preserve a human-confirmed stop decision.
 
 execution_protocol:
-  - Resolve TODO, task state, fingerprint, current state, and human instruction.
-  - Execute only the recorded state using the minimum relevant Skills.
-  - Keep method code in code, experiment and measurement code in exp, and experimental data in data.
-  - Keep TODO requirements proportional to the question and observed risks.
-  - Use MATLAB-first non-plotting computation and separate SciencePlots Python scripts for figures.
-  - Use representative medium data for Fast benchmarks and check a larger scale when scaling can alter the conclusion.
-  - For a nonstandard parameter, record its measurable selection criterion, sensitivity exploration, and later sensitivity figure.
-  - Hand scripts whose estimated minimum runtime exceeds one hour to the researcher after preflight.
-  - At the decision boundary, record evidence, prepare every rule including self, and recommend one.
-  - On researcher confirmation, apply the rule and begin its target immediately.
+  - Resolve the scientific specification, lifecycle identity, and current authorization before acting.
+  - Carry the authorized stage to its boundary, choosing implementation details and relevant Skills from the task and its material risks.
+  - Use AGENTS.md for shared boundaries, policy for limits, and capability references for artifact contracts; reuse valid evidence instead of repeating unchanged work.
+  - Apply statistical design and reporting requirements when the task estimates uncertainty or makes inferential claims; keep scientific decisions in the TODO.
+  - Record evidence and prepare every outgoing rule including self, with one recommendation. Apply an approved path atomically and begin its target.
 
 figure_protocol:
   - Enter figure_review when validated complete results are ready.

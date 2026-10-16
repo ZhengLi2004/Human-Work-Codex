@@ -4,10 +4,24 @@ Reusable procedures belong in Skills, lifecycle rules in `.research/workflow/sta
 
 ## 1. Roles and authority
 
-- **The human researcher** owns the scientific question, hypotheses, study design, experimentally supported parameter choices, lifecycle decisions, scientific interpretation, figure feedback, and the decision to complete, stop, redesign, or create a TODO. The researcher runs any script whose estimated minimum runtime exceeds one hour.
+- **The human researcher** owns the scientific question, hypotheses, study design, experimentally supported parameter choices, lifecycle decisions, scientific interpretation, figure feedback, and the decision to complete, stop, redesign, or create a TODO. The researcher runs any script whose estimated minimum runtime exceeds three hours.
 - **Codex** performs every agent-side stage in one shared task context: TODO authoring and revision, lifecycle control, implementation, testing, short execution, aggregation, table curation, figure planning, figure production, and technical evidence maintenance.
 
 TODO authoring, implementation, aggregation, curation, and figure production remain distinct workflow stages inside that shared context.
+
+### Research priorities
+
+Work from **problem → metrics → framework → parameters**. Learn through bounded experiments and revisit upstream choices when evidence challenges them. Extract the main unresolved phenomenon and its tractable core before broadening scope. Use only metrics that measure that core; state essential tradeoffs. Secondary measures are justified guardrails against unacceptable behavior, not optimization targets once within bounds. Fair baseline comparisons assess the primary problem under comparable conditions; universal superiority is not the objective.
+
+Use 80/20 as an effort heuristic: concentrate on modeling, derivation, and analysis; reserve refinement for a framework already supported on the primary problem. Before substantial tuning or patching, validate the framework against TODO-defined primary criteria and relevant baselines. If it underperforms, check implementation correctness, then prioritize reassessing or replacing the framework over further tuning. Scientific revisions still require researcher approval; numerical speed optimization does not substitute for framework validation.
+
+### Working discretion
+
+Work toward the approved stage outcome using the repository's contracts as constraints. Choose implementation details, tools, and focused checks from the actual problem; procedure lists describe dependencies and evidence needs rather than a script to recite. Reuse trustworthy evidence when its inputs and scope still match. Continue authorized work through its decision boundary without requesting the same approval again.
+
+Resolve routine engineering ambiguity from repository context and record consequential assumptions. Ask a focused question when missing information changes scientific meaning, authorized scope, or a lifecycle decision; continue independent work meanwhile. When a rule blocks progress, cite the exact rule, affected action, and evidence needed to resolve it. Model capability does not replace researcher authority or observed evidence.
+
+Keep detailed evidence in artifacts. User-facing updates should explain the outcome, material uncertainty, and next decision; use tables or lists where they aid comparison. Scale verification to the scientific and engineering risks, and stop extending it once the relevant checks pass unless new evidence warrants more work.
 
 Resolve conflicts in this order:
 
@@ -94,7 +108,7 @@ Use `$research-computing-implementation` for scientific code.
 - Keep logs separate from numerical results, publish completed chunks atomically, and validate them before completion.
 - Write task-state YAML atomically as a complete document.
 - Derive concurrency from measured CPU, memory, GPU memory, runtime, and I/O.
-- When a script's estimated minimum runtime exceeds one hour, Codex completes preflight and provides the researcher a resumable script or command with batching, checkpoints, progress, logs, working directory, expected outputs, resource estimate, completion criteria, and failure criteria. Codex does not launch that formal run.
+- When a script's estimated minimum runtime exceeds three hours, Codex completes preflight and provides the researcher a resumable script or command with batching, checkpoints, progress, logs, working directory, expected outputs, resource estimate, completion criteria, and failure criteria. Codex does not launch that formal run.
 
 ## 7. Evidence and parameters
 
@@ -107,6 +121,14 @@ Use `$research-computing-implementation` for scientific code.
 - A nonstandard parameter without established methodological or prior empirical support requires both selection by a measurable TODO-defined criterion and a sensitivity exploration around the selected value. Preserve the full results and include the sensitivity result in governed figures.
 - Treat successful execution as technical evidence. Confirmation support requires the TODO-defined confirmatory experiment.
 
+### Statistical design and reporting
+
+Use `$research-statistical-analysis` when a task estimates uncertainty, compares conditions, fits inferential models, or reports statistical claims. Its source reference distinguishes Nature, Cell, and Science guidance from repository conventions; apply the relevant journal and study context.
+
+The TODO owns the estimand, independent unit, sample-size rationale, design, comparisons, uncertainty method, and applicable decision rules. Freeze these before Confirmation. Engineering repeat defaults do not justify scientific sample sizes. Codex may propose a defensible analysis; the researcher approves new or changed scientific choices.
+
+Preserve exact sample counts and their meaning, replicate/dependence structure, exclusions and missingness, effect estimates, uncertainty, and applicable test details through produced tables and figure captions. Distinguish descriptive spread from uncertainty and exploratory results from confirmatory evidence. Record applicability and statistical checks inside `aggregation-validation.json`; a structural validator alone does not establish inferential validity. Unsupported inference blocks its publication, while negative or inconclusive results remain valid outcomes.
+
 ## 8. Tables and figures
 
 During `figure_review`, Codex:
@@ -115,10 +137,12 @@ During `figure_review`, Codex:
 2. maps all scientific fields, metrics, conditions, coverage states, and applicable parameter sensitivities to an efficient draft set;
 3. records the relevant paper figure or established graphics convention supporting each method;
 4. renders drafts from a dedicated `.py` plotting script using complete validated sources;
-5. presents every draft and its coverage summary, then waits for researcher recommendations.
+5. applies the target-journal profile to the complete figure after data rendering, without changing scientific semantics;
+6. presents every draft and its coverage summary, then waits for researcher recommendations.
 
 During `figure_production`, Codex implements the recorded recommendations and checks source coverage, statistical units, aggregation, titles, axes, units, scales, legends, missingness, failures, schematics, sensitivity results, and readability.
 
+- Inspect images only when needed to resolve a specific question, and use thumbnails only. Prefer data, metadata, and programmatic checks; retain full-resolution exports for delivery. Record unresolved visual limits rather than claiming an unchecked property.
 - Keep computation and plotting code in separate files.
 - Every Python-rendered chart imports `scienceplots` and uses a style stack whose base is `science`; default to `science` plus `no-latex`.
 - Record plotting-script and input/output SHA-256 hashes, Git revision, package versions, execution command and times, data-quality results, style stack, and figure-data sufficiency in the manifest.

@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Pilot"
   short_description: "Run complete controlled Pilot evidence"
-  default_prompt: "Use $research-pilot to execute the approved Pilot manifest and sensitivity plan."
+  default_prompt: "Use $research-pilot to produce complete Pilot and sensitivity evidence for the next research decision."
 
 policy:
   allow_implicit_invocation: false

@@ -1,30 +1,26 @@
 # Entry Prompts
 
-Use `$research-task-router` for broad Research Task System requests.
+Use `$research-task-router` for research lifecycle work. State the desired outcome and task; Skills supply artifact contracts and governance. Routine engineering choices proceed within scope. Scientific changes and lifecycle paths retain their researcher decisions.
 
 ## Create or revise a TODO
 
 ```text
-Use $research-task-router to create the next TODO_###/TODO.md from [material], with exp/ and data/ plus code/ only when needed. Use valid Markdown with one-line $...$ math, add only justified requirements, and define selection, sensitivity, and figure requirements for each nonstandard parameter.
+Use $research-task-router to turn [material] into an executable TODO. Organize it around the core problem, primary metrics, framework validation, and then parameters; preserve approved decisions and identify unresolved choices.
 ```
 
-Before governed figures are presented, an approved revision updates the current TODO in place. After presentation, create a versioned TODO from the current TODO and implementation.
+Before governed figure presentation, an approved scientific revision updates the TODO in place. After presentation, it creates a versioned TODO based on the current implementation.
 
 ## Initialize
 
 ```text
-Use $research-task-router for [TODO]. Initialize todo_ready, resolve bounded project mappings, data meaning, and feasibility, then present every eligible rule including self with one recommendation.
+Use $research-task-router to initialize [TODO], resolve its readiness, and recommend an eligible starting path with the alternatives.
 ```
-
-Initialization includes bounded exploration and initial decision preparation.
 
 ## Execute a stage
 
 ```text
-Use $research-task-router for [TODO]. Execute current.state, record evidence, then present every eligible outgoing rule including self.
+Use $research-task-router to carry [TODO]'s recorded stage to its decision boundary. Resolve routine engineering choices, preserve the approved scientific scope, and report the evidence and next decision.
 ```
-
-Development uses MATLAB-first Make it work, right, and fast. Profile Fast on representative medium data; check a larger size when batch scaling can change the conclusion.
 
 ## Confirm a path
 
@@ -32,36 +28,42 @@ Development uses MATLAB-first Make it work, right, and fast. Profile Fast on rep
 Approve [rule_id].
 ```
 
-Confirmation applies the transition and begins its target immediately.
+Approval applies the eligible path and starts its target without another execution confirmation. Every boundary includes the self-transition.
 
-## Hand off a run over one hour
+## Prepare a long run
 
 ```text
-Prepare the current-state script for me to run. Complete representative preflight and provide batching, checkpoints, resume, progress, logs, resources, outputs, completion criteria, and failure criteria.
+Prepare [TODO]'s run for me to execute. Verify the preflight and provide a resumable command with the resources, outputs, progress, and completion or failure criteria I need.
 ```
 
-Use when estimated minimum runtime exceeds one hour.
+The researcher executes scripts whose estimated minimum runtime exceeds three hours.
+
+## Review statistical design or evidence
+
+```text
+Use $research-task-router and $research-statistical-analysis to assess [TODO]'s statistical design and reporting for [target journal, if known]. Apply requirements relevant to the scientific question, distinguish approved choices from proposals, and identify any evidence that limits the intended inference.
+```
 
 ## Review figures
 
 ```text
-Use $research-task-router for [TODO]. In figure_review, curate complete validated tables, map all conditions and parameter sensitivities, execute a separate SciencePlots Python script, present every draft with coverage, and wait for my feedback.
+Use $research-task-router to produce [TODO]'s complete figure-review set. Make the scientific comparisons, uncertainty, and coverage clear, and present the drafts for my feedback.
 ```
 
 ## Produce final figures
 
 ```text
-Use $research-task-router for [TODO]. In figure_production, implement my recorded feedback, execute the final plotting script, validate hashes and exports, and complete the integrity audit.
+Use $research-task-router to implement my recorded figure feedback for [TODO] and deliver the final exports with their integrity evidence.
 ```
 
 ## Record an approved parameter
 
 ```text
-The complete selection and sensitivity evidence is at [paths]. I approve [parameter] = [value] under the predefined rule. Update the current TODO in place if governed figures have not been presented, preserve the full evidence, synchronize the fingerprint, and prepare fresh lifecycle paths.
+I approve [parameter] = [value] under the predefined rule, based on [complete selection and sensitivity evidence]. Use $research-task-router to synchronize the specification and prepare the next decision.
 ```
 
 ## Post-report assessment
 
 ```text
-Use $research-task-router to assess the next action after my report at [path]. Use complete results as facts and the report as scientific interpretation.
+Use $research-task-router to assess the next action after my report at [path]. Ground the recommendation in the complete results, remaining uncertainty, and cost of resolving it.
 ```

@@ -75,6 +75,29 @@ class FigureScriptValidationTests(unittest.TestCase):
             "package_versions": {"matplotlib": "3"},
             "data_quality_results": {"passed": True},
             "figure_data_sufficiency": {"passed": True},
+            "publication_profile": {
+                "name": "science-two-column",
+                "source_urls": [
+                    "https://www.science.org/content/page/instructions-preparing-initial-manuscript"
+                ],
+                "checked_at": "2026-08-29",
+                "final_width_mm": 121,
+                "final_height_mm": 90,
+                "font_family": "Helvetica",
+                "font_size_pt": 7,
+                "line_width_pt": 0.75,
+                "panel_label_style": "uppercase-bold-10pt",
+                "raster_dpi": 300,
+                "export_formats": ["pdf", "png"],
+            },
+            "post_render_style_audit": {
+                "applied_after_data_rendering": True,
+                "scienceplots_base_preserved": True,
+                "figure_title_inside_artwork": False,
+                "profile_match_checked": True,
+                "layout_checked": True,
+                "final_size_readable": True,
+            },
         }
         self.manifest.write_text(json.dumps(payload), encoding="utf-8")
 
@@ -103,6 +126,55 @@ class FigureScriptValidationTests(unittest.TestCase):
         self.output.write_bytes(b"changed")
         report = MODULE.validate(self.script, self.manifest, "planning")
         self.assertIn("output_0_hash", report["failed_checks"])
+
+    def test_missing_publication_profile_fails(self) -> None:
+        """Reject a manifest without the selected journal profile."""
+        payload = json.loads(self.manifest.read_text(encoding="utf-8"))
+        del payload["publication_profile"]
+        self.manifest.write_text(json.dumps(payload), encoding="utf-8")
+        report = MODULE.validate(self.script, self.manifest, "planning")
+        self.assertIn("publication_profile_present", report["failed_checks"])
+
+    def test_empty_manifest_fails(self) -> None:
+        """Reject an empty manifest instead of skipping required checks."""
+        self.manifest.write_text("{}", encoding="utf-8")
+        report = MODULE.validate(self.script, self.manifest, "planning")
+        self.assertIn("script_record_complete", report["failed_checks"])
+        self.assertIn("publication_profile_present", report["failed_checks"])
+
+    def test_in_artwork_figure_title_fails(self) -> None:
+        """Reject an audit that retains a figure title in the artwork."""
+        payload = json.loads(self.manifest.read_text(encoding="utf-8"))
+        payload["post_render_style_audit"]["figure_title_inside_artwork"] = True
+        self.manifest.write_text(json.dumps(payload), encoding="utf-8")
+        report = MODULE.validate(self.script, self.manifest, "planning")
+        self.assertIn("no_figure_title_inside_artwork", report["failed_checks"])
+
+    def test_tight_bbox_export_fails(self) -> None:
+        """Reject cropping that changes the recorded physical canvas."""
+        self.script.write_text(
+            "import scienceplots\n"
+            "import matplotlib.pyplot as plt\n"
+            "plt.style.use([\"science\", \"no-latex\"])\n"
+            "plt.gcf().savefig(\"figure.pdf\", bbox_inches=\"tight\")\n",
+            encoding="utf-8",
+        )
+        self.write_manifest()
+        report = MODULE.validate(self.script, self.manifest, "planning")
+        self.assertIn("exact_canvas_export", report["failed_checks"])
+
+    def test_suptitle_fails(self) -> None:
+        """Reject a figure-level title inside the artwork."""
+        self.script.write_text(
+            "import scienceplots\n"
+            "import matplotlib.pyplot as plt\n"
+            "plt.style.use([\"science\", \"no-latex\"])\n"
+            "plt.gcf().suptitle(\"Result\")\n",
+            encoding="utf-8",
+        )
+        self.write_manifest()
+        report = MODULE.validate(self.script, self.manifest, "planning")
+        self.assertIn("no_figure_suptitle", report["failed_checks"])
 
     def test_final_mode_merges_validation(self) -> None:
         """Merge a passing final validation into the integrity audit."""

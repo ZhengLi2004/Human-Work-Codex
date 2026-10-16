@@ -7,6 +7,8 @@ description: Initialize, synchronize, prepare, or atomically execute a fingerpri
 
 Keep lifecycle control in task-state YAML. Read `references/state-file-contract.md` before editing it.
 
+These checks protect the decision's identity and atomicity; retain them even when routine stage work is handled with discretion. An existing valid approval is sufficient to apply the exact eligible path and begin its target.
+
 ## Initialize and prepare
 
 Create `task-state.yaml` beside the TODO with the current rule set, complete TODO SHA-256, and `todo_ready`. Resolve bounded mapping, data meaning, and feasibility through `$research-task-router`, then prepare every outgoing rule including self.
@@ -27,4 +29,4 @@ Recheck the selected eligible rule against revision, rule set, fingerprint, and 
 
 ## Output
 
-Return the operation, paths, revision, state, rule set, fingerprint, eligible paths, recommendation, blockers, state change, and action begun.
+Persist the complete operation and decision identity in task state. At a decision boundary, show the state/revision, every eligible rule including self, one recommendation, and material blockers. After applying a decision, report the resulting state and action begun, linking detailed evidence rather than repeating it.

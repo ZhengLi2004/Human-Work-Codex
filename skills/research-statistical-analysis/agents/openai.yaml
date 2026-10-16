@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Statistical Analysis"
+  short_description: "Plan and audit traceable statistical evidence"
+  default_prompt: "Use $research-statistical-analysis to assess the approved statistical design and produce traceable estimates, uncertainty, and reporting evidence for this stage."

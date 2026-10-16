@@ -7,16 +7,13 @@ description: Select and run the minimum risk-driven tests needed to protect scie
 
 Test the defects most likely to change a research conclusion, not nominal coverage. Consult `references/test-selection-matrix.md` when the appropriate oracle or test type is unclear.
 
-## Workflow
+## Test selection
 
-1. Identify one to three material failure modes and the invariants they threaten.
-2. Choose the strongest practical oracle: analytic value, independent reference, invariant, metamorphic relation, or audited tiny case.
-3. Preserve a minimal failing case or baseline; add the smallest focused tests before boundary integration and one real smoke path.
-4. Use fixed seeds for implementation determinism and independent repeats for scientific uncertainty.
-5. Test interruption, duplicate launch, corruption, and partial output only when recovery or parallel behavior changes.
-6. Compare every optimized path with the retained reference at scientifically justified tolerances.
-7. For changed aggregates or figures, run their contract checks and provided validators.
-8. Run affected tests, convert reproduced defects into regressions, and report remaining risk.
+Identify the material failure modes and choose the strongest practical oracle: analytic value, independent implementation, invariant, metamorphic relation, or audited case. Cover those risks with focused tests and the relevant boundary or smoke path. Reuse valid checks whose inputs and contracts have not changed; no fixed test count or coverage quota is required.
+
+Use fixed seeds to check determinism and independent repeats for the TODO-defined scientific uncertainty. Exercise interruption, duplicate execution, corruption, or partial output when runner changes expose those risks. Compare optimized paths with the retained reference at scientifically justified tolerances. For changed aggregates or figures, run their contract checks and provided validators; statistical validity additionally uses `$research-statistical-analysis`.
+
+Preserve reproduced defects as regressions. Once affected checks and required validators pass, continue the stage unless a new failure or unresolved risk justifies broader testing.
 
 ## Guardrails
 
@@ -27,4 +24,4 @@ Test the defects most likely to change a research conclusion, not nominal covera
 
 ## Output
 
-Return risks, oracles, tests, commands and results, uncovered risks, and evidence sufficiency.
+Record commands, oracles, and outcomes; summarize whether the evidence covers the material risks and what remains unresolved.

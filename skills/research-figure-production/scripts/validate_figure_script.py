@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import tempfile
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -111,6 +112,127 @@ def validate_hash_records(
             add_check(checks, f"{label}_{index}_hash", actual == record["sha256"], f"actual={actual}")
 
 
+def validate_publication_records(
+    manifest: dict[str, Any],
+    checks: list[dict[str, Any]],
+) -> None:
+    """Validate the selected journal profile and post-render style audit.
+
+    Args:
+        manifest: Parsed figure manifest.
+        checks: Mutable validation results.
+    """
+    profile = manifest.get("publication_profile")
+    profile_present = isinstance(profile, dict) and bool(profile)
+    add_check(
+        checks,
+        "publication_profile_present",
+        profile_present,
+        "publication_profile object required",
+    )
+
+    if profile_present:
+        source_urls = profile.get("source_urls")
+        export_formats = profile.get("export_formats")
+        list_fields_ok = (
+            isinstance(source_urls, list)
+            and bool(source_urls)
+            and all(
+                isinstance(url, str) and url.startswith(("https://", "http://"))
+                for url in source_urls
+            )
+            and isinstance(export_formats, list)
+            and bool(export_formats)
+            and all(isinstance(item, str) and item for item in export_formats)
+        )
+        add_check(
+            checks,
+            "publication_profile_lists",
+            list_fields_ok,
+            f"sources={source_urls!r}, formats={export_formats!r}",
+        )
+
+        checked_at = profile.get("checked_at")
+
+        try:
+            date.fromisoformat(str(checked_at))
+            date_ok = True
+        except ValueError:
+            date_ok = False
+
+        add_check(
+            checks,
+            "publication_profile_checked_at",
+            date_ok,
+            repr(checked_at),
+        )
+        text_keys = ("name", "font_family", "panel_label_style")
+        numeric_keys = (
+            "final_width_mm",
+            "final_height_mm",
+            "font_size_pt",
+            "line_width_pt",
+            "raster_dpi",
+        )
+        invalid_text = [
+            key
+            for key in text_keys
+            if not isinstance(profile.get(key), str) or not profile[key].strip()
+        ]
+        invalid_numeric = []
+
+        for key in numeric_keys:
+            value = profile.get(key)
+
+            if not (
+                isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and 0 < float(value) < float("inf")
+            ):
+                invalid_numeric.append(key)
+
+        add_check(
+            checks,
+            "publication_profile_fields",
+            not invalid_text and not invalid_numeric,
+            f"invalid_text={invalid_text}, invalid_numeric={invalid_numeric}",
+        )
+
+    style_audit = manifest.get("post_render_style_audit")
+    audit_present = isinstance(style_audit, dict) and bool(style_audit)
+    add_check(
+        checks,
+        "post_render_style_audit_present",
+        audit_present,
+        "post_render_style_audit object required",
+    )
+
+    if not audit_present:
+        return
+
+    required_true = (
+        "applied_after_data_rendering",
+        "scienceplots_base_preserved",
+        "profile_match_checked",
+        "layout_checked",
+        "final_size_readable",
+    )
+    failed = [key for key in required_true if style_audit.get(key) is not True]
+    add_check(
+        checks,
+        "post_render_style_checks",
+        not failed,
+        f"failed={failed}",
+    )
+
+    add_check(
+        checks,
+        "no_figure_title_inside_artwork",
+        style_audit.get("figure_title_inside_artwork") is False,
+        repr(style_audit.get("figure_title_inside_artwork")),
+    )
+
+
 def validate(script_path: Path, manifest_path: Path, mode: str) -> dict[str, Any]:
     """Validate script syntax, style use, provenance, and exports.
 
@@ -156,17 +278,49 @@ def validate(script_path: Path, manifest_path: Path, mode: str) -> dict[str, Any
         )
         placeholders_absent = "REPLACE_" not in source and "TODO-XXX" not in source
         add_check(checks, "no_placeholders", placeholders_absent, "no unresolved placeholders")
+        tight_bbox_export = any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "savefig"
+            and any(
+                keyword.arg == "bbox_inches"
+                and isinstance(keyword.value, ast.Constant)
+                and keyword.value.value == "tight"
+                for keyword in node.keywords
+            )
+            for node in ast.walk(tree)
+        )
+        add_check(
+            checks,
+            "exact_canvas_export",
+            not tight_bbox_export,
+            "bbox_inches='tight' changes the recorded physical canvas",
+        )
+        suptitle_call = any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "suptitle"
+            for node in ast.walk(tree)
+        )
+        add_check(
+            checks,
+            "no_figure_suptitle",
+            not suptitle_call,
+            "put the figure title in the caption or legend",
+        )
 
     manifest: dict[str, Any] = {}
 
     if manifest_exists:
         try:
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            add_check(checks, "manifest_json", isinstance(manifest, dict), "JSON object required")
+            loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
+            is_object = isinstance(loaded, dict)
+            add_check(checks, "manifest_json", is_object, "JSON object required")
+            manifest = loaded if is_object else {}
         except json.JSONDecodeError as error:
             add_check(checks, "manifest_json", False, str(error))
 
-    if manifest:
+    if manifest_exists:
         script_record = manifest.get("plotting_script", {})
         record_complete = isinstance(script_record, dict) and script_record.get("path") and script_record.get("sha256")
         add_check(checks, "script_record_complete", bool(record_complete), "plotting_script.path and sha256 required")
@@ -192,6 +346,7 @@ def validate(script_path: Path, manifest_path: Path, mode: str) -> dict[str, Any
 
         validate_hash_records(manifest.get("inputs"), "input", manifest_path, checks)
         validate_hash_records(manifest.get("outputs"), "output", manifest_path, checks)
+        validate_publication_records(manifest, checks)
 
     passed = bool(checks) and all(check["passed"] for check in checks)
     return {

@@ -1,7 +1,7 @@
 interface:
   display_name: "Post-Report Assessment"
   short_description: "Assess the next research action"
-  default_prompt: "Use $post-report-assessment after the human report to assess expected information gain and the next decision."
+  default_prompt: "Use $post-report-assessment to recommend the next research action from complete evidence, remaining uncertainty, and cost."
 
 policy:
   allow_implicit_invocation: false

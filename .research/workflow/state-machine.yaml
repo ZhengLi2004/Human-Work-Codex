@@ -1,5 +1,5 @@
 schema_version: 4
-rule_set_version: 6
+rule_set_version: 8
 name: research-task-lifecycle
 
 purpose: >-
@@ -45,6 +45,29 @@ decision_protocol:
   preserve_decision_snapshot_in_history: true
 
 migrations:
+  - from_rule_set_version: 7
+    to_rule_set_version: 8
+    state_map: {}
+    preserve_execution_evidence: true
+    invalidate_pending_review: true
+    invalidate_predicate_results:
+      - todo_definition_complete
+      - pilot_scope_defined
+      - figure_integrity_audit_passed
+    reason: Problem-led framework validation and evidence-based thumbnail inspection clarify readiness and integrity requirements.
+
+  - from_rule_set_version: 6
+    to_rule_set_version: 7
+    state_map: {}
+    preserve_execution_evidence: true
+    invalidate_pending_review: true
+    invalidate_predicate_results:
+      - todo_definition_complete
+      - confirmation_prerequisites_ready
+      - results_ready_for_figures
+      - figure_integrity_audit_passed
+    reason: Statistical design and reporting evidence now contributes to these predicates.
+
   - from_rule_set_version: 5
     to_rule_set_version: 6
 
@@ -107,7 +130,7 @@ states:
     terminal: true
 
 predicate_catalog:
-  todo_definition_complete: TODO has a complete current scientific definition.
+  todo_definition_complete: TODO defines the core problem, primary criteria, justified guardrails, and applicable framework-validation criteria before refinement, plus approved statistical design and sample-size rationale or a reason inference is outside scope.
   current_scope_executed: The current approved stage scope reached its boundary.
   no_critical_correctness_risk: No unresolved correctness risk blocks progress.
   no_scope_change_required: Progress does not require an unapproved semantic change.
@@ -120,13 +143,13 @@ predicate_catalog:
   performance_optimization_complete: Representative medium-scale profiling is complete.
   risk_matched_tests_sufficient: Tests cover the material implementation risks.
   smoke_test_passed: One representative combination and repeat completed correctly.
-  pilot_scope_defined: Pilot combinations, repeats, metrics, and controls are complete.
+  pilot_scope_defined: Pilot combinations, repeats, metrics, and controls are complete; method-development work separates framework validation from refinement, with an evidence-based criterion for proceeding or reconsidering the framework.
   pilot_grid_complete: Every Pilot combination has an accounted-for state.
   pilot_evidence_supports_confirmation: Pilot evidence supports the frozen Confirmation plan.
   confirmation_spec_frozen: Confirmation definitions and configuration are fixed.
   verified_parameters_recorded: Approved experimentally selected values are in the TODO.
   required_parameter_sensitivity_complete: Every applicable nonstandard parameter has sensitivity evidence.
-  confirmation_prerequisites_ready: Frozen design, implementation, tests, and data are ready.
+  confirmation_prerequisites_ready: Frozen design, implementation, tests, and data are ready, including approved applicable statistical definitions and stopping rules.
   implementation_rework_needed: A reproducible implementation defect requires Development.
   bounded_diagnosis_needed: A bounded approved diagnosis is needed.
   diagnostic_scope_ready: Diagnosis variables, controls, and decision rule are complete.
@@ -136,7 +159,7 @@ predicate_catalog:
   formal_evidence_complete: The complete valid Confirmation evidence exists.
   formal_run_invalidated: A documented defect invalidates the formal run.
   todo_completion_evidence_satisfied: Technical completion criteria are satisfied.
-  results_ready_for_figures: Complete validated results can support figure review.
+  results_ready_for_figures: Complete validated results can support figure review; aggregation validation includes passing applicable statistical checks or a justified not-applicable determination.
   curated_tables_complete: Presentation tables preserve rows and stable keys.
   figure_plan_complete: The plan maps all applicable scientific information.
   figure_method_basis_recorded: Each graphical method has a recorded basis.
@@ -150,7 +173,7 @@ predicate_catalog:
   figure_plan_revision_needed: The draft mapping or coverage needs another review pass.
   final_figures_complete: Final figures implement the recorded feedback.
   figure_outputs_traceable: Scripts, sources, hashes, exports, and manifests are linked.
-  figure_integrity_audit_passed: Final coverage, meaning, and rendering checks pass.
+  figure_integrity_audit_passed: Final coverage, meaning, rendering, and applicable statistical checks pass with traceable evidence. Visual inspection uses thumbnails only when needed; unresolved integrity or readability findings prevent a pass.
   misleading_figure_risk_found: A final figure could mislead or omit required context.
   computation_output_defect_found: Figure review exposed a computation or aggregation defect.
   formal_output_gap_found: Figure review exposed a gap in formal evidence.

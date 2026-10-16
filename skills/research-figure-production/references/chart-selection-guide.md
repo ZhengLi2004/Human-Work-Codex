@@ -137,6 +137,7 @@ Add these fields to each `figure-plan.json` entry:
 - `python_reference_url`: exact example page used, or `null`;
 - `helper_reference`: copied helper path, function, and repository revision, or `null`;
 - `style_stack`: exact SciencePlots stack beginning with `science`;
+- `publication_profile`: target journal, layout slot, official source and check date, and final dimensions;
 - `applicable_caveat_ids`: stable IDs from `chart-caveat-checklist.md`;
 - `coverage_strategy`: panel, facet, series, missingness, and failure-state mapping.
 
@@ -161,6 +162,21 @@ Example:
   "python_reference_url": null,
   "helper_reference": "assets/scientific_plot_patterns.py::plot_interval_estimates at REPOSITORY_REVISION",
   "style_stack": ["science", "no-latex"],
+  "publication_profile": {
+    "name": "science-two-column",
+    "source_urls": [
+      "https://www.science.org/content/page/instructions-preparing-initial-manuscript"
+    ],
+    "checked_at": "2026-08-29",
+    "final_width_mm": 121,
+    "final_height_mm": 90,
+    "font_family": "Helvetica",
+    "font_size_pt": 7,
+    "line_width_pt": 0.75,
+    "panel_label_style": "uppercase-bold-10pt",
+    "raster_dpi": 300,
+    "export_formats": ["pdf", "png"]
+  },
   "applicable_caveat_ids": ["DTV-C07", "DTV-C11", "DTV-C28"],
   "coverage_strategy": "one panel per dataset; every method-noise combination and failed condition is accounted for"
 }

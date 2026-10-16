@@ -1,7 +1,7 @@
 interface:
   display_name: "Human Research Review Gate"
   short_description: "Request a blocking human decision"
-  default_prompt: "Use $human-research-review-gate to present evidence and request one explicit researcher decision."
+  default_prompt: "Use $human-research-review-gate to present the prepared evidence and the specific decision that still requires researcher approval."
 
 policy:
   allow_implicit_invocation: false

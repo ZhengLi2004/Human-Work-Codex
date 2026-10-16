@@ -1,6 +1,6 @@
 # Python and MATLAB Scientific-Computing Guide
 
-Use this reference after the TODO fixes scientific meaning. Benchmark every performance choice on representative work.
+Use this reference after the TODO fixes scientific meaning. Benchmark material performance changes on representative work.
 
 ## Selection
 
@@ -37,7 +37,9 @@ Convenience, familiarity, existing Python code, or shorter syntax does not justi
 - Consider hand-written or generated MEX only for a stable profiled kernel. Keep the MATLAB reference and record source, build command, compiler/toolbox, platform support, fallback, benchmark, and equivalence test. `codegen -jit` means JIT MEX generation, not general MATLAB JIT.
 - Use `matlab.unittest` with explicit, scientifically justified tolerances.
 
-## Optimization ladder
+## Optimization options
+
+Choose from these options for the measured bottleneck. Preserve Work/Right/Fast dependencies; there is no requirement to try every technique or exhaust them in this order.
 
 1. Eliminate unnecessary work and repeated I/O.
 2. Improve complexity, numerical method, and task granularity.

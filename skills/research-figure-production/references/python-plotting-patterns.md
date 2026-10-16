@@ -4,6 +4,26 @@ After chart selection, copy only the needed helpers from `../assets/scientific_p
 
 Copy only the needed helper code beside the task script. Record its repository revision, function, interpretation-affecting arguments, and exact SciencePlots stack. Keep the script separate from MATLAB computation.
 
+Seaborn is useful for `hue`, `style`, `size`, categorical order, facets, `despine`, and `move_legend`. Do not ask it to compute a production estimate or interval: pass precomputed quantities or plot observations directly. Do not call `set_theme` in a way that replaces the active SciencePlots style. After drawing every data artist, run the publication-style function from `research_figure_template.py` once on the complete figure.
+
+Build multi-panel figures as one Matplotlib `subplot_mosaic` or `GridSpec`, using shared axes and a constrained layout where applicable. The final profile sets the canvas; do not crop it with `bbox_inches="tight"`.
+
+```python
+import seaborn as sns
+
+sns.lineplot(
+    data=complete_summary,
+    x="condition",
+    y="estimate",
+    hue="method",
+    style="method",
+    estimator=None,
+    errorbar=None,
+    sort=False,
+    ax=axes,
+)
+```
+
 ## Precomputed estimates and intervals
 
 Use the TODO-defined estimate and interval already present in the complete table.

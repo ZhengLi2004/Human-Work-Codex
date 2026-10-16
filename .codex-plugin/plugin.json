@@ -1,7 +1,7 @@
 {
   "name": "research-task-system",
-  "version": "7.0.0+codex.20260823025343",
-  "description": "Shared-context research workflows with MATLAB-first computation, fingerprinted lifecycle state, validated evidence, and researcher-reviewed SciencePlots figures.",
+  "version": "7.0.0+codex.20260829052344",
+  "description": "Shared-context research workflows with MATLAB-first computation, validated evidence, and journal-profiled SciencePlots figures.",
   "author": {
     "name": "Zheng Li"
   },
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "Research Task System",
     "shortDescription": "Run validated MATLAB-first research workflows",
-    "longDescription": "Author and revise current-action TODOs, execute MATLAB-first work/right/fast stages in one shared context, validate aggregate evidence, prepare resumable long-run scripts, and produce researcher-reviewed figures from separate SciencePlots Python scripts.",
+    "longDescription": "Author current-action TODOs, execute MATLAB-first work/right/fast stages, validate evidence, prepare resumable long runs, and apply journal profiles after complete SciencePlots rendering.",
     "developerName": "Research Task System",
     "category": "Productivity",
     "capabilities": [
@@ -31,9 +31,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use Research Task System to author current-action-only TODO specifications from this research material.",
-      "Use Research Task System to initialize todo_ready, resolve bounded project and data questions, and present every eligible rule including self.",
-      "Use Research Task System to execute the recorded state with MATLAB-first computation, representative performance benchmarks, validated aggregates, and separate SciencePlots Python figure scripts."
+      "Use $research-task-router to turn this research material into an executable TODO with scientific decisions made explicit.",
+      "Use $research-task-router to assess this TODO's readiness and recommend an eligible starting path.",
+      "Use $research-task-router to carry the recorded stage to its decision boundary with traceable implementation, statistical, and figure evidence."
     ]
   }
 }

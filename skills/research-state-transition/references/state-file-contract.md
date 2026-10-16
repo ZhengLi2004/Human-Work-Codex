@@ -10,6 +10,10 @@ Hash the complete TODO bytes with SHA-256. Store the current state-machine `rule
 
 Rule-set migration preserves the prior state and evidence unless that state no longer exists. Version 6 maps the removed `exploration` state to `todo_ready`, records the migration, and retains valid probe references.
 
+Version 7 preserves all states and execution artifacts and adds statistical evidence to four existing predicates. Apply migrations in source-to-target version order (5 to 6 to 7 when needed), independent of their list order. In one atomic update, increment task-state revision, store the new rule-set version, record the migration in history, and invalidate the pending review, eligible paths, and recommendation. Clear each `invalidate_predicate_results` entry to `unknown` in current execution evidence; retain its historical evidence for re-evaluation. At an executable boundary, recompute affected predicates and all outgoing rules before accepting a decision. Historical approvals and terminal states stay recorded; migration neither reopens a terminal task nor retroactively certifies its statistics. The TODO and fingerprint change only through their existing revision procedure.
+
+Version 8 uses the same atomic migration procedure for its listed predicates, preserving evidence and terminal states. Re-evaluate problem/metric alignment, framework-validation readiness, and figure-audit evidence; do not fabricate retrospective design approval or visual inspection. Apply the full migration chain to the current rule-set version.
+
 Before governed figures are presented, an approved scientific change can synchronize in place. After the presentation milestone, a scientific change creates a new versioned TODO based on the current implementation. Path-only changes remain in place.
 
 ## Status

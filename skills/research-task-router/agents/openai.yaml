@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Task Router"
   short_description: "Route TODO and lifecycle state workflows"
-  default_prompt: "Use $research-task-router to resolve the TODO and state, then route only the required Skills."
+  default_prompt: "Use $research-task-router to resolve the task and carry its authorized stage to a reviewable decision boundary."
 
 policy:
   allow_implicit_invocation: true

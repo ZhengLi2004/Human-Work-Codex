@@ -7,17 +7,15 @@ description: Test a bounded set of component contributions or failure explanatio
 
 Distinguish only the approved candidate explanations while changing the target factor and holding controls fixed.
 
-## Workflow
+## Stage outcome
 
-1. State each candidate and the observation that would strengthen or weaken it.
-2. Design the smallest discriminating intervention and verify that only the intended factor changes.
-3. Use computing, testing, batch, and aggregation Skills only where the design needs them.
-4. Preserve null, contradictory, failed, and unresolved outcomes; stop at the approved design boundary.
-5. Record artifacts and predicates with evidence, then use `$research-state-transition` to prepare every outgoing rule.
+Connect each approved candidate to an observation that would distinguish it. Implement the smallest approved intervention that can resolve the question, keeping the controls comparable. Propose a scientific revision if the existing design cannot discriminate the candidates.
+
+Use computing, testing, batch, aggregation, and statistical Skills only as the design requires. Preserve null, contradictory, failed, and unresolved outcomes. At the approved design boundary, record evidence and predicates and prepare every outgoing rule through `$research-state-transition`.
 
 ## Output
 
-Return candidates, interventions, commands, observed facts, unresolved explanations, artifacts, and predicate evidence.
+Link the intervention and result evidence, explain which candidates remain distinguishable or unresolved, and present the prepared lifecycle decision.
 
 ## Guardrails
 

@@ -5,15 +5,13 @@ description: Assess the information value of a next research action after the hu
 
 # Post-Report Assessment
 
-Use the TODO and complete results as facts and the human report as interpretation. Read the task state/history, tables, figures, report, and relevant neighboring work.
+Use the TODO and complete results as facts and the human report as interpretation. Read the task state/history, tables, report, and relevant neighboring work; inspect figure thumbnails only when needed.
 
-## Workflow
+## Assessment
 
-1. Verify the report's factual premises against complete tables, not selected figures.
-2. Identify the uncertainty controlling the next decision.
-3. Compare continuation, targeted evidence, redesign, stopping, and a separate TODO by expected information gain, cost, implementation risk, and overlap.
-4. Recommend one option and its smallest useful scope; include an alternative only when it materially changes the tradeoff.
-5. Request approval before authoring or executing another TODO.
+Verify the report's factual premises against complete tables and identify the uncertainty controlling the next decision. Review problem relevance, metric alignment, and framework adequacy before parameter choices. Compare plausible continuation, targeted evidence, redesign, stopping, or a new TODO by information gained, cost, implementation risk, and overlap. Recommend one option at its smallest useful scope; include an alternative when it changes the tradeoff materially.
+
+Authoring or executing another TODO requires the researcher's explicit decision. Use an existing applicable approval rather than asking for it again.
 
 Keep `completed` and `stopped` terminal. Preserve the human's interpretation, use established terminology, and do not create a second report or select favorable evidence.
 

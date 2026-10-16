@@ -21,9 +21,10 @@ Resolve `TODO_###/TODO.md`, sibling task state, current instruction, and fingerp
 | `figure_review` | `$research-figure-production` Planning, then `$human-research-review-gate` |
 | `figure_production` | `$research-figure-production` Final |
 | Aggregate results | `$research-evidence-aggregation` |
+| Statistical design, uncertainty, or inference within a stage | `$research-statistical-analysis` |
 | Assess a human report | `$post-report-assessment` |
 
-Add capability Skills only when the selected stage needs them.
+Load only the stage and capability Skills needed for the work. Resolve routine implementation choices and continue to the authorized boundary; seek a researcher decision when scientific meaning or lifecycle authority is missing. A capability invocation does not change `current.state`.
 
 ## `todo_ready`
 
@@ -37,4 +38,4 @@ Resolve project mappings, data meaning, and feasibility from valid evidence or t
 
 ## Output
 
-Return paths, fingerprint/revision, state, selected Skills in call order, blockers, route, and next action.
+Record routing identity and evidence in task state. Tell the researcher which stage was handled, the material outcome or blocker, and the next action; expose detailed fingerprints and routing only when needed to review a decision.

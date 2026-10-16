@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Agile Testing"
   short_description: "Design risk-driven scientific tests"
-  default_prompt: "Use $research-agile-testing to select and run the minimum risk-driven tests for this change."
+  default_prompt: "Use $research-agile-testing to verify the material scientific and engineering risks of this change with focused evidence."
 
 policy:
   allow_implicit_invocation: false

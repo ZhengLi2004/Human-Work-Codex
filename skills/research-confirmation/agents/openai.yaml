@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Confirmation"
   short_description: "Run the frozen formal state"
-  default_prompt: "Use $research-confirmation to execute the frozen Confirmation manifest."
+  default_prompt: "Use $research-confirmation to execute the frozen design and deliver complete validated evidence regardless of result direction."
 
 policy:
   allow_implicit_invocation: false

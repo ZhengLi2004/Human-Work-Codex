@@ -1,7 +1,7 @@
 interface:
   display_name: "Research State Transition"
   short_description: "Prepare and execute lifecycle decisions"
-  default_prompt: "Use $research-state-transition to initialize, synchronize, prepare, or execute a lifecycle decision."
+  default_prompt: "Use $research-state-transition to prepare or apply the authorized lifecycle operation with verified identity and atomic evidence updates."
 
 policy:
   allow_implicit_invocation: false

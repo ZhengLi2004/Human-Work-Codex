@@ -1,4 +1,4 @@
-schema_version: 11
+schema_version: 14
 name: research-task-system-policy
 
 routing:
@@ -139,7 +139,7 @@ resources:
   optimization_must_preserve_scientific_semantics: true
 
 long_running_jobs:
-  user_handoff_when_estimated_minimum_runtime_exceeds_minutes: 60
+  user_handoff_when_estimated_minimum_runtime_exceeds_minutes: 180
   codex_launch_forbidden_after_handoff_threshold: true
   require_representative_preflight: true
   require_batching_when_multiple_units: true
@@ -149,7 +149,8 @@ long_running_jobs:
   require_reproducible_script_or_command: true
 
 experiments:
-  default_repeats_when_random_and_unspecified: 3
+  engineering_preflight_default_repeats: 3
+  scientific_repeats_require_todo_definition: true
   preserve_failed_missing_and_incomplete_runs: true
   aggregate_over_independent_repeats: true
   condition_merged_table_required: true
@@ -158,6 +159,18 @@ experiments:
     measurable_selection_criterion_required: true
     sensitivity_exploration_required: true
     sensitivity_figure_required: true
+
+statistics:
+  capability_skill: research-statistical-analysis
+  source_reference: skills/research-statistical-analysis/references/cns-statistical-reporting.md
+  evidence_contract: skills/research-statistical-analysis/references/statistical-evidence-contract.md
+  scientific_design_authority: todo_with_researcher_approval
+  confirmation_analysis_frozen: true
+  inference_requires_design_and_sample_size_rationale: true
+  engineering_repeat_default_is_not_sample_size_justification: true
+  validation_integrated_into: aggregation-validation.json
+  descriptive_or_deterministic_work_requires_applicability_reason_not_tests: true
+  current_target_journal_requirements_checked_for_submission: true
 
 analysis_validation:
   controlling_source_order:
@@ -185,6 +198,10 @@ analysis_validation:
     - incomplete_comparison_windows
     - selection_bias
     - outlier_influence
+    - statistical_unit_and_analysis_sample_counts
+    - dependence_assumptions_and_frozen_analysis
+    - effect_interval_and_multiplicity_validity
+    - statistical_reporting_traceability
 
   mechanically_running_irrelevant_checks_forbidden: true
   blocking_findings_prevent_publication: true
@@ -207,6 +224,10 @@ figures:
   final_script_validation_belongs_in_integrity_audit: true
   required_plot_style_package: SciencePlots
   required_plot_style_base: science
+  publication_style_after_complete_semantic_render: true
+  publication_style_may_not_change_scientific_semantics: true
+  target_journal_current_official_guidance_overrides_snapshot: true
+  seaborn_convenience_interfaces_preferred_when_applicable: true
 
   default_plot_style_stack:
     - science
@@ -240,6 +261,8 @@ figures:
     - data_quality_results
     - figure_data_sufficiency
     - style_stack
+    - publication_profile
+    - post_render_style_audit
 
   allowed_complete_source_classes:
     - raw_computation_results
@@ -253,6 +276,9 @@ figures:
   generalized_diagrams_labeled_schematic: true
   generalized_diagrams_cannot_replace_data_figures: true
   final_integrity_audit_required: true
+  visual_inspection: only_when_needed
+  visual_inspection_input: thumbnail_only
+  full_resolution_exports_preserved: true
   plotting_script_directory_pattern: "{todo_id}/exp/figures"
   figure_artifact_directory_pattern: "{todo_id}/data/figures"
   additional_markdown_handoff_forbidden: true

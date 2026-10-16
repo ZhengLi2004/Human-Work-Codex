@@ -17,25 +17,18 @@ Put maintainable method/framework code in optional `code/`, task-local experimen
 
 ## Work
 
-1. Extract invariants, precision, shapes, task units, environment constraints, and the `code/` versus `exp/` boundary.
-2. Build one realistic end-to-end slice with stable interfaces, bulk output, and recovery boundaries.
-3. Validate environment, schema, stable IDs, and publication; label placeholder kernels as scaffolding.
+Establish a realistic runnable path through the environment, interfaces, scientific units, and bulk storage. Validate its schema, stable IDs, and publication/recovery boundaries. Clearly identify any placeholder kernel so scaffold success is not mistaken for scientific correctness.
 
 ## Right
 
-1. Implement the TODO's formulas, controls, units, randomness, metrics, and failure rules.
-2. Retain an audited small reference using the strongest available oracle.
-3. Run risk-matched tests and one representative combination/repeat end to end.
+Implement the approved scientific specification and retain an independent oracle or audited small case. Choose focused checks for the formulas, controls, units, randomness, and failure behavior that could alter the conclusion, plus a representative end-to-end path. Use `$research-statistical-analysis` for statistical estimators and uncertainty.
 
 ## Fast
 
-1. Profile representative medium-scale data where fixed costs do not dominate; record those costs.
-2. Check a larger scale when scaling can change the chosen optimization.
-3. Follow the optimization ladder in `references/python-matlab-guide.md` for the measured bottleneck.
-4. Retain a change only after end-to-end improvement and equivalence testing.
+Profile representative medium-scale work and quantify fixed costs. Choose optimizations for the measured bottleneck using `references/python-matlab-guide.md`; its options are not a mandatory ladder. Check a larger scale when batch behavior can change the conclusion. Retain changes supported by end-to-end improvement and numerical/scientific equivalence.
 
 Use the buffered-output assets only when their structure fits the task.
 
 ## Output
 
-Return the language decision, dependencies, changed files, correctness and equivalence evidence, profiles, retained optimizations, storage choices, and remaining risks.
+Record implementation, environment, storage, correctness, and performance evidence in the task artifacts. Summarize the changes, validation, material limitations, and any decision needed.

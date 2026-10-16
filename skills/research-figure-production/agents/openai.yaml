@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Figure Production"
-  short_description: "Build and validate reproducible research figures"
-  default_prompt: "Use $research-figure-production to curate data and render or audit complete SciencePlots figures for the current figure state."
+  short_description: "Build journal-ready scientific figures"
+  default_prompt: "Use $research-figure-production to deliver the current stage's figures with clear scientific comparisons, faithful journal presentation, and integrity evidence."
 
 policy:
   allow_implicit_invocation: false

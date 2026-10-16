@@ -288,7 +288,7 @@ def save_figure(
             raise ValueError(f"Invalid output format: {format_name!r}")
 
         target = stem.parent / f"{stem.name}.{normalized}"
-        kwargs: dict[str, Any] = {"bbox_inches": "tight"}
+        kwargs: dict[str, Any] = {}
 
         if normalized in {"png", "jpg", "jpeg", "tif", "tiff"}:
             kwargs["dpi"] = raster_dpi

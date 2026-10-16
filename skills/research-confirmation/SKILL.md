@@ -7,20 +7,17 @@ description: Execute the frozen complete Confirmation specification when `curren
 
 Require a matching TODO fingerprint, frozen specification and configuration, approved parameters, applicable sensitivity evidence, passing material tests, and usable storage.
 
-## Workflow
+## Stage outcome
 
-1. Compare the frozen configuration with the TODO and generate the complete manifest.
-2. Run material regression and boundary tests, then complete one formal combination/repeat as preflight.
-3. Execute or ingest the frozen manifest through `$research-batch-execution`; runs over one hour follow its researcher handoff.
-4. Use `$research-evidence-aggregation` to reconcile all states and produce complete validated tables.
-5. Preserve supporting, limiting, contradictory, negative, and anomalous facts.
-6. Record predicates and prepare every outgoing rule.
+Execute the complete frozen manifest and preserve the evidence regardless of result direction. Before execution, reconcile configuration with the TODO, including the approved statistical design through `$research-statistical-analysis`. Reuse still-valid regression evidence, check affected boundaries, and verify one formal combination/repeat as preflight. Retain that unit's identity so resuming does not count it twice.
+
+Use `$research-batch-execution` to execute or ingest the manifest, observing its three-hour handoff boundary. Use `$research-evidence-aggregation` to account for every planned unit and validate the complete tables, including applicable statistical checks. Record supporting and limiting facts, predicates, and all outgoing rules.
 
 A documented implementation error, corruption, frozen-spec violation, or incomplete run may invalidate affected artifacts. Record the reason and stable IDs, repair in place, add regression protection, and rerun the frozen specification. Result direction is not an invalidation criterion.
 
 ## Output
 
-Return the frozen specification, command, reconciliation, data/table paths, supporting and limiting facts, invalidations, and predicates.
+Link the frozen specification, execution and reconciliation evidence, tables, and any invalidations. Explain what the evidence supports and the next eligible decision.
 
 ## Guardrails
 

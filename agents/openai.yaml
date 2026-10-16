@@ -1,4 +1,4 @@
 interface:
   display_name: "Research Task System"
   short_description: "Run validated MATLAB-first research workflows"
-  default_prompt: "Use $research-task-router to resolve the TODO and recorded state, then perform only the required stage and decision."
+  default_prompt: "Use $research-task-router to carry the approved research stage to its decision boundary, resolving routine engineering choices and preserving traceable scientific evidence."

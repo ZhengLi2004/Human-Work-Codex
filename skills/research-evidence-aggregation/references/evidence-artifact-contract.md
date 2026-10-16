@@ -35,6 +35,12 @@ Joins all condition-level metrics and controls needed for downstream curation an
 
 A logical table may be a partitioned dataset composed of multiple physical files.
 
+## Statistical evidence
+
+For inferential or uncertainty results, apply the [statistical evidence contract](../../research-statistical-analysis/references/statistical-evidence-contract.md). Preserve exact per-analysis sample counts and independent-unit meaning alongside operational coverage. Produce comparisons or coefficients at their own declared grain when they cannot fit the condition table without loss or join expansion. Reference every planned analysis and its status, including undefined estimates.
+
+Integrate applicable statistical checks into `aggregation-validation.json`. The bundled MATLAB helper validates structural relationships only; its result is an input to the executor's final validation, not a certification of statistical validity. Preserve its checks and recompute top-level `passed` after the statistical audit.
+
 ## I/O requirements
 
 - Write tables in bulk, normally as Parquet datasets.

@@ -1,7 +1,7 @@
 interface:
   display_name: "Research Computing Implementation"
   short_description: "Implement MATLAB-first scientific computation"
-  default_prompt: "Use $research-computing-implementation for MATLAB-first Work-Right-Fast implementation."
+  default_prompt: "Use $research-computing-implementation to implement the approved scientific method and justify material numerical or performance choices."
 
 policy:
   allow_implicit_invocation: false

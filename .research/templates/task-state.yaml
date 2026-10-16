@@ -2,7 +2,7 @@ schema_version: 4
 todo_id: TODO_001
 todo_path: TODO_001/TODO.md
 state_machine: .research/workflow/state-machine.yaml
-state_machine_rule_set_version: 6
+state_machine_rule_set_version: 8
 revision: 0
 
 todo_fingerprint:

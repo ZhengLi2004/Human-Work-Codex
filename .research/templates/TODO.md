@@ -7,14 +7,22 @@
 ## 1. Research Definition
 
 - Source material: [path, version, and section]
-- Research question: [exact question]
+- Research question: [main unexplained phenomenon and tractable core; scope deliberately deferred]
 - Pre-specified hypothesis: [hypothesis or `None`]
 - Scope: [project, dataset, method, and experimental object]
 - Dependencies: [TODO_### identifiers or `None`]
 
 ## 2. Method and Mathematical Specification
 
-### 2.1 Project-object mapping
+### 2.1 Problem, metrics, and framework
+
+- Primary criteria: [minimal metrics tied to the core phenomenon; success criterion and essential tradeoffs]
+- Guardrails: [secondary measures, justified acceptable bounds, and response to violations; not ranking objectives within bounds]
+- Framework: [model assumptions and derivation explaining how it addresses the core problem]
+- Validation before refinement: [relevant baselines, comparable conditions, minimal justified settings, and evidence needed before substantial tuning]
+- Reconsideration rule: [evidence warranting framework revision rather than further tuning, after checking implementation correctness]
+
+### Project-object mapping
 
 [Map research objects, inputs, outputs, controls, and evaluation targets to repository modules and data.]
 
@@ -57,15 +65,30 @@ Do not state an experimentally selected value as fixed until complete evidence e
 
 ### 2.6 Metrics, repeats, and statistical question
 
-| Metric | Research meaning | Definition or source | Repeats per combination |
+| Metric and role | Research meaning | Definition or source | Repeats per combination |
 |---|---|---|---|
-| [metric] | [question answered] | [one-line formula, direction, or source] | [number or rule] |
+| [metric; primary / guardrail] | [question answered] | [one-line formula, direction, or source] | [number or rule] |
 
 - Complete planned combinations: [Cartesian product or explicit list]
 - Independent repeat mechanism: [seed, initialization, independent sample, or other]
 - Aggregation level: [within-repeat calculation and across-repeat summary]
-- Primary comparison or statistical test: [null hypothesis, effect size, interval, or decision rule]
+- Primary comparison or estimand: [quantity, target population, contrast, and scientific interpretation of its units]
 - Failure, missingness, invalidation, and exclusion rules: [predefined rules]
+
+Statistical design, where relevant (retain applicable fields and briefly explain when inference is outside scope):
+
+- Analysis role: [primary confirmatory / secondary / exploratory / descriptive]
+- Sample size per condition and rationale: [power/precision inputs, prior evidence, or fixed available sample and limitations; distinguish technical from independent repeats]
+- Allocation and blinding: [procedures and stages, or explicit explanation of what was not performed]
+- Dependence: [repeated measures, nesting, clusters, pairing, and the unit used for estimation/resampling]
+- Estimation and uncertainty: [estimator, effect-size definition, spread versus uncertainty, interval type/level/method]
+- Inferential method, if used: [model/test, hypothesis, covariates, assumptions, diagnostics, and preapproved fallback]
+- Testing decisions, if used: [sidedness and rationale, alpha, comparison family, multiplicity correction or justified absence]
+- Bayesian/resampling details, if used: [priors and computation/diagnostics, or resampling scheme and settings]
+- Stopping and analysis freeze: [collection/stopping rule, separation from Pilot, and definitions fixed before Confirmation]
+- Reporting evidence: [exact n and its unit, estimates/intervals, applicable statistics/df/P or posterior results, software and caption mapping]
+
+Do not substitute engineering repeat defaults for a scientific sample-size rationale. Unapproved scientific choices remain unresolved proposals.
 
 ### 2.7 Fixed decisions and approved flexibility
 

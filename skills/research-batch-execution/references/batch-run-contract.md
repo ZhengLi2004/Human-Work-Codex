@@ -53,4 +53,4 @@ Measure records and bytes per flush, serialization/write time, file count, peak 
 
 ## Long-run boundary
 
-When estimated minimum runtime exceeds one hour, Codex prepares and validates the resumable script or command, batching, checkpoints, progress, logs, resource profile, and result paths, then hands it to the researcher for execution.
+When estimated minimum runtime exceeds three hours, Codex prepares and validates the resumable script or command, batching, checkpoints, progress, logs, resource profile, and result paths, then hands it to the researcher for execution.

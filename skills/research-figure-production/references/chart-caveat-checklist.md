@@ -22,11 +22,11 @@ During Planning mode:
 
 During Final mode:
 
-1. Re-evaluate triggers against the rendered final figure, not only the plotting code.
+1. Re-evaluate triggers against produced data and renderer/export evidence; inspect thumbnails only when needed to resolve a visual question.
 2. Record `pass`, `fail`, or `not_applicable`, with evidence and a short reason.
 3. Record `fail` when a triggered check was not performed or has no evidence; a final audit must fail for `unknown`, `pending`, or an empty evidence field.
 4. Treat an integrity failure as `figure_integrity_audit_passed: false`.
-5. Treat a readability failure as revision-required unless the intended-size inspection demonstrates that the design remains unambiguous.
+5. Treat a readability failure as revision-required unless renderer evidence or necessary thumbnail inspection resolves it; retain limits that thumbnails cannot establish.
 6. Preserve applicable data. A decluttering technique must not become an unapproved filter.
 
 ## Data, summaries, and uncertainty
@@ -50,7 +50,7 @@ During Final mode:
 | DTV-C18 | Marker size encodes a quantitative value | Make marker area proportional to the value, reject negative inputs, and show a size legend with reference values. | Integrity | [Bubble area](https://www.data-to-viz.com/caveat/radius_or_area.html) |
 | DTV-C20 | Circular bars are retained | Use a sufficiently large inner radius, repeat readable reference ticks, and verify that bar geometry still supports comparison. Prefer Cartesian alternatives. | Integrity | [Circular-bar distortion](https://www.data-to-viz.com/caveat/circular_bar_yaxis.html) |
 | DTV-C21 | 3D bars, pies, scatter, or surfaces | Reject 3D bars and pies. Prefer 2D facets for scatter; use interactive 3D or a surface only when the third spatial dimension is essential and occlusion can be examined. | Integrity | [3D](https://www.data-to-viz.com/caveat/3d.html) |
-| DTV-C22 | Line slope, geometric shape, or dense panel is sensitive to width/height | Inspect the intended output size and a reasonable aspect-ratio alternative. Avoid ratios that flatten, steepen, or hide patterns. | Integrity | [Aspect ratio](https://www.data-to-viz.com/caveat/aspect_ratio.html) |
+| DTV-C22 | Line slope, geometric shape, or dense panel is sensitive to width/height | Check output geometry and a reasonable aspect-ratio alternative; inspect thumbnails only if needed. Avoid ratios that flatten, steepen, or hide patterns. | Integrity | [Aspect ratio](https://www.data-to-viz.com/caveat/aspect_ratio.html) |
 | DTV-C23 | Bars, areas, or flows are stacked | Verify that the question concerns totals or composition. Provide a common-baseline alternative when individual groups must be compared; record stack order. | Integrity | [Stacking](https://www.data-to-viz.com/caveat/stacking.html) |
 | DTV-C24 | Reader must subtract, sum, or compare displaced shapes to recover the intended quantity | Plot the derived comparison directly or add aligned labels/panels; do not require repeated mental arithmetic. | Readability | [Mental arithmetic](https://www.data-to-viz.com/caveat/mental_calculation.html) |
 | DTV-C25 | Area represents a quantitative value | Prefer position or length for precise comparison. If area is necessary, state that it supports approximate magnitude and supply labels or a companion table. | Integrity | [Area perception](https://www.data-to-viz.com/caveat/area_hard.html) |
